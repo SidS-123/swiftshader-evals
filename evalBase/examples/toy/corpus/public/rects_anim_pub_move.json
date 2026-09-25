@@ -1,0 +1,135 @@
+{
+ "version": 1,
+ "name": "rects_anim_pub_move",
+ "family": "rects_anim",
+ "category": "replay",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "canvas",
+   "width": 64,
+   "height": 64,
+   "background": 0.15,
+   "seed": 21
+  },
+  {
+   "op": "rect",
+   "id": "r0",
+   "x": 0.14020705,
+   "y": 0.58630186,
+   "w": 0.35399997,
+   "h": 0.2916402,
+   "value": 0.45121005
+  },
+  {
+   "op": "rect",
+   "id": "r1",
+   "x": 0.67373836,
+   "y": 0.68667614,
+   "w": 0.30498248,
+   "h": 0.30203366,
+   "value": 0.46523947
+  },
+  {
+   "op": "rect",
+   "id": "r2",
+   "x": 0.002703536,
+   "y": 0.3153897,
+   "w": 0.334145,
+   "h": 0.1277059,
+   "value": 0.8556257
+  },
+  {
+   "op": "rect",
+   "id": "r3",
+   "x": 0.19741482,
+   "y": 0.19779071,
+   "w": 0.116934165,
+   "h": 0.49902448,
+   "value": 0.81708145
+  },
+  {
+   "op": "rect",
+   "id": "r4",
+   "x": 0.7437836,
+   "y": 0.5235066,
+   "w": 0.11362802,
+   "h": 0.23157173,
+   "value": 0.64828664
+  },
+  {
+   "op": "draw",
+   "samples": 6
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000"
+  },
+  {
+   "op": "set",
+   "id": "r0",
+   "key": "value",
+   "value": 0.9663749
+  },
+  {
+   "op": "draw",
+   "samples": 6
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001"
+  },
+  {
+   "op": "set",
+   "id": "r1",
+   "key": "value",
+   "value": 0.87225664
+  },
+  {
+   "op": "remove",
+   "id": "r0"
+  },
+  {
+   "op": "draw",
+   "samples": 6
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_002"
+  },
+  {
+   "op": "set",
+   "id": "r3",
+   "key": "x",
+   "value": 0.46920243
+  },
+  {
+   "op": "draw",
+   "samples": 6
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_003"
+  },
+  {
+   "op": "set",
+   "id": "r3",
+   "key": "x",
+   "value": 0.15887246
+  },
+  {
+   "op": "remove",
+   "id": "r1"
+  },
+  {
+   "op": "draw",
+   "samples": 6
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_004"
+  }
+ ]
+}

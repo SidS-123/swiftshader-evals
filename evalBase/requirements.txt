@@ -1,0 +1,5 @@
+# The whole third-party Python surface, pinned. numpy's version is load-bearing
+# for a corpus whose asset names are content hashes (see NEW_EVAL.md,
+# "Determinism"); pytest is for the test suite only.
+numpy==1.26.4
+pytest==7.4.4

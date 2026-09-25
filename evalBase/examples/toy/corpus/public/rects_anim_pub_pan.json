@@ -1,0 +1,113 @@
+{
+ "version": 1,
+ "name": "rects_anim_pub_pan",
+ "family": "rects_anim",
+ "category": "replay",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "canvas",
+   "width": 48,
+   "height": 48,
+   "background": 0.05,
+   "seed": 22
+  },
+  {
+   "op": "rect",
+   "id": "r0",
+   "x": 0.814478,
+   "y": 0.1193133,
+   "w": 0.10944646,
+   "h": 0.49945226,
+   "value": 0.42897755
+  },
+  {
+   "op": "rect",
+   "id": "r1",
+   "x": 0.102503255,
+   "y": 0.5537081,
+   "w": 0.23825793,
+   "h": 0.45582038,
+   "value": 0.46221903
+  },
+  {
+   "op": "rect",
+   "id": "r2",
+   "x": 0.8155623,
+   "y": 0.27153406,
+   "w": 0.3404569,
+   "h": 0.47283503,
+   "value": 0.7796823
+  },
+  {
+   "op": "rect",
+   "id": "r3",
+   "x": 0.78527176,
+   "y": 0.6018977,
+   "w": 0.11937613,
+   "h": 0.45254695,
+   "value": 0.71268904
+  },
+  {
+   "op": "draw",
+   "samples": 8
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000"
+  },
+  {
+   "op": "set",
+   "id": "camera",
+   "key": "offset",
+   "value": [
+    0.03,
+    -0.02
+   ]
+  },
+  {
+   "op": "draw",
+   "samples": 8
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001"
+  },
+  {
+   "op": "set",
+   "id": "camera",
+   "key": "offset",
+   "value": [
+    0.06,
+    -0.04
+   ]
+  },
+  {
+   "op": "draw",
+   "samples": 8
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_002"
+  },
+  {
+   "op": "set",
+   "id": "camera",
+   "key": "offset",
+   "value": [
+    0.09,
+    -0.06
+   ]
+  },
+  {
+   "op": "draw",
+   "samples": 8
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_003"
+  }
+ ]
+}

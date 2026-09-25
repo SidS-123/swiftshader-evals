@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+runs/
+corpus/hidden/
+corpus/assets/*.bin
+site/

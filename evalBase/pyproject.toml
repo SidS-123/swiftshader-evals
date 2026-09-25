@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evalbase"
+version = "0.1.0"
+description = "The reusable core of a lab-ready coding-model evaluation: driver replay, oracle-scored grading, controls, hidden split, sandboxed agent harness, numbers of record."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26,<2"]
+
+[project.optional-dependencies]
+test = ["pytest>=7.4"]
+
+[tool.setuptools.packages.find]
+include = ["evalbase*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: minutes, not seconds -- runs only when EVALBASE_SLOW=1 is set",
+           "docker: needs a working Docker daemon; skipped when EVALBASE_NO_DOCKER=1 or docker is absent"]

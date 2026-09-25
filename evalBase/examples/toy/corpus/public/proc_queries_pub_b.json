@@ -1,0 +1,99 @@
+{
+ "version": 1,
+ "name": "proc_queries_pub_b",
+ "family": "proc_queries",
+ "category": "procedural",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "canvas",
+   "width": 32,
+   "height": 32,
+   "background": 0.0,
+   "seed": 32
+  },
+  {
+   "op": "rect",
+   "id": "r0",
+   "x": 0.06580852,
+   "y": 0.18157427,
+   "w": 0.22125134,
+   "h": 0.46008548,
+   "value": 0.6473767
+  },
+  {
+   "op": "rect",
+   "id": "r1",
+   "x": 0.6122045,
+   "y": 0.085200064,
+   "w": 0.30357084,
+   "h": 0.4372292,
+   "value": 0.66595954
+  },
+  {
+   "op": "rect",
+   "id": "r2",
+   "x": 0.8029956,
+   "y": 0.74953014,
+   "w": 0.24838427,
+   "h": 0.10029844,
+   "value": 0.828687
+  },
+  {
+   "op": "query",
+   "what": "bounds",
+   "name": "bounds_0"
+  },
+  {
+   "op": "query",
+   "what": "coverage",
+   "name": "coverage_0"
+  },
+  {
+   "op": "query",
+   "what": "mean",
+   "name": "mean_0"
+  },
+  {
+   "op": "draw",
+   "samples": 8
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000"
+  },
+  {
+   "op": "set",
+   "id": "camera",
+   "key": "offset",
+   "value": [
+    0.05,
+    0.0
+   ]
+  },
+  {
+   "op": "query",
+   "what": "bounds",
+   "name": "bounds_1"
+  },
+  {
+   "op": "remove",
+   "id": "r0"
+  },
+  {
+   "op": "query",
+   "what": "coverage",
+   "name": "coverage_1"
+  },
+  {
+   "op": "draw",
+   "samples": 8
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001"
+  }
+ ]
+}

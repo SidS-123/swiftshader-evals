@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+runs/
+site/
+*.egg-info/
+build/
+dist/
+.DS_Store
+# instance outputs that are generated, never committed
+examples/toy/corpus/hidden/
+examples/toy/corpus/assets/
+examples/toy/runs/
+template/corpus/hidden/
+template/corpus/assets/

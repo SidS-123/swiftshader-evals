@@ -1,0 +1,134 @@
+{
+ "version": 1,
+ "name": "proc_queries_pub_a",
+ "family": "proc_queries",
+ "category": "procedural",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "canvas",
+   "width": 48,
+   "height": 48,
+   "background": 0.2,
+   "seed": 31
+  },
+  {
+   "op": "rect",
+   "id": "r0",
+   "x": 0.010436511,
+   "y": 0.09553903,
+   "w": 0.25713494,
+   "h": 0.3735457,
+   "value": 0.39708364
+  },
+  {
+   "op": "rect",
+   "id": "r1",
+   "x": 0.09557703,
+   "y": 0.197032,
+   "w": 0.40303698,
+   "h": 0.15896049,
+   "value": 0.8184586
+  },
+  {
+   "op": "rect",
+   "id": "r2",
+   "x": 0.56284165,
+   "y": 0.11609174,
+   "w": 0.31426468,
+   "h": 0.27910036,
+   "value": 0.58879906
+  },
+  {
+   "op": "rect",
+   "id": "r3",
+   "x": 0.8468921,
+   "y": 0.07914468,
+   "w": 0.108146586,
+   "h": 0.47592077,
+   "value": 0.58206207
+  },
+  {
+   "op": "query",
+   "what": "bounds",
+   "name": "bounds_0"
+  },
+  {
+   "op": "query",
+   "what": "coverage",
+   "name": "coverage_0"
+  },
+  {
+   "op": "query",
+   "what": "mean",
+   "name": "mean_0"
+  },
+  {
+   "op": "set",
+   "id": "r0",
+   "key": "w",
+   "value": -0.5
+  },
+  {
+   "op": "set",
+   "id": "nope",
+   "key": "x",
+   "value": 0.1
+  },
+  {
+   "op": "rect",
+   "id": "bad",
+   "x": 0.1,
+   "y": 0.1,
+   "w": 0.2,
+   "h": 0.2,
+   "value": 1.5
+  },
+  {
+   "op": "query",
+   "what": "volume",
+   "name": "unknown_query"
+  },
+  {
+   "op": "draw",
+   "samples": 6
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000"
+  },
+  {
+   "op": "set",
+   "id": "camera",
+   "key": "offset",
+   "value": [
+    0.05,
+    0.0
+   ]
+  },
+  {
+   "op": "query",
+   "what": "bounds",
+   "name": "bounds_1"
+  },
+  {
+   "op": "remove",
+   "id": "r0"
+  },
+  {
+   "op": "query",
+   "what": "coverage",
+   "name": "coverage_1"
+  },
+  {
+   "op": "draw",
+   "samples": 6
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001"
+  }
+ ]
+}
