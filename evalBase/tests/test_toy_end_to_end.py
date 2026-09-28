@@ -127,7 +127,7 @@ def test_a_crashing_candidate_is_recorded_not_raised(world, toy, tmp_path):
     lib = tmp_path / "crash"
     lib.mkdir()
     (lib / "candidate.py").write_text("class Painter:\n    def apply(self, op):\n        raise RuntimeError('boom')\n")
-    case = next(corpus.glob("rects_static*.json"))
+    case = sorted(corpus.glob("rects_static*.json"))[0]   # order-independent (see docs/internal/EVALBASE_CHANGES.md)
     grade = runner.grade_replay(toy, str(case), str(cache), str(world.root / "assets"), str(lib), str(tmp_path / "out"))
     assert grade.score < 1e-5 and grade.detail["exit"] == "crash"      # the Hill tail at D = 1
     assert grade.detail["returncode"] == 1 and grade.detail["signal"] is None
