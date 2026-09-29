@@ -143,3 +143,9 @@ cores, which would make the oracle host-dependent); the `threads` perturbation
 uses 1. SwiftShader fails `vkCreateInstance` with `VK_ERROR_INCOMPATIBLE_DRIVER`
 when `apiVersion` > 1.3 (`libVulkan.cpp`), so every case requests 1.3; whether
 that error is itself graded is decided with `errors_robust` in Stage 7.
+
+**2026-09-29 — D14 confirmed deferred.** Stage 3 found `spirv-fuzz` still
+ships in the pinned SPIRV-Tools (behind `SPIRV_BUILD_FUZZER`, needs
+protobuf), which met D14's condition for inclusion. Metamorphic hidden cases
+stay in v2 anyway: the extra dependency, the validity and determinism gates
+every mutant would need, and the variety the 21 families already give.

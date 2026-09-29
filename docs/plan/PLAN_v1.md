@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| Plan version | **v1.5** (first iteration, "v1") |
+| Plan version | **v1.6** (first iteration, "v1") |
 | Status | **Stage 3 done (2026-09-29)** except determinism (§7 step 4, moved after Stage 4 step 6). Stage 4 next. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
@@ -56,7 +56,7 @@ CHANGELOG and flows through the rest of the plan.
 | D11 | Hidden generator tree | Separate **private** git repo at `../swiftshader-evals-hidden` (sibling of this repo), pushed to a private GitHub remote | evalBase's loader refuses a hidden tree inside the public repo; one disk = unreproducible |
 | D12 | Fairness comparator | Mesa **lavapipe** run on every case and reported, **never** used for tolerance | Tells readers how SwiftShader-specific the score is |
 | D13 | Shader authoring for generated cases | Generators write GLSL; a pinned `glslangValidator` in the reference image compiles it to SPIR-V assets; every module passes `spirv-val` | Fast to write, deterministic when pinned; pure-Python SPIR-V emitter is v2 if needed |
-| D14 | Metamorphic (spirv-fuzz-style) hidden cases | **Deferred to v2** unless Stage 3 shows the tool still ships in pinned SPIRV-Tools | GraphicsFuzz is archived (2025-12-08); availability unverified |
+| D14 | Metamorphic (spirv-fuzz-style) hidden cases | **Deferred to v2** (confirmed by you 2026-09-29, after Stage 3 found `spirv-fuzz` still ships) | Needs a protobuf build; every mutated shader would still have to pass the validity and determinism gates; the 21 families already vary the hidden split |
 
 ---
 
