@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.2** (first iteration, "v1") |
-| Status | **Stage 0 done (2026-09-28).** Stage 1 onward not started. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.3** (first iteration, "v1") |
+| Status | **Stage 1 done (2026-09-28).** D1–D14 approved. Stage 2 next. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -36,7 +36,7 @@ separate evals. Reactor (Variant E) and SWE-style bug-fix tasks (Variant F) are
 
 ---
 
-## 1. Decisions that need your sign-off before Stage 1
+## 1. Decisions (all approved 2026-09-28, as recommended)
 
 Each has a recommendation. Anything you change here gets logged in the
 CHANGELOG and flows through the rest of the plan.
@@ -175,7 +175,7 @@ P/E cores), 31.4 GB RAM, Windows 11 Home, WSL2 Ubuntu running, Docker CLI 29.6.1
 ## 5. Stage 1 — Repo layout and scaffolding
 
 1. `cp -r evalBase/template swiftshader_vk`; rename placeholders (`<eval>` → `ssvk`, `<EVAL>_HIDDEN_GEN` → `SSVK_HIDDEN_GEN`).
-2. Create `../swiftshader-evals-hidden/` with `gen/` and a README; `git init`; create the private GitHub repo (you create it or authorise me to) and push.
+2. Create `../swiftshader-evals-hidden/` with `gen/` and a README; `git init`; push to the private remote `https://github.com/SidS-123/private-repo-swiftshader` (created by you, v1.3).
 3. Set `CorpusSpec(hidden_env="SSVK_HIDDEN_GEN", hidden_default=<repo>/../swiftshader-evals-hidden, forbidden_hidden_roots=(<repo root>,))`.
 4. `.gitignore`: `runs/`, `corpus/hidden/`, `corpus/assets/`, `*.ssnap` outside `corpus/public`, `.venv/`, `.env`.
 5. Docs skeletons from `template/docs/` into `swiftshader_vk/docs/`; add `REQUIREMENTS.md`, `REPLAY_FORMAT.md`, `docs/internal/`.
@@ -559,7 +559,8 @@ Verdict against the skill's calibration rule: **> 0.9 → too small, widen scope
 
 ## 18. What I need from you now
 
-1. Approve or change **D1–D14** (§1).
-2. Confirm the **working-copy move into WSL** (D10) — it changes where files live.
-3. Create (or let me create) the **private GitHub repo** for the hidden generators (D11).
-4. Then I start **Stage 0** and stop at each stage's exit with a status table. Paid runs wait for **G-PAID** (§14).
+Done: D1–D14 approved (2026-09-28); working copy in WSL; private repo
+`SidS-123/private-repo-swiftshader` created and pushed. Each stage ends with a
+commit and a status table, without a stop for approval unless something
+serious comes up. Paid runs still wait for **G-PAID** (§14). Nothing is pushed
+to the public repo's `origin` without your go-ahead.

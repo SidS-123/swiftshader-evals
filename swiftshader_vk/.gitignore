@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+runs/
+corpus/hidden/
+corpus/assets/
+site/
+.env
+# Snapshots are outputs; only committed public cases may carry them.
+*.ssnap
+!corpus/public/**/*.ssnap

@@ -25,3 +25,21 @@ Appended at the end of every stage (PLAN_v1.md §16.5). Internal; stripped on ex
 **Open items:** optional `sudo apt install jq cmake ninja-build build-essential` (you); reopen the project in VS Code at the WSL path; decide D1–D14 remaining (D9 decided; D10 carried out).
 
 **Next stage (1) starts from:** the WSL working copy, the `.venv`, and the template at `evalBase/template/`. It needs the private GitHub repo for hidden generators (D11).
+
+## Stage 1 — Repo layout and scaffolding (2026-09-28)
+
+| Item | State | Evidence |
+|---|---|---|
+| Decisions D1–D14 | Approved as recommended | `swiftshader_vk/docs/DESIGN.md` decision log; CHANGELOG v1.3 |
+| Instance directory | `swiftshader_vk/` copied from `evalBase/template`. Placeholders renamed (`ssvk`, `SSVK_HIDDEN_GEN`, images `ssvk-ref:1` / `ssvk-solver:1`); the example family is renamed to `inst_dev` (a placeholder with no cases) | `grep -rn "<eval>\|<EVAL>\|family_a" swiftshader_vk` finds nothing |
+| Instance import | OK: `name=swiftshader-vk`, `hidden_default=~/swiftshader-evals-hidden`, `forbidden_hidden_roots=(~/swiftshader-evals,)` | `source .envrc && python -c "import swiftshader_vk.instance"` |
+| Generation wiring | `evalbase.corpus.common both` runs the public and hidden generators (0 cases so far) | command output |
+| Leak guard | A hidden tree inside the repo is refused with the `SSVK_HIDDEN_GEN` message | `SSVK_HIDDEN_GEN=swiftshader_vk/gen_leak ... hidden` |
+| Hidden repo | `~/swiftshader-evals-hidden` → `SidS-123/private-repo-swiftshader`; commit `b358e1f` pushed; the anonymous API returns 404 (private) | `git log`, `curl api.github.com/repos/...` |
+| Credentials | WSL git uses the Windows Git Credential Manager, set in the hidden repo only; WSL `gh` is not logged in | `git -C ~/swiftshader-evals-hidden config credential.helper` |
+| Git identity | Both repos set locally to `Sid <sids4623@gmail.com>`. WSL had no identity, so the Stage 0 commit used `sids4@Sid-Laptop.localdomain` | `git config user.email` |
+| Docs | DESIGN.md decision log seeded; `REQUIREMENTS.md` and `REPLAY_FORMAT.md` skeletons; `.gitignore` (runs, hidden, assets, `*.ssnap` outside public, `.env`); `.envrc` | files |
+
+**Open items:** optional `sudo apt install jq cmake ninja-build build-essential`; pushing to the public `origin` waits for your go-ahead.
+
+**Next stage (2) starts from:** the scaffold and the D2 pin. It builds `ssvk-ref` in Docker (SwiftShader LLVM + Subzero, the loader, validation layers, glslang, SPIRV-Tools, lavapipe) and runs SwiftShader's own unit tests inside it.
