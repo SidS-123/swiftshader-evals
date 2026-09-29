@@ -136,3 +136,10 @@ module passes `spirv-val`.
 
 **2026-09-28 — D14 Metamorphic hidden cases.** Deferred to v2 unless Stage 3
 shows that `spirv-fuzz` still ships in the pinned SPIRV-Tools.
+
+**2026-09-29 — Oracle thread count and API version.** The oracle of record
+runs with `SwiftShader.ini` `ThreadCount=4` (the default, 0, means all host
+cores, which would make the oracle host-dependent); the `threads` perturbation
+uses 1. SwiftShader fails `vkCreateInstance` with `VK_ERROR_INCOMPATIBLE_DRIVER`
+when `apiVersion` > 1.3 (`libVulkan.cpp`), so every case requests 1.3; whether
+that error is itself graded is decided with `errors_robust` in Stage 7.

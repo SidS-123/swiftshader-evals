@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.3** (first iteration, "v1") |
-| Status | **Stage 1 done (2026-09-28).** D1–D14 approved. Stage 2 next. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.4** (first iteration, "v1") |
+| Status | **Stage 2 done (2026-09-29).** `ssvk-ref:1` built. Stage 3 next. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -190,6 +190,15 @@ P/E cores), 31.4 GB RAM, Windows 11 Home, WSL2 Ubuntu running, Docker CLI 29.6.1
 
 All builds from source in Docker, base image **pinned by digest**, every
 package pinned by version, all pins in `images/pins.lock`.
+
+**As built (v1.4):** `ubuntu:24.04@sha256:008173c2…`; apt resolves from the
+`snapshot.ubuntu.com` instant `20260928T000000Z` (after an unpinned CA-certificates
+bootstrap), and the resolved package list is written to `/opt/ssvk/PACKAGES` in the image;
+gcc 13.3 (as SwiftShader's own CI); Khronos components at one SDK tag, `vulkan-sdk-1.4.357.0`
+(closest to SwiftShader's headers, 1.4.355); Mesa `26.2.3`, meson 1.9.1. SwiftShader is built
+without XCB/Wayland WSI (D1), and the oracle's `SwiftShader.ini` fixes `ThreadCount=4`
+(`threads` variant: 1). `vulkaninfo` is patched to request at most Vulkan 1.3, because
+SwiftShader fails `vkCreateInstance` for `apiVersion` > 1.3.
 
 1. **Base:** `ubuntu:24.04@sha256:<digest>` (record). Toolchain: clang/gcc pinned, cmake, ninja, python3.12, git.
 2. **SwiftShader** at `1e80438d2b93`, fetched with submodules at pinned commits:

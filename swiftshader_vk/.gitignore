@@ -8,3 +8,4 @@ site/
 # Snapshots are outputs; only committed public cases may carry them.
 *.ssnap
 !corpus/public/**/*.ssnap
+docs/internal/build-logs/

@@ -18,7 +18,7 @@ bit-reproducible versus a property of the host that produced them.
 
 ```sh
 python3 -m pip install -r requirements.txt
-<build the trusted image; record its id>
+swiftshader_vk/images/build_ref.sh           # ssvk-ref:1 from images/pins.lock; prints the image id (~1 h cold, 16 cores)
 <build the solver image>
 export SSVK_HIDDEN_GEN=../swiftshader-evals-hidden           # the private generators; public needs none
 python3 -m evalbase.corpus.common --instance . both

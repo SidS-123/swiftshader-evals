@@ -43,3 +43,24 @@ Appended at the end of every stage (PLAN_v1.md §16.5). Internal; stripped on ex
 **Open items:** optional `sudo apt install jq cmake ninja-build build-essential`; pushing to the public `origin` waits for your go-ahead.
 
 **Next stage (2) starts from:** the scaffold and the D2 pin. It builds `ssvk-ref` in Docker (SwiftShader LLVM + Subzero, the loader, validation layers, glslang, SPIRV-Tools, lavapipe) and runs SwiftShader's own unit tests inside it.
+
+## Stage 2 — Oracle image `ssvk-ref` (2026-09-29)
+
+| Item | State | Evidence |
+|---|---|---|
+| Image | `ssvk-ref:1` = `sha256:483b5f09207f949e058c447f32d97ed65cf0d955577810ae562b737d91c10f18`, 639 MB | `docker image inspect`; `swiftshader_vk/docs/internal/build-logs/` (git-ignored) |
+| Pins | All in `swiftshader_vk/images/pins.lock`: base digest, apt snapshot `20260928T000000Z`, SwiftShader `1e80438d` (+ glslang/googletest submodule commits), `vulkan-sdk-1.4.357.0`, Mesa `26.2.3`, meson 1.9.1, mako/pyyaml/packaging | `/opt/ssvk/VERSIONS`, `/opt/ssvk/PACKAGES` in the image |
+| SwiftShader unit tests, LLVM 10 | Reactor 156, system 25, math 11, vk 139: all passed | `docker run --rm ssvk-ref:1 info` |
+| SwiftShader unit tests, Subzero | Same counts, all passed | same |
+| Loader + ICDs | `vulkaninfo --summary`: "SwiftShader Device (LLVM 10.0.0)", "SwiftShader Device (Subzero)", both apiVersion 1.3.0, driverVersion 5.0.0; lavapipe "llvmpipe (LLVM 18.1.3, 256 bits)", apiVersion 1.4.354 | `docker run --rm ssvk-ref:1 vulkaninfo <llvm\|subzero\|lavapipe> --summary` |
+| Validation layer | `VK_LAYER_KHRONOS_validation` 1.4.357 loads on the SwiftShader instance | `VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation` |
+| Shader tools | glslang 16.4.0; SPIRV-Tools v2026.3 (`spirv-val/dis/as/opt/reduce/link`); no `spirv-fuzz` (needs protobuf, not built) | `glslangValidator --version`, `ls /opt/vk/bin` |
+| Runtime config | `/opt/ssvk/ini/default` ThreadCount=4, `/opt/ssvk/ini/threads1` ThreadCount=1; implicit layers disabled; user `runner` uid 1000 | `images/ini/`, `ref.Dockerfile` |
+| Finding | SwiftShader returns `VK_ERROR_INCOMPATIBLE_DRIVER` for `apiVersion` > 1.3; `vulkaninfo` is patched to request ≤ 1.3 | `src/Vulkan/libVulkan.cpp:576-596`; DESIGN.md log |
+| Build issues fixed | Vulkan-Tools `UPDATE_DEPS` built a WSI loader (off now); `vk-unittests` needs the CI build layout (`<src>/build/Linux`); Mesa needs glslang, libdrm and its Python deps in the meson venv; `ubuntu` user held uid 1000 | CHANGELOG v1.4 |
+| Infra flakiness | WSL DNS drops lookups intermittently; snapshot.ubuntu.com returned 503s for about an hour. Fetches retry, and apt uses `Acquire::Retries` without pipelining in late stages | `images/fetch.sh`, `images/retry.sh` |
+| Entry points | `ssvk info`, `ssvk with <icd> [--ini V] CMD`, `ssvk vulkaninfo <icd>`; `drive*` exits 3 until Stage 4 | `images/ssvk-entry.sh` |
+
+**Open items:** `drive`/`drive-candidate`/`drive-lavapipe` wait for vkreplay (Stage 4), after which the image is rebuilt. D14 (`spirv-fuzz`) is checked in Stage 3.
+
+**Next stage (3) starts from:** `ssvk-ref:1`. It dumps `vulkaninfo --json` for both backends (device profile), breaks down the CTS pass list and checks the open items. The determinism measurement needs a minimal replay driver first (Stage 4, step 6).
