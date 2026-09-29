@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.4** (first iteration, "v1") |
-| Status | **Stage 2 done (2026-09-29).** `ssvk-ref:1` built. Stage 3 next. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.5** (first iteration, "v1") |
+| Status | **Stage 3 done (2026-09-29)** except determinism (§7 step 4, moved after Stage 4 step 6). Stage 4 next. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -234,13 +234,15 @@ This stage answers the research report's open questions with measurements.
 5. **Verify open items** from the report, each with a source or a measurement:
    - Loader env var: `VK_DRIVER_FILES` vs `VK_ICD_FILENAMES` for the pinned loader (plan: set both).
    - `subPixelPrecisionBits` etc. (from step 1).
-   - evalBase's grading build timeout (tools.py uses `docker(..., timeout=900)` by default — confirm the rebuild path uses it; 15 min must be enough for the candidate build on 4 cores).
+   - evalBase's grading build timeout. *Verified v1.5: the clean rebuild uses `build_export(timeout=1800)` (30 min, 4 CPUs, 8 GB), not 900 s; each model shell call is capped at 600 s.*
    - Spec precision values for SPIR-V ops (from the pinned spec's `spirvenv` appendix, quoted).
    - Whether `spirv-fuzz` exists in the pinned SPIRV-Tools (D14).
    - Khronos conformance entry for SwiftShader (for the README only; not load-bearing).
 6. **lavapipe profile** diff vs SwiftShader profile (for the fairness note).
 
 **Exit:** device profile frozen (hash recorded), determinism report, REQUIREMENTS.md draft, every open item marked verified/refuted.
+
+*v1.5:* all done except the determinism report, which needs `vkreplay` and now runs right after Stage 4 step 6, before Stage 4 exits. Findings: `swiftshader_vk/docs/internal/stage3_findings.md`.
 
 ---
 

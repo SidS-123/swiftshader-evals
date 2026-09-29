@@ -64,3 +64,22 @@ Appended at the end of every stage (PLAN_v1.md §16.5). Internal; stripped on ex
 **Open items:** `drive`/`drive-candidate`/`drive-lavapipe` wait for vkreplay (Stage 4), after which the image is rebuilt. D14 (`spirv-fuzz`) is checked in Stage 3.
 
 **Next stage (3) starts from:** `ssvk-ref:1`. It dumps `vulkaninfo --json` for both backends (device profile), breaks down the CTS pass list and checks the open items. The determinism measurement needs a minimal replay driver first (Stage 4, step 6).
+
+## Stage 3 — Oracle characterisation (2026-09-29)
+
+| Item | State | Evidence |
+|---|---|---|
+| Device profile | Frozen: 85 device + 15 instance extensions, 144 formats, 1 queue family, 1 heap/1 memory type; body sha256 `3099331062bec522775e88dca47e1456ce0ae493f14dad6af13ebb6d90158eba`, reproducible | `swiftshader_vk/spec/device_profile.json`; `tools/make_device_profile.py --check` → IDENTICAL |
+| LLVM vs Subzero profile | Identical except deviceName (1,925 values) | `make_device_profile.py` fails if not |
+| CTS breakdown | 416,472 PASS mapped to families, 0 unmapped | `swiftshader_vk/docs/internal/cts_breakdown.md` |
+| REQUIREMENTS.md | Measured facts + exclusions | `swiftshader_vk/docs/REQUIREMENTS.md` |
+| Determinism | **Deferred** to after Stage 4 step 6 (needs vkreplay), as §7.4 allows | `stage3_findings.md` §3.4 |
+| Loader env vars | Both work; `VK_DRIVER_FILES` takes precedence | `stage3_findings.md` §3.5 |
+| Rebuild timeout | 1800 s grading rebuild (plan said 900); 600 s per shell call | `evalBase/evalbase/harness/tools.py:40,784` |
+| Spec precision | Quoted from Vulkan-Docs v1.4.357 | `stage3_findings.md` §3.5 |
+| D14 `spirv-fuzz` | Ships in pinned SPIRV-Tools (not built) | SPIRV-Tools `CMakeLists.txt:81` |
+| lavapipe diff | 80/85 extensions shared; 64/164 features and 87/143 properties differ; same precision bits; subgroup size 8 vs 4 | `stage3_findings.md` §3.6 |
+
+**Open items:** D14 needs a decision now that its condition is met; the determinism report closes in Stage 4.
+
+**Next stage (4) starts from:** the frozen profile and REQUIREMENTS.md. It writes the case format and `vkreplay` (trusted parent / untrusted child), rebuilds `ssvk-ref` with it, hand-writes the ~50-case pilot corpus, and runs the §7.4 determinism measurement.

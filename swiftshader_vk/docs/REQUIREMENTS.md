@@ -41,8 +41,31 @@ coverage and weights are set from Stage 3's CTS pass-list breakdown
 | 20 | `errors_robust` | procedural | graded error codes, robustness2 out-of-bounds behaviour |
 | 21 | `perf_*` | performance | fill rate, compute throughput, geometry, texture-heavy |
 
+## Measured facts that shape the surface (Stage 3)
+
+- The oracle is Vulkan 1.3 and rejects `apiVersion` > 1.3 at instance
+  creation; every case requests 1.3.
+- One queue family (graphics+compute+transfer, 1 queue), one memory type
+  (device-local, host-visible, coherent, cached), one 2 GiB heap.
+- Sample counts {1, 4}; subgroup size 4; `lineWidthRange` [1, 1] (no wide
+  lines); points up to 1023; `maxBoundDescriptorSets` 4;
+  `maxPushConstantsSize` 128; buffer offset alignments 256.
+- Supported compressed formats: BC, ETC2, ASTC LDR (no ASTC HDR).
+- Float precision the grader may demand exactly: only ops the spec calls
+  correctly rounded or correct result (Vulkan-Docs v1.4.357, "Precision of
+  Individual Operations"). Transcendentals are excluded or tolerated at the
+  spec bound (decided in Stage 6).
+
 ## Out of scope (v1)
 
-WSI and presentation, video, ray tracing, mesh shaders, sparse resources,
-multi-device groups, external memory/semaphores, and any behaviour the
-Stage 3 determinism report marks as order-dependent.
+- **Not supported by the oracle:** geometry and tessellation shaders,
+  `shaderFloat64`, sparse binding/residency, wide lines, multiple viewports,
+  ASTC HDR, transform feedback, mesh shaders, ray tracing, fragment shading
+  rate, conditional rendering, video.
+- **Supported but excluded:** WSI and presentation (headless, D1),
+  external memory/fences/semaphores, device groups, protected memory,
+  YCbCr conversion, multiview, host image copy, `VK_EXT_external_memory_host`,
+  and pipeline libraries (the CTS library variants duplicate monolithic
+  behaviour; graphics pipelines are built monolithically).
+- Anything the Stage 3/4 determinism report marks as order-dependent
+  (pending; see `docs/internal/stage3_findings.md` §3.4).
