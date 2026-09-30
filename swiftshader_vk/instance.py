@@ -103,7 +103,7 @@ class VkReplayDriver(Driver):
 class MyScorer(CaseScorer):
     """Fidelity distance, procedural checks and timings for one case."""
 
-    primary_channel = "color"
+    primary_channel = "snap"          # vkreplay writes one .ssnap per snapshot event under this key
 
     def load_output(self, outdir, event, channel=None):
         ...  # read `event["files"][channel]` from outdir as an array; None if absent
@@ -136,12 +136,39 @@ class MyControls(ControlSpec):
 
 # ------------------------------------------------------------------ task
 
+BUILD_COMMAND = ("cmake -S /task -B /task/build -G Ninja -DCMAKE_BUILD_TYPE=Release "
+                 "&& cmake --build /task/build")
+
+
+def public_reference_ledgers() -> dict:
+    """dev/reference/<case>/ledger.json for every PUBLIC case with a reference-cache entry.
+
+    evalBase copies each public case's snapshot files into dev/reference/<case>/;
+    the ledger (call results, query values) is what procedural cases are graded
+    on, so the model gets it too. Only the public cache is read: the hidden one
+    lives in a separate directory and is never listed here.
+    """
+    cache = Path(os.environ.get("EVALBASE_REFCACHE") or ROOT / "runs" / "refcache")
+    public = {p.stem for p in (ROOT / "corpus" / "public").glob("*.json")}
+    out = {}
+    for name in sorted(public):
+        ledger = cache / name / "n1" / "ledger.json"
+        if ledger.is_file():
+            out[f"reference/{name}/ledger.json"] = ledger
+    return out
+
 TOOL_DESCRIPTIONS = {
-    "shell": "Run a bash command in /task inside the sandbox (<toolchain>). No network. "
+    "shell": "Run a bash command in /task inside your sandbox (gcc, clang, cmake, ninja, make, gdb, python3; "
+             "Vulkan headers and loader in /opt/vk; vkreplay, spirv-dis, spirv-as on PATH). No network. "
              "Output is truncated to 32 KiB; the timeout cap is 600 s.",
-    "oracle": "Run a case you wrote against the reference and copy its outputs back into /task. "
-              "Limits: case <= 8 MiB, <= 64 snapshots, <resolution cap>.",
-    "driver": "Run the same driver against YOUR /task/<artifact> and write its outputs to outdir.",
+    "oracle": "Run a case you wrote (a JSON file under /task, format in dev/CASE_FORMAT.md) on the REFERENCE "
+              "driver and copy its outputs (ledger.json and .ssnap snapshots) into outdir under /task. "
+              "Assets (SPIR-V, data) are read from assets_dir if you give it, else from dev/assets for a "
+              "public case and from the case's own directory for yours (pass assets_dir='dev/assets' to "
+              "reuse public shaders). "
+              "Limits: case <= 8 MiB, <= 64 snapshots, image extents <= 1024, run iterations <= 1000.",
+    "driver": "Run a case with vkreplay on YOUR current build (/task/build/libvk_candidate.so) and write "
+              "its outputs (ledger.json and .ssnap snapshots) to outdir. Build first.",
     "grade_dev": "Score your current build on the public cases with the real metric. Returns per-snapshot "
                  "defect D, the threshold T, per-snapshot and per-case scores, performance ratios and, "
                  "for a procedural case, the failed checks by name (cut at 160 characters).",
@@ -149,8 +176,9 @@ TOOL_DESCRIPTIONS = {
                   "automatically; they are immutable, versioned and hashed.",
 }
 
-INSTRUCTIONS = """You are implementing <the task> from scratch. Read /task/TASK.md and /task/SPEC.md
-first. Your source lives in /task; `<build command>` must produce /task/<artifact>.
+INSTRUCTIONS = f"""You are implementing a Vulkan 1.3 driver that runs on the CPU, from scratch. Read
+/task/TASK.md and /task/SPEC.md first, then /task/dev/CASE_FORMAT.md. Your source lives in /task;
+`{BUILD_COMMAND}` must produce /task/build/libvk_candidate.so.
 
 Tools: shell, oracle, driver, grade_dev, checkpoint. The hidden cases, the grader and the
 reference are outside your container. Public cases are in /task/dev/cases with the reference's
@@ -162,11 +190,14 @@ TASK = TaskSpec(
     task_dir=ROOT / "task",
     instructions=INSTRUCTIONS,
     tool_descriptions=TOOL_DESCRIPTIONS,
-    artifact="build/<artifact>",
-    build_command="make -C /task",
-    driver_command="driver {case} {outdir} {assets}",     # the driver binary lives in the solver image
-    spec_dir=ROOT / "spec",                                 # or None
+    artifact="build/libvk_candidate.so",
+    build_command=BUILD_COMMAND,
+    # vkreplay is on PATH in the solver image; the candidate is the build directory
+    driver_command="vkreplay --candidate /task/build {case} {outdir} {assets}",
+    spec_dir=ROOT / "spec",
     format_doc=ROOT / "task" / "CASE_FORMAT.md",
+    dev_extra=public_reference_ledgers(),
+    required_names=frozenset({"CMakeLists.txt"}),
     solver_image=SOLVER_IMAGE,
     reference_image=REFERENCE_IMAGE,
     mcp_server="ssvk",

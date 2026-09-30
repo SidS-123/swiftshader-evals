@@ -184,3 +184,41 @@ supports no `logicOp`, dual-source blend, pipeline statistics queries,
 listed them (`blend`, `compute_types`, `queries_sync`, `depth_stencil`) no
 longer do (`REQUIREMENTS.md`); requesting them is an `errors_robust` case
 (`VK_ERROR_FEATURE_NOT_PRESENT`).
+
+**2026-09-30 — The model's reference material (Stage 5, amends D4).** `spec/`
+holds the Vulkan spec as **AsciiDoc sources** at Vulkan-Docs `v1.4.357` (the
+headers' version; plain text the model can grep, instead of the 40+ MB
+single-page HTML D4 named), `vk.xml`, the **SPIR-V** and **GLSL.std.450**
+specs (the published HTML, committed with its download URL and sha256 because
+the registry has no pinned revision) with the SPIR-V grammar and headers at
+the SDK tag, and the **Khronos Data Format Specification** at `1.4.0-gh`, the
+normative decoding of BC, ETC2, ASTC and packed formats (a fresh-reader review
+pointed out the task forbids recreating such code from memory while providing
+no written source). `tools/make_spec_dir.sh` rebuilds it; `--check` compares
+the committed manifest.
+
+**2026-09-30 — `apiVersion` above 1.3 is not graded.** SwiftShader fails
+`vkCreateInstance` with `VK_ERROR_INCOMPATIBLE_DRIVER` for `apiVersion` > 1.3,
+which the Vulkan spec forbids for 1.1+ implementations. Grading it would reward
+reproducing a conformance bug, so cases always request 1.3 (resolves the
+2026-09-29 open question).
+
+**2026-09-30 — Fresh-reader review of the task text (Stage 5).** A reviewer
+that saw only what the model sees returned 42 findings. Fixed in the task
+text: aggregation at every level, which checks each category contributes, the
+performance curve and its relation to the case timeout, every command's
+fields and defaults, `elem` values, the upload/readback mechanism, internal
+calls being logged and compared, what the rebuild copies and the allowed
+dynamic libraries, oracle limits, debugging with `vkreplay`, the validation
+layer, combined depth/stencil readback, the wording of the from-scratch rule.
+Added to `vkreplay`: buffer device addresses as data, per-item `allow`
+allowances, loading a private copy of the candidate library, and each public
+case's reference ledger in `dev/reference/`. Deferred to their stages: the
+exact `D` formula in `SPEC.md` (Stage 6), render-pass ops (Stage 7, with
+`mrt_renderpass`), the `errors_robust` scenario list (Stage 7), and a
+"success everywhere" control that reports the profile and returns
+`VK_SUCCESS` without doing work, to measure how much of the procedural
+category is gameable (Stage 8). Accepted knowingly: the device name in the
+profile identifies the reference as SwiftShader; the `oracle` tool would
+reveal it anyway, and the plan's contamination measures (hidden split,
+similarity audit, lavapipe fairness number) stand.

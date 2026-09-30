@@ -19,6 +19,15 @@ VULKAN_SDK_TAG=vulkan-sdk-1.4.357.0
 # vkreplay's JSON parser (header-only).
 NLOHMANN_JSON_TAG=v3.12.0
 
+# The model's frozen reference material (spec/, built by tools/make_spec_dir.sh):
+# the Vulkan spec sources at the headers' version and the SPIR-V grammar at the
+# SDK tag. (The SPIR-V and GLSL.std.450 spec HTML have no pinnable source; the
+# copies in spec/spirv/ are committed, with their origin in spec/spirv/ORIGIN.)
+VULKAN_DOCS_TAG=v1.4.357
+# Khronos Data Format Specification: the normative decoding of BC, ETC2, ASTC,
+# packed-float, shared-exponent and sRGB formats.
+DATAFORMAT_TAG=1.4.0-gh
+
 # Fairness comparator (D12): Mesa lavapipe.
 MESA_TAG=mesa-26.2.3
 MESON_VERSION=1.9.1

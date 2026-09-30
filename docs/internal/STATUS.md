@@ -105,3 +105,25 @@ Appended at the end of every stage (PLAN_v1.md §16.5). Internal; stripped on ex
 **Open items:** render passes/framebuffers (for `mrt_renderpass` subpasses and input attachments) are added in Stage 7; the perf `run` in the pilot lasts 8 ms, so Stage 7's generators size iterations to ≥ 2 s; `solver` image copy of vkreplay is Stage 9.
 
 **Next stage (5) starts from:** `task/CASE_FORMAT.md` (done here) and REQUIREMENTS.md. It writes TASK.md, SPEC.md, the starter ICD skeleton (reports zero devices) with a CMake build producing `build/libvk_candidate.so`, freezes `spec/` (profile + pinned Vulkan spec HTML), and sets `TaskSpec`.
+
+## Stage 5 — Task text and starter workspace (2026-09-30)
+
+| Item | State | Evidence |
+|---|---|---|
+| Starter | `task/starter/`: CMake build → `build/libvk_candidate.so` (16 KB); negotiates interface 5, `vkEnumerateInstanceVersion` = 1.3, the core instance entry points the loader requires, **0 physical devices**. On pilot cases: `vkCreateInstance` `VK_SUCCESS`, `vkEnumeratePhysicalDevices` `VK_ERROR_INITIALIZATION_FAILED` (the loader's answer to 0 devices), everything else skipped, `exit: ok` | scratchpad `starter_test.sh` output |
+| Finding | The loader (1.4.357) skips an ICD missing core instance-level entry points even with 0 devices, and treats one without `vkEnumerateInstanceVersion` as 1.0 | `VK_LOADER_DEBUG` output; `SPEC.md` |
+| `spec/` | 741+ files: profile; Vulkan-Docs `v1.4.357` AsciiDoc (15 MB); `vk.xml`; SPIR-V grammar/headers (SDK tag) + SPIR-V & GLSL.std.450 HTML (committed, `spirv/ORIGIN`); Khronos Data Format Spec `1.4.0-gh` (11 MB). Rebuild `--check`: IDENTICAL | `tools/make_spec_dir.sh`, `spec/MANIFEST.sha256`, `spec/SOURCES` |
+| Task text | `TASK.md`, `SPEC.md`, `CASE_FORMAT.md` rewritten after a fresh-reader review (42 findings; triage in DESIGN.md log 2026-09-30) | files |
+| `TaskSpec` | artifact `build/libvk_candidate.so`; build = the CMake command; `driver_command` = `vkreplay --candidate /task/build …`; `required_names` = CMakeLists.txt; tool descriptions and instructions written; `dev_extra` = each public case's reference `ledger.json` | `instance.py` |
+| vkreplay 1.0.0 additions | `"address"` data (buffer device address), snapshot `allow`, private copy of the candidate library | `ssvk-ref:1` = `sha256:99afb1deea7c…` |
+| Pilot | 57 cases (+ `p_c_bda`: values correct, valid, deterministic) | `tools/pilot_corpus.py` |
+| Tests | driver 5 passed | `tests/test_driver.py` |
+| Incident | A mis-expanded shell variable ran a git checkout in the WSL home directory; 364 new files + `~/.git` removed after verifying none pre-existed (birth times) | this table; memory note |
+
+**Open items carried forward:**
+- Stage 6: `D` formula stated exactly in `SPEC.md`; scorer `preview_rgb8` (first colour item); `allow` handling; `procedural_checks` as documented (exit, snapshots within T, VkResult stream incl. internal calls, every query value, timestamp validity).
+- Stage 7: render-pass ops in vkreplay + CASE_FORMAT (`mrt_renderpass`); `errors_robust` scenario list; generators within oracle limits; perf runs ≥ 2 s; `allow` on transcendental outputs.
+- Stage 8: add a "success everywhere" control (reports the profile, returns `VK_SUCCESS`, does no work).
+- Stage 9: solver image contains gcc, clang, cmake, ninja, make, gdb, valgrind, strace, python3, `/opt/vk` headers + loader + validation layer, `vkreplay`, `spirv-dis`, `spirv-as`; Ubuntu 24.04 base (same glibc as the grading image); `SmokeSpec` updated for the CMake build.
+
+**Next stage (6) starts from:** `snapshot.py`, the Stage 4 determinism/perturbation measurements, and `SPEC.md`'s scoring section. It writes `scorer.py` (format-aware distance, procedural checks, timings), metric v1.0, and unit tests.

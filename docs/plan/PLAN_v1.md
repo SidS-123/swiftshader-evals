@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.7** (first iteration, "v1") |
-| Status | **Stage 4 done (2026-09-29)**, including the determinism measurement carried over from Stage 3. Stage 5 next. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.8** (first iteration, "v1") |
+| Status | **Stage 5 done (2026-09-30).** Stage 6 next. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -46,7 +46,7 @@ CHANGELOG and flows through the rest of the plan.
 | D1 | Scope | Variant A: full drop-in Vulkan 1.3 ICD, headless (no swapchain/WSI) | Only variant big enough not to saturate (skill rule zero) |
 | D2 | Oracle pin | SwiftShader `1e80438d2b93` (2026-09-16), CMake build, **LLVM 10 backend**, x86-64, fixed thread count | Latest HEAD at research time; LLVM 10 is the CMake default |
 | D3 | LLVM / SPIRV-Tools in the model's sandbox | **Banned.** No LLVM, no linkable SPIRV-Tools, no other Vulkan driver, no Mesa | "No vendoring the real thing or its dependencies"; SPIR-V handling is part of the task |
-| D4 | What the model may read | Vulkan headers + `vk.xml` registry + **the Vulkan spec (HTML, pinned version)** + frozen device profile; no SwiftShader source, no internet | Grading "match this implementation" is only fair if the spec and the implementation's choices are given |
+| D4 | What the model may read | Vulkan headers + `vk.xml` registry + **the Vulkan spec (AsciiDoc sources at the pinned tag; v1.8 — was "HTML")** + **SPIR-V & GLSL.std.450 specs and grammar** + **Khronos Data Format Spec** (v1.8) + frozen device profile; no SwiftShader source, no internet | Grading "match this implementation" is only fair if the spec and the implementation's choices are given; the Data Format Spec is the only normative source for compressed-format decoding |
 | D5 | Performance scaling | Keep evalBase defaults (`perf_half=16`, `perf_gate=8`, weight 0.10) **until the controls are measured**, then decide once in DESIGN.md before any model run | A from-scratch interpreter will likely be >16× slower than SwiftShader's JIT; decide with data, not now |
 | D6 | Budget per attempt | 12 h wall, submit stop policy, 4 CPUs / 8 GB sandbox | Skill default for day-long tasks; fits this host |
 | D7 | Opus settings | `claude-opus-5-5`, reasoning effort **high**, 1 attempt for v1 calibration (+ optional repeat) | Record effort; one attempt first to learn cost and behaviour |
@@ -318,6 +318,8 @@ run arbitrary code there. Therefore:
 8. Review pass: a fresh reader (subagent) reads only `/task` and lists anything ambiguous; fix.
 
 **Exit:** starter builds in the solver-toolchain container and `vkreplay` against it reports 0 devices with `exit: ok`.
+
+**As built (v1.8, 2026-09-30).** Exit met. `spec/` is built by `tools/make_spec_dir.sh` (see D4); the fresh-reader review (step 8) returned 42 findings, fixed or deferred with owners as logged in `swiftshader_vk/docs/DESIGN.md` (2026-09-30). New in `vkreplay`: buffer-device-address data, per-item `allow`, a private copy of the candidate library. `apiVersion` > 1.3 is not graded (a SwiftShader conformance bug). The model sees each public case's reference ledger (`dev_extra`).
 
 ---
 

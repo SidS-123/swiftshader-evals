@@ -1,0 +1,4 @@
+Downloaded 2026-09-29 from the Khronos registry (CC-BY 4.0, (c) The Khronos Group Inc.):
+  https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html  sha256 0e8be1bfde8f7cd2f3ae66809abe6b2b9fc61e04fe69096cfdf3a73cb8f0724a
+  https://registry.khronos.org/SPIR-V/specs/unified1/GLSL.std.450.html  sha256 628fb95cb479faf742f2084e9cc982cb9066731ed44dde7ccdb624743220a19e
+These are the published specs at that date; they are committed because the registry has no pinned revision.

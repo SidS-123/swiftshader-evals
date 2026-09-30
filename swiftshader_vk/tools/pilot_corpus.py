@@ -131,6 +131,30 @@ void main() { uint i = gl_GlobalInvocationID.x; dst.o[i] = src.a[i] + gl_WorkGro
     ex = [o for o in c.ops if o["op"] == "exec"][0]
     ex["cmds"][-1] = {"cmd": "dispatch_indirect", "buffer": "ind"}
     cs.append(c)
+    # buffer device address: the shader reads a buffer through a pointer passed in push constants
+    c = Case("p_c_bda", "compute_types")
+    c.instance()
+    c.device(features={"VkPhysicalDeviceVulkan12Features": {"bufferDeviceAddress": True}})
+    c.buffer("data", 4096, ["storage_buffer", "shader_device_address"])
+    c.upload("data", array=RNG.randint(0, 2**31, size=1024).astype(np.uint32))
+    c.buffer("out", 4096, ["storage_buffer"])
+    c.shader("cs", """#version 450
+#extension GL_EXT_buffer_reference : require
+layout(local_size_x = 64) in;
+layout(buffer_reference, std430, buffer_reference_align = 4) buffer Data { uint v[]; };
+layout(push_constant) uniform PC { Data data; uint scale; } pc;
+layout(set = 0, binding = 0) buffer Out { uint o[]; };
+void main() { uint i = gl_GlobalInvocationID.x; o[i] = pc.data.v[1023u - i] * pc.scale + i; }""", "comp")
+    c.desc_layout("dl", [{"binding": 0, "type": "storage_buffer", "stages": ["compute"]}])
+    c.pipeline_layout("pl", ["dl"], push_constants=[{"stages": ["compute"], "offset": 0, "size": 16}])
+    c.desc_set("ds", "dl", [{"binding": 0, "type": "storage_buffer", "buffers": [{"buffer": "out"}]}])
+    c.compute_pipeline("p", "pl", "cs")
+    c.exec([{"cmd": "bind_pipeline", "pipeline": "p"}, {"cmd": "bind_sets", "layout": "pl", "sets": ["ds"]},
+            {"cmd": "push_constants", "layout": "pl", "stages": ["compute"],
+             "data": {"address": [{"buffer": "data"}], "u32": [3, 0]}},
+            {"cmd": "dispatch", "groups": [16]}])
+    c.snapshot([{"name": "out", "buffer": "out", "elem": "u32"}])
+    cs.append(c)
     # storage image store + snapshot
     c = Case("p_c_image_store", "compute_image")
     c.instance(); c.device()

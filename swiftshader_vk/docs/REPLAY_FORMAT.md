@@ -20,6 +20,20 @@ Errors are observed, not asserted: every `VkResult` is in `ledger.calls`, and
 ops like `enumerate`, `image_format_props`, `wait_fence` and `fence_status`
 record results as query events. There is no `expect_error` op.
 
+Two case features exist for the grader (Stage 5):
+
+- `"data": {"address": [{"buffer", "offset"}]}` writes 64-bit buffer device
+  addresses into uploads and push constants (the `compute_types` family's
+  buffer-device-address cases).
+- A snapshot item's `"allow": {"ulp" | "lsb" | "abs": n}` is copied by the
+  trusted parent, from its own plan, into the `.ssnap` header; the scorer
+  ignores per-element differences up to it. Generators set it only where the
+  Vulkan precision appendix bounds a result instead of defining it.
+
+The candidate library is loaded from a private copy the parent makes in its
+work directory, so the mount's permissions and later changes to the file do
+not matter.
+
 ## Trust boundary (driver/src/parent.cpp)
 
 - The process started in the container is the **trusted parent**. It parses

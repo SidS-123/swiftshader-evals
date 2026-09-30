@@ -122,6 +122,7 @@ bool build_ssnap(const std::vector<SnapItem>& plan, const proto::Message& m, std
         const json& it = items[k];
         bool ok = it.is_object() && it.value("ok", false) && it.value("name", std::string()) == s.name;
         json e = {{"name", s.name}};
+        if (!s.allow.is_null()) e["allow"] = s.allow;
         if (s.is_buffer) {
             e["kind"] = "buffer";
             e["resource"] = s.resource;
@@ -288,9 +289,23 @@ int parent_main(int argc, char** argv) {
     std::string icd = a.icd;
     std::string cwd = a.cwd;
     if (!a.candidate.empty()) {
-        std::string lib = abspath(a.candidate) + "/libvk_candidate.so";
-        if (access(lib.c_str(), R_OK) != 0)
-            ledger["notes"].push_back({{"i", -1}, {"level", "error"}, {"msg", "candidate library not found: " + lib}});
+        // Load a private copy: readable by the child whatever the mount's permissions,
+        // and immune to changes to the original while the case runs.
+        std::string src = abspath(a.candidate) + "/libvk_candidate.so";
+        std::string lib = work + "/libvk_candidate.so";
+        std::string bytes;
+        bool copied = false;
+        try {
+            bytes = read_file(src, 1u << 30);
+            copied = write_file(lib, bytes);
+        } catch (const std::exception&) {
+        }
+        if (copied) {
+            chmod(lib.c_str(), 0755);
+        } else {
+            lib = src;
+            ledger["notes"].push_back({{"i", -1}, {"level", "error"}, {"msg", "candidate library not found: " + src}});
+        }
         json manifest = {{"file_format_version", "1.0.1"},
                          {"ICD", {{"library_path", lib}, {"api_version", "1.3.0"}}}};
         icd = work + "/candidate_icd.json";

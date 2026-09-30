@@ -32,6 +32,7 @@ struct SnapItem {
     std::string elem = "u8";
     // both
     uint64_t bytes = 0;                // exact size the parent expects
+    json allow;                        // optional per-item allowance, e.g. {"ulp": 4096}, passed to the scorer
 };
 
 enum class OutKind { None, Snapshot, Run, Event };

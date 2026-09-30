@@ -168,6 +168,22 @@ std::vector<uint8_t> data_bytes(const json& op, const State& st, const std::stri
             continue;
         }
         if (!v.is_array()) throw CaseError(ctx + ": data." + k + " must be a list");
+        if (k == "address") {
+            // [{"buffer": name, "offset": n}]: each a u64 vkGetBufferDeviceAddress(buffer) + offset
+            for (const json& e : v) {
+                std::string bn = req_str(e, "buffer", ctx);
+                auto it = st.buffers.find(bn);
+                if (it == st.buffers.end()) {
+                    if (st.declared.count(bn)) throw Skip("buffer '" + bn + "' was not created");
+                    throw CaseError(ctx + ": unknown buffer '" + bn + "'");
+                }
+                VkBufferDeviceAddressInfo ai{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, it->second.buf};
+                uint64_t addr = vkGetBufferDeviceAddress(st.device, &ai) + opt_u64(e, "offset", 0);
+                const uint8_t* p = reinterpret_cast<const uint8_t*>(&addr);
+                out.insert(out.end(), p, p + 8);
+            }
+            continue;
+        }
         if (k == "u8") push_vals<uint8_t>(out, v, ctx);
         else if (k == "i8") push_vals<int8_t>(out, v, ctx);
         else if (k == "u16") push_vals<uint16_t>(out, v, ctx);

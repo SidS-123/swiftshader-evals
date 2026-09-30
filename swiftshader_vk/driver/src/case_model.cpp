@@ -81,6 +81,15 @@ static std::vector<SnapItem> plan_items(const json& list, const CasePlan& p, con
             if (!s.texel_bytes) throw CaseError(ctx + ": cannot read back this format/aspect (compressed or multi-planar)");
             s.bytes = (uint64_t)s.texel_bytes * s.width * s.height * s.depth * s.layers;
         }
+        if (it.contains("allow")) {
+            const json& al = it["allow"];
+            if (!al.is_object() || al.empty())
+                throw CaseError(ctx + ": 'allow' must be an object like {\"ulp\": 4096} or {\"lsb\": 1}");
+            for (auto& [k, v] : al.items())
+                if ((k != "ulp" && k != "lsb" && k != "abs") || !v.is_number() || v.get<double>() < 0)
+                    throw CaseError(ctx + ": 'allow' keys are ulp, lsb, abs with non-negative numbers");
+            s.allow = al;
+        }
         total += s.bytes;
         items.push_back(s);
     }

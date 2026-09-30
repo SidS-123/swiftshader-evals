@@ -9,3 +9,11 @@ site/
 *.ssnap
 !corpus/public/**/*.ssnap
 docs/internal/build-logs/
+
+# Fetched by tools/make_spec_dir.sh at pinned commits (MANIFEST.sha256 and SOURCES are committed).
+spec/vulkan/
+spec/vk.xml
+spec/spirv/*.json
+spec/spirv/*.h
+spec/spirv/*.hpp
+spec/dataformat/
