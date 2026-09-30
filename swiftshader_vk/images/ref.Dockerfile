@@ -144,6 +144,22 @@ RUN fetch.sh https://gitlab.freedesktop.org/mesa/mesa.git "$MESA_TAG" /src/mesa 
       -Dvalgrind=disabled -Dlibunwind=disabled -Dzstd=enabled \
  && ninja -C /b/mesa -j ${JOBS} install
 
+# ------------------------------------------------------------------ vkreplay (Stage 4)
+# The replay driver. Its source arrives as the named build context `driver`
+# (build_ref.sh passes --build-context driver=../driver), so the cached stages
+# above do not depend on it.
+FROM khronos AS vkreplay-deps
+ARG NLOHMANN_JSON_TAG
+RUN fetch.sh https://github.com/nlohmann/json.git "$NLOHMANN_JSON_TAG" /src/json
+
+FROM vkreplay-deps AS vkreplay-build
+ARG JOBS
+COPY --from=driver . /src/vkreplay
+RUN cmake -S /src/vkreplay -B /b/vkreplay -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/opt/vk \
+      -DVK_XML=/opt/vk/share/vulkan/registry/vk.xml -DJSON_INCLUDE=/src/json/single_include \
+      -DCMAKE_INSTALL_PREFIX=/opt/vkreplay \
+ && cmake --build /b/vkreplay -j ${JOBS} && cmake --install /b/vkreplay
+
 # ------------------------------------------------------------------ the oracle image
 FROM base AS ref
 RUN apt-get -o Acquire::Retries=10 update -qq && apt-get -o Acquire::Retries=20 -o Acquire::http::Pipeline-Depth=0 -o Acquire::Queue-Mode=access install -y -qq --no-install-recommends \
@@ -156,6 +172,7 @@ COPY --from=ss-subzero /out/                       /opt/swiftshader/subzero/
 COPY --from=khronos    /opt/vk                     /opt/vk
 COPY --from=vulkaninfo13 /opt/vk/bin/vulkaninfo    /opt/vk/bin/vulkaninfo
 COPY --from=mesa       /opt/lavapipe               /opt/lavapipe
+COPY --from=vkreplay-build /opt/vkreplay           /opt/vkreplay
 COPY icd/ /opt/ssvk/icd/
 COPY ini/ /opt/ssvk/ini/
 COPY ssvk-entry.sh /usr/local/bin/ssvk
@@ -163,8 +180,10 @@ ARG SWIFTSHADER_COMMIT
 ARG MESA_TAG
 RUN printf 'swiftshader=%s\nmesa=%s\nvulkan_sdk=%s\n' "$SWIFTSHADER_COMMIT" "$MESA_TAG" "$(cat /opt/vk/SDK_TAG)" > /opt/ssvk/VERSIONS \
  && dpkg-query -W > /opt/ssvk/PACKAGES \
- && userdel -r ubuntu && useradd -m -u 1000 runner
-ENV PATH=/opt/vk/bin:$PATH \
+ && userdel -r ubuntu && useradd -m -u 1000 runner \
+ && groupadd -g 2000 cand && useradd -M -u 2000 -g 2000 -s /usr/sbin/nologin cand
+# uid 2000 runs vkreplay's untrusted child (the ICD under test); it owns nothing.
+ENV PATH=/opt/vkreplay/bin:/opt/vk/bin:$PATH \
     LD_LIBRARY_PATH=/opt/vk/lib \
     VK_LAYER_PATH=/opt/vk/share/vulkan/explicit_layer.d \
     VK_LOADER_LAYERS_DISABLE=~implicit~

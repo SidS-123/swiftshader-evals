@@ -23,21 +23,21 @@ coverage and weights are set from Stage 3's CTS pass-list breakdown
 | 2 | `mem_buf` | replay+proc | buffers, memory types, map/unmap, copy/fill/update, alignment |
 | 3 | `compute_arith` | replay | int/float arithmetic, conversions, bit ops, built-ins |
 | 4 | `compute_cf` | replay | branches, loops, switch, functions, early exit |
-| 5 | `compute_types` | replay | vectors, matrices, structs, arrays, 8/16-bit, pointers |
+| 5 | `compute_types` | replay | vectors, matrices, structs, arrays, shared memory, buffer device address (no 8/16-bit or 64-bit types: unsupported) |
 | 6 | `compute_subgroup` | replay | subgroup ops at size 4 |
 | 7 | `compute_atomics` | replay | commutative atomic totals only |
 | 8 | `compute_image` | replay | storage images, image load/store, texel buffers |
 | 9 | `raster_tri` | replay | fill rules, culling, winding, viewport, scissor, depth bias, clipping |
 | 10 | `raster_lines_points` | replay | lines, points, point size |
 | 11 | `vertex_input` | replay | vertex formats, strides, instancing, index types, primitive restart, topologies |
-| 12 | `blend` | replay | factors/ops, constants, write masks, logic ops |
-| 13 | `depth_stencil` | replay | compare ops, stencil ops, depth formats, bounds, clamp |
+| 12 | `blend` | replay | factors/ops, constants, write masks, advanced blend ops (`VK_EXT_blend_operation_advanced`); no logic ops or dual-source blend (unsupported) |
+| 13 | `depth_stencil` | replay | compare ops, stencil ops, depth formats (D16, D32, D32S8, S8), bounds, clamp |
 | 14 | `tex_sample` | replay | filters, mip modes, address modes, borders, LOD, compare, cube/3D/arrays, gather |
 | 15 | `formats_copy_blit` | replay | copies, blits, clears, resolves, format conversions, BC/ETC2/ASTC-LDR sampling |
 | 16 | `msaa` | replay | 4x raster, sample shading, masks, alpha-to-coverage, resolve |
 | 17 | `mrt_renderpass` | replay | multiple attachments, subpasses, input attachments, load/store ops, dynamic rendering |
 | 18 | `descriptors_push` | replay | descriptor types, dynamic offsets, push/spec constants, descriptor indexing |
-| 19 | `queries_sync` | replay+proc | occlusion queries, fences, events, timeline semaphores, barriers, multi-submit |
+| 19 | `queries_sync` | replay+proc | occlusion and timestamp queries (no pipeline statistics: unsupported), fences, events, timeline semaphores, barriers, multi-submit |
 | 20 | `errors_robust` | procedural | graded error codes, robustness2 out-of-bounds behaviour |
 | 21 | `perf_*` | performance | fill rate, compute throughput, geometry, texture-heavy |
 
@@ -51,10 +51,27 @@ coverage and weights are set from Stage 3's CTS pass-list breakdown
   lines); points up to 1023; `maxBoundDescriptorSets` 4;
   `maxPushConstantsSize` 128; buffer offset alignments 256.
 - Supported compressed formats: BC, ETC2, ASTC LDR (no ASTC HDR).
+- Depth/stencil formats with optimal-tiling attachment support: `D16_UNORM`,
+  `D32_SFLOAT`, `D32_SFLOAT_S8_UINT`, `S8_UINT`. **No `D24` format.**
+- Core features the oracle does **not** support (Stage 4, from the frozen
+  profile): `logicOp`, `dualSrcBlend`, `alphaToOne`, `pipelineStatisticsQuery`,
+  `shaderInt16`, `shaderInt64`, `shaderFloat64`, `shaderImageGatherExtended`,
+  `shaderStorageImageReadWithoutFormat`, `multiViewport`, `wideLines`,
+  `inheritedQueries`, geometry/tessellation; Vulkan 1.1 `shaderDrawParameters`,
+  16-bit storage, variable pointers; Vulkan 1.2 `shaderFloat16`, `shaderInt8`,
+  8-bit storage, 64-bit atomics, `drawIndirectCount`, `samplerFilterMinmax`,
+  `shaderOutputLayer`/`ViewportIndex`; Vulkan 1.3 `textureCompressionASTC_HDR`.
+  Requesting one gives `VK_ERROR_FEATURE_NOT_PRESENT`, which `errors_robust`
+  may grade.
+- `discard` in GLSL compiles to demote-to-helper (SPIR-V 1.6), so raster cases
+  enable `shaderDemoteToHelperInvocation` (supported).
 - Float precision the grader may demand exactly: only ops the spec calls
   correctly rounded or correct result (Vulkan-Docs v1.4.357, "Precision of
   Individual Operations"). Transcendentals are excluded or tolerated at the
   spec bound (decided in Stage 6).
+- **Determinism (Stage 4, `docs/internal/determinism.md`):** the oracle is
+  byte-identical across runs and thread counts on every op type except the
+  return values of atomics, whose order is undefined.
 
 ## Out of scope (v1)
 
@@ -67,5 +84,6 @@ coverage and weights are set from Stage 3's CTS pass-list breakdown
   YCbCr conversion, multiview, host image copy, `VK_EXT_external_memory_host`,
   and pipeline libraries (the CTS library variants duplicate monolithic
   behaviour; graphics pipelines are built monolithically).
-- Anything the Stage 3/4 determinism report marks as order-dependent
-  (pending; see `docs/internal/stage3_findings.md` §3.4).
+- Order-dependent results: the return values of atomic operations (which
+  invocation got which old value). Only commutative atomic results (sums,
+  min/max, and/or/xor) are snapshotted (`docs/internal/determinism.md`).

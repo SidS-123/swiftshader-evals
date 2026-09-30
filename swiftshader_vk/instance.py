@@ -23,35 +23,50 @@ SOLVER_IMAGE = "ssvk-solver:1"        # the toolchain the model gets, and nothin
 
 # ------------------------------------------------------------------ driver
 
-class MyDriver(Driver):
-    """Run one case in the trusted image against the oracle or a candidate.
+#: Perturbations the image's `drive` entry understands (images/ssvk-entry.sh).
+DRIVER_PERTURBATIONS = ("", "subzero", "lavapipe", "vtxjitter", "texcoord_ulp")
 
-    The container carries the managed and owner labels, a unique name, no
-    network, and the driver writes `<outdir>/ledger.json` under the ledger
-    contract (evalbase.interfaces). `sample_mult` and `perturbation` reach the
-    driver as environment variables; the oracle honours them, a candidate never
-    sees a perturbation.
+#: Limits on cases a *model* writes for the oracle tool (the corpus is bounded by its generators).
+ORACLE_MAX_EXTENT = 1024          # per image dimension
+ORACLE_MAX_ITERATIONS = 1000      # per timed run op
+ORACLE_MAX_OPS = 20000
+
+
+class VkReplayDriver(Driver):
+    """Run one case with vkreplay in the trusted image, against the oracle or a candidate.
+
+    The container carries the managed and owner labels, a unique name and no
+    network, and runs as root so vkreplay can run the ICD under test as an
+    unprivileged uid that cannot write the output directory (driver/src/parent.cpp).
+    `sample_mult=2` selects the thread-count variant (the reference cache's
+    determinism run) and `perturbation` one of DRIVER_PERTURBATIONS; both apply
+    to the oracle only. vkreplay gets 10 s less than the container so it stops
+    the case and writes its own ledger before the container is killed.
     """
 
     def run(self, case_path, outdir, assets_dir, *, candidate=None, sample_mult=1, perturbation="",
             timeout_s=600.0, cpus=None, memory="8g", extra_mounts=(), extra_env=None, owner=None):
+        if perturbation not in DRIVER_PERTURBATIONS:
+            raise ValueError(f"unknown perturbation {perturbation!r}")
         os.makedirs(outdir, exist_ok=True)
         name = containers.container_name("drive")
         cmd = containers.docker_base(cpus, memory, name=name, owner=owner)
         cmd += ["-v", f"{os.path.abspath(case_path)}:/case.json:ro",
                 "-v", f"{os.path.abspath(assets_dir)}:/assets:ro",
                 "-v", f"{os.path.abspath(outdir)}:/out",
-                "-e", f"DRIVER_SAMPLE_MULT={int(sample_mult)}",
-                "-e", f"DRIVER_PERTURB={perturbation if candidate is None else ''}"]
+                "-e", f"DRIVER_SAMPLE_MULT={int(sample_mult) if candidate is None else 1}",
+                "-e", f"DRIVER_PERTURB={perturbation if candidate is None else ''}",
+                "-e", f"DRIVER_TIMEOUT={max(5.0, float(timeout_s) - 10.0):.0f}"]
         for src, dst, mode in extra_mounts or ():
             cmd += ["-v", f"{os.path.abspath(src)}:{dst}:{mode}"]
         for k, v in sorted((extra_env or {}).items()):
             cmd += ["-e", f"{k}={v}"]
+        image = os.environ.get("EVALBASE_IMAGE") or REFERENCE_IMAGE
         if candidate:
-            cmd += ["-v", f"{os.path.abspath(candidate)}:/candidate:ro", REFERENCE_IMAGE,
+            cmd += ["-v", f"{os.path.abspath(candidate)}:/candidate:ro", image,
                     "drive-candidate", "/candidate", "/case.json", "/out", "/assets"]
         else:
-            cmd += [REFERENCE_IMAGE, "drive", "/case.json", "/out", "/assets"]
+            cmd += [image, "drive", "/case.json", "/out", "/assets"]
         t0 = time.time()
         rc, err, timed_out = containers.run_named(cmd, name, timeout_s)
         wall = time.time() - t0
@@ -63,10 +78,24 @@ class MyDriver(Driver):
                     ledger = json.load(f)
             except json.JSONDecodeError:
                 ledger = {"exit": "corrupt_ledger"}
+        if ledger.get("exit") == "timeout":
+            timed_out = True
         return DriveResult(outdir, ledger, rc, wall, timed_out, (err or "")[-2000:])
 
-    # Override inspect_case to enforce your own limits on cases the model
-    # writes for the oracle tool (resolution, snapshot count, asset size).
+    def inspect_case(self, path):
+        info = super().inspect_case(path)
+        doc = json.loads(Path(path).read_text())
+        ops = doc["ops"]
+        if len(ops) > ORACLE_MAX_OPS:
+            raise ValueError(f"case has {len(ops)} ops; the oracle tool allows {ORACLE_MAX_OPS}")
+        for i, op in enumerate(ops):
+            if op.get("op") == "image":
+                ext = op.get("extent") or []
+                if not isinstance(ext, list) or any(not isinstance(e, int) or e > ORACLE_MAX_EXTENT for e in ext):
+                    raise ValueError(f"op {i}: image extents are limited to {ORACLE_MAX_EXTENT}")
+            if op.get("op") == "run" and int(op.get("iterations", 0) or 0) > ORACLE_MAX_ITERATIONS:
+                raise ValueError(f"op {i}: runs are limited to {ORACLE_MAX_ITERATIONS} iterations")
+        return info
 
 
 # ------------------------------------------------------------------ scorer
@@ -148,9 +177,11 @@ TASK = TaskSpec(
 )
 
 METRIC = MetricSpec(
-    version="0.1",
-    perturbations=("halfspp", "jitter"),            # stored in every refcache entry
-    tolerance_perturbations=("halfspp", "jitter"),  # the ones that may raise T
+    # Draft until Stage 6/8 (PLAN_v1.md §10.4): the thread-count variant is the n2
+    # run (sample_mult=2); lavapipe is recorded, never tolerated.
+    version="ssvk-1.0-draft",
+    perturbations=("subzero", "vtxjitter", "texcoord_ulp", "lavapipe"),   # stored in every refcache entry
+    tolerance_perturbations=("subzero", "vtxjitter", "texcoord_ulp"),     # the ones that may raise T
     k_noise=2.0, k_sens=2.0, t_lo=0.03, t_hi=0.30, hill_n=4,
     weights={"replay": 0.60, "procedural": 0.30, "performance": 0.10},
     perf_half=16.0, perf_gate=8.0, case_bar=0.9, procedural_bar=0.95,
@@ -165,12 +196,13 @@ CORPUS = CorpusSpec(
     hidden_env="SSVK_HIDDEN_GEN",                    # names the PRIVATE generator tree
     hidden_default=REPO_ROOT.parent / "swiftshader-evals-hidden",   # private repo, sibling of this one (D11)
     forbidden_hidden_roots=(REPO_ROOT,),             # the loader refuses a hidden tree inside the public repo
+    double_keys=("f64",),                            # {"f64": [...]} data stays double precision
 )
 
 INSTANCE = Instance(
     name="swiftshader-vk",
     root=ROOT,
-    driver=MyDriver(),
+    driver=VkReplayDriver(),
     scorer=MyScorer(),
     metric=METRIC,
     corpus=CORPUS,

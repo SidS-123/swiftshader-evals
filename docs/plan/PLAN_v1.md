@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.6** (first iteration, "v1") |
-| Status | **Stage 3 done (2026-09-29)** except determinism (§7 step 4, moved after Stage 4 step 6). Stage 4 next. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.7** (first iteration, "v1") |
+| Status | **Stage 4 done (2026-09-29)**, including the determinism measurement carried over from Stage 3. Stage 5 next. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -294,6 +294,16 @@ run arbitrary code there. Therefore:
 
 **Exit:** pilot corpus (~50 hand-written cases, also used by Stage 3.4) replays `exit: ok` twice identically on the reference; trust-boundary tests pass.
 
+**As built (v1.7, 2026-09-29).** Stage 4 met its exit criteria (56 pilot cases, all `ok`, byte-identical; hostile-ICD test passes). Where the build differs from the text above:
+- **Op names** are those in `task/CASE_FORMAT.md` (e.g. `query`, `view`, `exec`/`record`/`submit`, commands inside `cmds`); `task/CASE_FORMAT.md` is authoritative.
+- **No `expect_error` op.** Errors are observed: every `VkResult` is in `ledger.calls`, and `enumerate`, `image_format_props`, `wait_fence`, `fence_status` etc. record results as query events.
+- **Ledger written once, at the end,** after the child is reaped and every uid-2000 process killed (snapshot files are written as they arrive). The child can't write `/out` at all, so a mid-run ledger isn't needed; the parent survives any crash or hang and records it.
+- **No per-op watchdog:** the parent's case timeout (`DRIVER_TIMEOUT`, 10 s under the container's) and the container's memory/pids limits bound the child.
+- **Render passes and framebuffers** are not in the vocabulary yet (dynamic rendering covers every other family); added in Stage 7 with `mrt_renderpass`.
+- **nlohmann/json** is fetched at a pinned tag during the image build, not vendored.
+- **Model-written case limits:** image extents ≤ 1024, run iterations ≤ 1000, ops ≤ 20,000, ≤ 16 items per snapshot, plus evalBase's 8 MiB / 64 snapshots.
+- **Determinism** (the Stage 3 §7.4 measurement) was run here: `swiftshader_vk/docs/internal/determinism.md`.
+
 ---
 
 ## 9. Stage 5 — Task text and starter workspace
@@ -369,14 +379,14 @@ Synthetic snapshots per format class: identical → D=0; +1 LSB everywhere → l
 | 2 | `mem_buf` | replay+proc | buffers, memory types, map/unmap, copy/fill/update, alignment | 4 | 8 |
 | 3 | `compute_arith` | replay | int/float arithmetic, conversions, bit ops, built-ins | 6 | 12 |
 | 4 | `compute_cf` | replay | branches, loops, switch, functions, early exit | 4 | 10 |
-| 5 | `compute_types` | replay | vectors, matrices, structs, arrays, 8/16-bit, pointers | 4 | 10 |
+| 5 | `compute_types` | replay | vectors, matrices, structs, arrays, shared memory, buffer device address (no 8/16/64-bit: unsupported, v1.7) | 4 | 10 |
 | 6 | `compute_subgroup` | replay | subgroup ops at size 4 | 3 | 6 |
 | 7 | `compute_atomics` | replay | commutative atomic totals only (determinism) | 2 | 5 |
 | 8 | `compute_image` | replay | storage images, image load/store, texel buffers | 3 | 6 |
 | 9 | `raster_tri` | replay | fill rules, culling, winding, viewport, scissor, depth bias, clipping | 6 | 14 |
 | 10 | `raster_lines_points` | replay | lines (Bresenham/rect), points, point size | 3 | 6 |
 | 11 | `vertex_input` | replay | vertex formats, strides, instancing, index types, primitive restart, topologies | 4 | 8 |
-| 12 | `blend` | replay | all factors/ops, constants, write masks, logic ops | 4 | 10 |
+| 12 | `blend` | replay | all factors/ops, constants, write masks, advanced blend ops (no logic ops / dual-source: unsupported, v1.7) | 4 | 10 |
 | 13 | `depth_stencil` | replay | compare ops, stencil ops, depth formats, bounds, clamp | 4 | 10 |
 | 14 | `tex_sample` | replay | filters, mip modes, address modes, borders, LOD bias/clamp, compare, cube/3D/arrays, gather | 6 | 16 |
 | 15 | `formats_copy_blit` | replay | buffer↔image copies, blits, clears, resolves, format conversions, BC/ETC2/ASTC-LDR sampling | 6 | 16 |

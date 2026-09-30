@@ -7,10 +7,14 @@ each.
 
 ## Trusted boundary
 
-- The candidate owns `/task` and produces `<artifact>`.
-- The trusted driver is the only program that calls the candidate. It never
-  reads candidate stdout; it writes output files and a ledger, and the
-  grader (a separate process, separate container) scores those.
+- The candidate owns `/task` and produces `build/libvk_candidate.so`, a
+  Vulkan ICD.
+- The trusted driver, `vkreplay`, is the only program that calls the
+  candidate. The candidate is loaded into an untrusted child process (uid
+  2000, no write access to the output directory); the trusted parent keeps the
+  clock, checks every message against its own plan of the case, and is the
+  only writer of the ledger and snapshot files. The grader (a separate process,
+  separate container) scores those. Details: `REPLAY_FORMAT.md`.
 - Per-case limits: wall time (10x the reference's recorded time, minimum
   60 s), memory, process count, no network. A crash or timeout ends the case;
   snapshots not written score 0.
@@ -149,3 +153,34 @@ ships in the pinned SPIRV-Tools (behind `SPIRV_BUILD_FUZZER`, needs
 protobuf), which met D14's condition for inclusion. Metamorphic hidden cases
 stay in v2 anyway: the extra dependency, the validity and determinism gates
 every mutant would need, and the variety the 21 families already give.
+
+**2026-09-29 — Replay driver design (Stage 4).** `vkreplay` executes an
+Amber-like JSON op list through the real Vulkan loader. To keep cases short it
+adds transfer usage to every resource, allocates from the first
+host-visible-coherent memory type, keeps every image in `GENERAL`, records a
+full barrier before each command outside rendering, and renders with dynamic
+rendering. Errors are observed, not asserted: every `VkResult` is logged and a
+failed creation skips dependent ops. The candidate runs in an untrusted child
+process; the trusted parent owns the outputs and the clock (tested with a
+hostile ICD, `tests/test_driver.py`). Render passes and framebuffers
+(`mrt_renderpass` subpasses, input attachments) are not in the op vocabulary
+yet; Stage 7 adds them with that family.
+
+**2026-09-29 — Oracle determinism measured (Stage 4).** On the 56-case pilot
+the oracle is byte-identical across repeats and across ThreadCount 4/1 for
+every op type except atomic return values, which are therefore never
+snapshotted. The n2 (ThreadCount=1) run is a determinism check with noise 0.
+LLVM vs Subzero differ only in float compute (up to 4 ULP in transcendentals,
+thousands after a matrix inverse) and 1 ULP of interpolated depth; `vtxjitter`
+flips 1-3 edge texels; `texcoord_ulp` moves filtered texels by at most 1 LSB;
+lavapipe differs by 1 LSB of rounding almost everywhere colour is computed.
+Numbers: `docs/internal/determinism.md`. Which perturbations are tolerated is
+decided in Stage 6 with these measurements and confirmed by the controls in
+Stage 8.
+
+**2026-09-29 — Scope corrections from the profile (Stage 4).** The oracle
+supports no `logicOp`, dual-source blend, pipeline statistics queries,
+8/16/64-bit shader types or storage, or `D24` depth formats. The families that
+listed them (`blend`, `compute_types`, `queries_sync`, `depth_stencil`) no
+longer do (`REQUIREMENTS.md`); requesting them is an `errors_robust` case
+(`VK_ERROR_FEATURE_NOT_PRESENT`).

@@ -15,6 +15,7 @@ log=$logdir/ref-$target-$(date -u +%Y%m%dT%H%M%SZ).log
 tag=ssvk-ref:1
 [[ $target != ref ]] && tag=ssvk-ref-stage:$target
 DOCKER_BUILDKIT=1 docker build --progress=plain -f "$here/ref.Dockerfile" --target "$target" \
+    --build-context driver="$here/../driver" \
     "${args[@]}" -t "$tag" "$here" 2>&1 | tee "$log"
 id=$(docker image inspect --format '{{.Id}}' "$tag")
 echo "image $tag id $id" | tee -a "$log"

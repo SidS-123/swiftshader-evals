@@ -83,3 +83,25 @@ Appended at the end of every stage (PLAN_v1.md §16.5). Internal; stripped on ex
 **Open items:** D14 needs a decision now that its condition is met; the determinism report closes in Stage 4.
 
 **Next stage (4) starts from:** the frozen profile and REQUIREMENTS.md. It writes the case format and `vkreplay` (trusted parent / untrusted child), rebuilds `ssvk-ref` with it, hand-writes the ~50-case pilot corpus, and runs the §7.4 determinism measurement.
+
+## Stage 4 — Case format and replay driver `vkreplay` (2026-09-29)
+
+| Item | State | Evidence |
+|---|---|---|
+| Image | `ssvk-ref:1` = `sha256:10f433b809bf2dfa7e90eaec99937ccaa5d93aacb838ab47402f9a993226fa87` (adds vkreplay 1.0.0 and uid 2000 `cand`; SwiftShader/Mesa stages unchanged, from cache) | `docker run --rm ssvk-ref:1 info` |
+| vkreplay | C++17, ~3.5k lines (`driver/src/`), links only the loader + nlohmann/json `v3.12.0` (pinned); tables generated from the pinned `vk.xml`: 4,620 enum values, 210 flag types, 297 formats, 401 structs (267 feature, 121 property) | `driver/codegen/gen_vk_tables.py`; build log |
+| Op vocabulary | setup/queries (5), resources (12), pipelines (2), exec/record/submit + 60 commands, sync/queries (16), snapshot + timed run | `task/CASE_FORMAT.md` |
+| Trust boundary | parent (root, not dumpable) owns `/out` and the clock; child uid 2000; plan-checked protocol; child reaped at exit; uid-2000 processes killed; hostile ICD: `crash` recorded in 0.2 s, 0 hostile files | `tests/test_driver.py::test_hostile_candidate_cannot_touch_the_outputs` |
+| Python driver | `VkReplayDriver` (container as root, `DRIVER_TIMEOUT` = container − 10 s, perturbations for the oracle only); `inspect_case` limits for model-written cases (extent ≤ 1024, run iterations ≤ 1000, ops ≤ 20,000) | `instance.py` |
+| Snapshot reader | `.ssnap` reader + per-format decoder (packed, float, UFLOAT, shared-exponent, depth, stencil, buffers), LSB/ULP distances | `snapshot.py` |
+| Case builder | `corpus/gen/common.py` (`Case`, pinned-glslang GLSL→SPIR-V with content cache) | file |
+| Pilot corpus | 56 cases over every op group; all `exit: ok` on the oracle | `tools/pilot_corpus.py`; `runs/pilot/` (git-ignored) |
+| Validity gate | 0 spec violations on all 56 (validation layer on) | `tools/determinism.py` |
+| Determinism (closes Stage 3 §3.4) | 55/56 byte-identical over 3 repeats and ThreadCount 4 vs 1; the exception is atomic return values (order undefined, excluded from snapshots) | `swiftshader_vk/docs/internal/determinism.md` |
+| Perturbations measured | Subzero: float compute only (≤ 4 ULP transcendentals, 5,664 ULP matrix inverse, 1 ULP depth); vtxjitter: 1-3 edge texels; texcoord_ulp: ≤ 1 LSB filtered texels; lavapipe: 1 LSB rounding broadly, larger in lines/blits/float, no ETC2/ASTC | same |
+| Tests | driver 5 passed; evalBase 383 passed, 4 skipped | `pytest swiftshader_vk/tests/test_driver.py`; evalBase suite |
+| Scope corrections | no logicOp, dual-source blend, pipeline statistics, 8/16/64-bit types, D24 → REQUIREMENTS/DESIGN updated | `docs/REQUIREMENTS.md`, `docs/DESIGN.md` log |
+
+**Open items:** render passes/framebuffers (for `mrt_renderpass` subpasses and input attachments) are added in Stage 7; the perf `run` in the pilot lasts 8 ms, so Stage 7's generators size iterations to ≥ 2 s; `solver` image copy of vkreplay is Stage 9.
+
+**Next stage (5) starts from:** `task/CASE_FORMAT.md` (done here) and REQUIREMENTS.md. It writes TASK.md, SPEC.md, the starter ICD skeleton (reports zero devices) with a CMake build producing `build/libvk_candidate.so`, freezes `spec/` (profile + pinned Vulkan spec HTML), and sets `TaskSpec`.

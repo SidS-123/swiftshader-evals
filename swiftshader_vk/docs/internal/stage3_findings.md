@@ -73,7 +73,7 @@ with this table as one input and the case counts in §11.1 as the other.
 `docs/REQUIREMENTS.md` now lists exclusions measured from the profile (see
 there).
 
-## 3.4 Determinism — deferred to after Stage 4 step 6
+## 3.4 Determinism — done in Stage 4: see determinism.md
 
 It needs a replay driver. The plan allows running this after the minimal
 `vkreplay` exists. Hypotheses to test, from the source reading:

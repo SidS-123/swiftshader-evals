@@ -16,6 +16,9 @@ SWIFTSHADER_LLVM_VERSION=10.0
 # closest SDK to SwiftShader's own headers (VK_HEADER_VERSION 355).
 VULKAN_SDK_TAG=vulkan-sdk-1.4.357.0
 
+# vkreplay's JSON parser (header-only).
+NLOHMANN_JSON_TAG=v3.12.0
+
 # Fairness comparator (D12): Mesa lavapipe.
 MESA_TAG=mesa-26.2.3
 MESON_VERSION=1.9.1
