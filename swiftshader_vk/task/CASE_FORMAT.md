@@ -246,9 +246,9 @@ images with `vkCmdCopyImageToBuffer` (tightly packed, `GENERAL` layout, the
 whole mip level including all depth slices of a 3D image) into a staging
 buffer; buffers through their mapping. Multisampled images must be resolved
 first. `elem` is one of `u8 i8 u16 i16 u32 i32 u64 i64 f16 f32 f64` and
-decides how the item is compared (`SPEC.md`). `allow` ({"ulp": n},
-{"lsb": n} or {"abs": x}), set by some cases, is a per-item allowance:
-differences up to it count as zero.
+decides how the item is compared (`SPEC.md`). `allow` ({"ulp": n} or
+{"lsb": n}), set by some cases, is a per-item allowance: differences up to it
+count as zero.
 
 **Readback layout of each aspect** (also the layout `upload_image` expects):
 colour aspects in the format's own texel layout; `D16_UNORM` depth as 16-bit

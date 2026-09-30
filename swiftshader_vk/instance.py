@@ -99,29 +99,8 @@ class VkReplayDriver(Driver):
 
 
 # ------------------------------------------------------------------ scorer
-
-class MyScorer(CaseScorer):
-    """Fidelity distance, procedural checks and timings for one case."""
-
-    primary_channel = "snap"          # vkreplay writes one .ssnap per snapshot event under this key
-
-    def load_output(self, outdir, event, channel=None):
-        ...  # read `event["files"][channel]` from outdir as an array; None if absent
-
-    def distance(self, ref, cand) -> float:
-        ...  # a defect in [0, 1]; missing/wrong-size/uniform candidate -> 1.0.
-        # Keep a per-block floor so noise below it costs nothing, and an
-        # absolute term (luminance, magnitude) so a uniform gain is visible.
-
-    def preview_rgb8(self, output):
-        return None  # or an HxWx3 uint8 picture for the workspace previews and the site
-
-    def procedural_checks(self, case, ref_ledger, cand_ledger, ref_dir, cand_dir, threshold):
-        checks = generic_checks(self, ref_ledger, cand_ledger, ref_dir, cand_dir, threshold)
-        if checks and checks[0]["check"] == "exit_ok":
-            return checks          # the crash gate
-        # ... append {"check", "ok", "detail"} entries derived from ref_ledger
-        return checks
+# The format-aware distance and the procedural checks live in scorer.py (metric ssvk-1.0).
+from scorer import SsvkScorer  # noqa: E402
 
 
 # ------------------------------------------------------------------ controls
@@ -208,11 +187,17 @@ TASK = TaskSpec(
 )
 
 METRIC = MetricSpec(
-    # Draft until Stage 6/8 (PLAN_v1.md §10.4): the thread-count variant is the n2
-    # run (sample_mult=2); lavapipe is recorded, never tolerated.
-    version="ssvk-1.0-draft",
+    # ssvk-1.0 (Stage 6): the distance's constants are scorer.METRIC_CONSTANTS and are part
+    # of this version. The thread-count variant is the n2 run (sample_mult=2, a determinism
+    # check: noise 0 measured in Stage 4); lavapipe is recorded, never tolerated. The
+    # tolerated set and the constants are confirmed or revised by the Stage 8 controls.
+    version="ssvk-1.0",
     perturbations=("subzero", "vtxjitter", "texcoord_ulp", "lavapipe"),   # stored in every refcache entry
-    tolerance_perturbations=("subzero", "vtxjitter", "texcoord_ulp"),     # the ones that may raise T
+    # Tolerated (may raise T): sub-pixel vertex nudges and 1-ULP texcoord nudges only.
+    # Subzero is recorded, not tolerated: its differences are float-precision ones in
+    # compute, where D saturates whatever T is; spec-bounded results get a per-item
+    # `allow` in the case instead (Stage 6 measurement, docs/DESIGN.md 2026-09-30).
+    tolerance_perturbations=("vtxjitter", "texcoord_ulp"),
     k_noise=2.0, k_sens=2.0, t_lo=0.03, t_hi=0.30, hill_n=4,
     weights={"replay": 0.60, "procedural": 0.30, "performance": 0.10},
     perf_half=16.0, perf_gate=8.0, case_bar=0.9, procedural_bar=0.95,
@@ -234,7 +219,7 @@ INSTANCE = Instance(
     name="swiftshader-vk",
     root=ROOT,
     driver=VkReplayDriver(),
-    scorer=MyScorer(),
+    scorer=SsvkScorer(),
     metric=METRIC,
     corpus=CORPUS,
     task=TASK,

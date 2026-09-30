@@ -25,7 +25,7 @@ Two case features exist for the grader (Stage 5):
 - `"data": {"address": [{"buffer", "offset"}]}` writes 64-bit buffer device
   addresses into uploads and push constants (the `compute_types` family's
   buffer-device-address cases).
-- A snapshot item's `"allow": {"ulp" | "lsb" | "abs": n}` is copied by the
+- A snapshot item's `"allow": {"ulp" | "lsb": n}` is copied by the
   trusted parent, from its own plan, into the `.ssnap` header; the scorer
   ignores per-element differences up to it. Generators set it only where the
   Vulkan precision appendix bounds a result instead of defining it.

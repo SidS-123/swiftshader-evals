@@ -19,25 +19,52 @@ each.
   60 s), memory, process count, no network. A crash or timeout ends the case;
   snapshots not written score 0.
 
-## Fidelity distance
+## Fidelity distance (metric `ssvk-1.0`, `scorer.py`)
 
-<How a candidate output is compared with the reference output of the same
-snapshot, as a defect D in [0, 1]: preprocessing, the structural term, the
-absolute term (so a uniform bias is visible), the floor (so noise at the
-reference's own level costs nothing), the degenerate-output override. State
-every constant. An image metric, a text diff, an array norm and a spectral
-distance all fit this shape.>
+A snapshot is an `.ssnap` file of items (image aspects, buffer ranges); the
+format of each item comes from the trusted parent's plan. Per component:
+
+| Data | error `e` | free |
+|---|---|---|
+| integer formats, stencil, integer buffers | 0 or `EXACT_MISS` (1e6) | 0 |
+| UNORM / SNORM / sRGB codes, D16 depth | code difference (LSB) | 1 LSB |
+| floats (f16/f32/f64, UFLOAT, D32 depth) | difference / ULP at max(\|ref\|, 1/16) | 2 ULP |
+
+NaN only matches NaN, infinity only the same infinity (else `EXACT_MISS`).
+`e_eff = max(0, e - free - allow)`, with `allow` a per-item allowance a case
+may set (ULP or LSB). Per element: max over components (signed: mean). Blocks:
+8x8 texels per layer/slice; 64 elements for buffers. Per block:
+
+```
+d_mag   = mean(min(e_eff, 16)) / 4
+d_bias  = |mean(clip(signed e_eff, -4, 4))| / 2
+d_cov   = fraction(e_eff > 1) / C          C = 1/4 (images), 1/64 (buffers)
+d_block = min(1, max(d_mag, d_bias, d_cov));  0 if < 0.05
+D       = sqrt(mean over items of mean over blocks of d_block^2)
+```
+
+Overrides: a missing item, a shape/format mismatch, or a colour item that is
+uniform (99.9 % one value) where the reference's is not sets that item's
+blocks to 1. The free 1 LSB / 2 ULP absorbs last-bit rounding (a truncating
+conversion, lavapipe's rounding); the caps keep single wrong texels (edge
+samples) from saturating a block; the RMS over blocks keeps a localised error
+visible (one wrong block of 64: D = 0.125). Unit tests:
+`tests/test_scorer.py` (17).
 
 ## Per-case threshold
 
 ```
-noise       = mean over snapshots of D(ref_N, ref_2N)
+noise       = mean over snapshots of D(ref_N, ref_2N)       (N: ThreadCount 4, 2N: ThreadCount 1)
 sensitivity = max over the TOLERATED perturbations of mean over snapshots of D(ref, ref_perturbed)
 T           = clamp(max(k_noise * noise, k_sens * sensitivity), T_lo, T_hi)
 ```
 
-Tolerated perturbations: <list>. Run but not tolerated: <list>.
-Defaults: `k_noise = 2.0`, `k_sens = 2.0`, `T_lo = 0.03`, `T_hi = 0.30`.
+Tolerated perturbations: `vtxjitter` (vertex x, y +-2^-17), `texcoord_ulp`
+(texture coordinates +-1 ULP). Run but not tolerated: `subzero` (the other
+JIT backend), `lavapipe` (Mesa, the fairness comparator). `k_noise = 2.0`,
+`k_sens = 2.0`, `T_lo = 0.03`, `T_hi = 0.30`. Measured on the pilot: noise 0
+everywhere (deterministic oracle), jitter sensitivity <= 0.0135, so T = 0.03
+for every case except those with order-dependent output (excluded).
 
 ## Snapshot score, case score, category
 
@@ -49,9 +76,21 @@ fidelity = mean over families of (mean over that family's cases of s_case)
 
 ## Procedural cases
 
-<The checks, one row each: name, subsystem, what it compares. Every check is
-derived from the reference's own ledger, never from an expectation written
-into a generator. A clean exit is a gate for the whole case.>
+A procedural case scores the fraction of its checks that pass; every check is
+derived from the reference's own ledger for that case.
+
+| Check | What it compares |
+|---|---|
+| `exit_ok` | gate: a candidate that did not exit `ok` fails the case (the only check then) |
+| `output_matches_reference` | every snapshot of the case within the case's T (evalBase generic) |
+| `vkresult_stream` | the whole `calls` list (op index, function, result), vkreplay's own calls included; one check |
+| `query:<name>:<key>` | per top-level key of a `query` op's value (properties, features, formats, extensions, memory, queue families, versions) |
+| `query:<name>` | the whole value of any other recording op (enumerate, image format props, fence/event/semaphore status, read_queries) |
+
+Ignored fields (they identify a build, not a behaviour): `pipelineCacheUUID`,
+`deviceUUID`, `driverUUID`, `deviceLUID`, `deviceLUIDValid`, `deviceNodeMask`,
+`conformanceVersion`, `driverInfo`. Timestamps reach the ledger only as
+validity (non-zero, non-decreasing, availability).
 
 ## Performance
 
@@ -222,3 +261,42 @@ category is gameable (Stage 8). Accepted knowingly: the device name in the
 profile identifies the reference as SwiftShader; the `oracle` tool would
 reveal it anyway, and the plan's contamination measures (hidden split,
 similarity audit, lavapipe fairness number) stand.
+
+**2026-09-30 — Metric `ssvk-1.0` (Stage 6).** The distance above replaces the
+toy's (which would have passed a 9.6/255 bias and every 1-LSB error). Design
+choices, each driven by a synthetic test (`tests/test_scorer.py`) or the pilot:
+errors in the format's own units with 1 LSB / 2 ULP free (last-bit rounding is
+implementation latitude: lavapipe differs by exactly that almost everywhere);
+magnitude and bias terms that cap each element's contribution, because the
+first version let one flipped edge texel saturate its block (three stray
+texels gave D = 0.22); the coverage term for sparse errors, saturating at a
+quarter of an image block but at one element of a buffer run (buffers have no
+edges; every element is a result); the RMS over blocks so one fully wrong
+block of 64 fails (D = 0.125) where a mean would have passed it (0.016);
+floats in ULPs of max(|ref|, 1/16) so near-zero results are not judged in
+absurdly fine units. The constants are provisional until the Stage 8 controls
+confirm them; any change is a new metric version.
+
+**2026-09-30 — Subzero is not a tolerated perturbation (Stage 6).** Measured
+with `ssvk-1.0` on the pilot (`tools/perturb_distance.py`): `subzero` moves
+only float compute (`p_c_float_transc` D = 0.35, `p_c_convert_round` 0.25,
+`p_c_matrix` 1.0), which would put those cases' T at the 0.30 cap; and a
+candidate with the same kind of differences would still score about 0,
+because when every element differs, D saturates whatever T is. Tolerance for
+spec-bounded float results is therefore per element: generators set `allow`
+on those snapshot items with the bound from the Vulkan precision appendix.
+Tolerated: `vtxjitter` (D <= 0.0135 on the pilot) and `texcoord_ulp` (0 on the
+pilot at this metric). With noise 0, T = 0.03 for 47 of 51 pilot cases (the
+others are the float cases above, and the excluded atomic-order case).
+
+**2026-09-30 — `allow` policy for generators (Stage 6, applied in Stage 7).**
+`allow` is set only where the Vulkan specification bounds a result instead of
+defining it, with that bound: transcendental and division results in compute
+(the "Precision of Individual Operations" table; composites such as a matrix
+inverse get the bound of their worst operation times the operation count, or
+are not snapshotted raw). Depth from interpolation and filtered sampling (LOD,
+filter weights) are the other places the spec leaves latitude, and where
+lavapipe differs from the reference (525 ULP of D32 depth; 4-5 LSB in
+trilinear sampling); whether to allow for them is decided in Stage 8 from the
+lavapipe run and the controls, not assumed here. First lavapipe number at
+`ssvk-1.0` with no allowances: mean snapshot score 0.773 over 51 pilot cases.

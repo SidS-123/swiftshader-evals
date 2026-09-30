@@ -79,35 +79,54 @@ validation layer reporting no errors, and within the `oracle` tool's limits.
 
 ### Replay cases
 
-Each snapshot item is compared with the reference's, texel by texel (element
-by element for buffers), in the data's own units:
+Each snapshot item is compared with the reference's, element by element and
+component by component, in the data's own units. For each component, the
+error `e` is:
 
-- integer formats, stencil, and integer buffer elements (`u8` ... `i64`):
-  exactly;
-- normalized formats (UNORM, SNORM, sRGB) and `D16_UNORM` depth: in steps of
-  the stored integer (1 LSB is one step);
-- float formats, `D32_SFLOAT` depth and float buffer elements (`f16`, `f32`,
-  `f64`): in ULPs, with an absolute floor near zero; NaN must match NaN and an
-  infinity the same infinity;
-- an item with an `allow` field ({"ulp": n}, {"lsb": n} or {"abs": x})
-  ignores differences up to that allowance. Cases use it for results whose
-  precision the Vulkan specification bounds rather than defines (appendix
-  "SPIR-V Environment", "Precision of Individual Operations": e.g. `exp`,
-  `log`, `sin`, `pow`, division), with the specification's bound.
+| Data | `e` | Free |
+|---|---|---|
+| integer formats, stencil, integer buffer elements (`u8` ... `i64`) | 0 if equal, otherwise "wrong" (saturates every term below) | 0 |
+| normalized formats (UNORM, SNORM, sRGB codes), `D16_UNORM` depth | difference of the stored integers (LSB) | 1 LSB |
+| float formats, `D32_SFLOAT` depth, float buffer elements (`f16`, `f32`, `f64`), packed floats | difference / ULP of the format at max(\|reference\|, 1/16) | 2 ULP |
 
-These per-texel differences are summarised per 8x8 block of texels (per fixed
-run of elements for buffers) into a snapshot defect `D` between 0 and 1 that
-is sensitive to a uniform bias, to scattered large errors (a wrong edge, a
-wrong texel) and to structure. A missing item, a wrong size, or an output that
-is uniform where the reference's is not, gives `D = 1`.
+NaN matches only NaN, an infinity only the same infinity; anything else
+against them is "wrong". The **free** amount is subtracted
+(`e_eff = max(0, e - free)`): a last-bit difference in rounding costs
+nothing. An item with an `allow` field ({"ulp": n}, {"lsb": n}) adds that to
+the free amount; cases set it, with the specification's bound, for results
+whose precision the Vulkan specification bounds rather than defines (appendix
+"SPIR-V Environment", "Precision of Individual Operations": `exp`, `log`,
+`sin`, `pow`, division, ...). An element's error is the largest over its
+components; its signed error (for the bias term) the mean.
+
+Elements are grouped into **blocks**: 8x8 texels of each layer and depth
+slice of an image, 64 consecutive elements of a buffer. For each block:
+
+```
+d_mag   = mean(min(e_eff, 16)) / 4               how wrong, broadly
+d_bias  = |mean(clip(signed e_eff, -4, 4))| / 2  a uniform offset or gain
+d_cov   = fraction of elements with e_eff > 1 / C   how many are wrong
+          (C = 1/4 for images: a quarter of a block wrong saturates it, since
+           edge samples legitimately differ; C = 1/64 for buffers: one wrong
+           element saturates its run, since every element is a result)
+d_block = min(1, max(d_mag, d_bias, d_cov)), and 0 if below 0.05
+```
+
+An item's defect is the root-mean-square of its blocks, and the snapshot's
+`D` the root-mean-square over its items (items weigh equally):
+`D = sqrt(mean over items of mean over blocks of d_block^2)`. One fully wrong
+block in a 64x64 image gives `D = 0.125`; three stray texels, about 0.01. A
+missing item, a size or format mismatch, or a colour item that is uniform
+where the reference's is not, sets all of that item's blocks to 1.
 
 Each case has one tolerance `T`, shared by its snapshots, derived from how
-much the **reference's own** output moves when a sub-pixel amount is added to
-vertex positions, texture coordinates move by 1 ULP, or another build of the
-reference runs the case: `T = clamp(2 x that movement, 0.03, 0.30)`. A
-snapshot scores `1 / (1 + (D / T)^4)` (0.94 at `D = T/2`, 0.5 at `D = T`,
-0.06 at `D = 2T`), and a replay case scores the mean of its snapshots. The
-`grade_dev` tool reports `D`, `T` and the score of every snapshot.
+much the **reference's own** output moves (the same `D`) when its vertex
+positions are nudged by less than its sub-pixel precision or its texture
+coordinates by 1 ULP: `T = clamp(2 x that movement, 0.03, 0.30)`. The
+reference is deterministic, so most cases have `T = 0.03`. A snapshot scores
+`1 / (1 + (D / T)^4)` (0.94 at `D = T/2`, 0.5 at `D = T`, 0.06 at
+`D = 2T`), and a replay case scores the mean of its snapshots. The `grade_dev`
+tool reports `D`, `T` and the score of every snapshot.
 
 ### Procedural cases
 
@@ -117,11 +136,14 @@ reference's on the same case:
 
 - the case ran to the end (`exit: ok`);
 - every snapshot it takes is within the case's tolerance (as above);
-- the sequence of `VkResult`s in the ledger's `calls`, including the calls
-  `vkreplay` makes on the case's behalf;
-- every value in every `query` event: reported properties, features, formats,
-  extensions, enumeration results, fence, event and semaphore status and
-  values, query results;
+- the whole sequence of `VkResult`s in the ledger's `calls`, including the
+  calls `vkreplay` makes on the case's behalf (one check);
+- every `query` event: one check per top-level key of its value (for example
+  `properties`, `features`, `formats`, `device_extensions` of a `query` op;
+  the whole value of an `enumerate`, `fence_status`, `read_queries`, ... op),
+  each passing only if every value under it matches: reported properties,
+  features, formats, extensions, enumeration results, fence, event and
+  semaphore status and values, query results;
 - timestamps are never compared by value, only for validity: non-zero,
   non-decreasing in query order, and the same availability.
 

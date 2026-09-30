@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.8** (first iteration, "v1") |
-| Status | **Stage 5 done (2026-09-30).** Stage 6 next. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.9** (first iteration, "v1") |
+| Status | **Stage 6 done (2026-09-30).** Stage 7 next. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -368,6 +368,8 @@ count" so evalBase's n1/n2 noise measurement becomes the determinism check.
 Synthetic snapshots per format class: identical → D=0; +1 LSB everywhere → low but visible via bias term; gain ×2 → D≈1; single-pixel edge flips → below T; half-pixel shift → above T; one wrong 8×8 region → proportional D; integer off-by-one → max; NaN vs number → max; missing attachment → 1. Plus procedural check tests on hand-made ledgers.
 
 **Exit:** tests green; distances on the pilot corpus between reference and each perturbation printed and sane.
+
+**As built (v1.9, 2026-09-30).** Exit met (17 unit tests; pilot distances in STATUS). Differences from §10: the distance caps each element's contribution to the magnitude/bias terms (the §10.1 RMS let a single edge texel saturate a block), uses RMS over blocks (so a localised error is not averaged away), gives buffers their own coverage constant (one wrong element saturates a run), measures floats in ULPs of max(|ref|, 1/16), and frees 1 LSB / 2 ULP before any term. Constants: `scorer.METRIC_CONSTANTS`. **Tolerated set changed: `subzero` is recorded but not tolerated** (it only moves float compute, where D saturates whatever T is); spec-bounded results get per-item `allow` in generators instead. `profile_match` became per-key `query:` checks. End to end on 10 pilot cases through the evalBase grader: reference 1.000 (full success), starter 0.000.
 
 ---
 

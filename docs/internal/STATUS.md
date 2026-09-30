@@ -127,3 +127,20 @@ Appended at the end of every stage (PLAN_v1.md §16.5). Internal; stripped on ex
 - Stage 9: solver image contains gcc, clang, cmake, ninja, make, gdb, valgrind, strace, python3, `/opt/vk` headers + loader + validation layer, `vkreplay`, `spirv-dis`, `spirv-as`; Ubuntu 24.04 base (same glibc as the grading image); `SmokeSpec` updated for the CMake build.
 
 **Next stage (6) starts from:** `snapshot.py`, the Stage 4 determinism/perturbation measurements, and `SPEC.md`'s scoring section. It writes `scorer.py` (format-aware distance, procedural checks, timings), metric v1.0, and unit tests.
+
+## Stage 6 — Scorer and metric `ssvk-1.0` (2026-09-30)
+
+| Item | State | Evidence |
+|---|---|---|
+| Scorer | `scorer.py` `SsvkScorer`: `.ssnap` loading, format-aware distance (free 1 LSB / 2 ULP; capped magnitude and bias terms; coverage with C = 1/4 images, 1/64 buffers; RMS over blocks and items), uniform-output override, `allow`, previews, block heatmaps, procedural checks | `scorer.py` |
+| Unit tests | 17 passed (identity, free rounding, 2-LSB bias, gain x2, half-pixel, one wrong block = 0.125, edge flips < 0.02, uniform, missing/mismatch, integer exactness, float ULP/NaN, float allow, buffer element, depth/stencil, item weighting, preview, procedural) | `tests/test_scorer.py` |
+| Metric | `ssvk-1.0`; tolerated `vtxjitter`, `texcoord_ulp`; recorded `subzero`, `lavapipe`; k 2/2, T in [0.03, 0.30], Hill 4, weights 0.6/0.3/0.1, perf 16/8, bars 0.9/0.95 | `instance.py` |
+| Pilot distances | noise 0 on every case; vtxjitter <= 0.0135; texcoord_ulp 0; subzero 0.25-1.0 on three float cases (hence not tolerated); T = 0.03 on 47/51 | `tools/perturb_distance.py` output |
+| Fairness preview | lavapipe mean snapshot score 0.773 (51 pilot cases, no allowances) | same |
+| End to end (evalBase grader, 10 pilot cases) | refcache built; **reference = 1.000, full success**; **starter = 0.000** | `runs/pilot/grade-ref`, `runs/pilot/grade-starter` (git-ignored) |
+| SPEC.md | exact `D` formula, constants, tolerated set, procedural checks | `task/SPEC.md` |
+| DESIGN.md | fidelity, threshold, procedural sections written; decision log: metric design, subzero not tolerated, `allow` policy | `docs/DESIGN.md` |
+
+**Open items carried forward:** Stage 7 applies the `allow` policy in generators (spec-bounded float results) and adds render-pass ops; Stage 8 decides depth-interpolation and filtered-sampling allowances from the lavapipe run, writes the controls' predictions first, and may revise the constants (as a new metric version); the performance scaling (D5) is decided in Stage 8.
+
+**Next stage (7) starts from:** `corpus/gen/common.py`, the pilot's case shapes, REQUIREMENTS.md's 21 families. It writes the generators (public here, hidden in the private repo), render-pass ops, the validity gate for every generated case, the determinism proof, and both reference caches.
