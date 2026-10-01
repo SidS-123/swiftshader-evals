@@ -1,0 +1,6 @@
+{
+ "what": "each image readback returns the previous readback of that image",
+ "defines": {
+  "CONTROL_STALE_FRAME": 1
+ }
+}

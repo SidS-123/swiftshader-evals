@@ -1,0 +1,6 @@
+{
+ "what": "8-bit UNORM/sRGB readbacks: about half the codes one LSB low (truncation)",
+ "defines": {
+  "CONTROL_ROUND_TRUNC": 1
+ }
+}

@@ -1,0 +1,6 @@
+{
+ "what": "VK_SUCCESS instead of FORMAT_NOT_SUPPORTED, INCOMPLETE (device extensions), TIMEOUT, NOT_READY",
+ "defines": {
+  "CONTROL_WRONG_ERRORS": 1
+ }
+}

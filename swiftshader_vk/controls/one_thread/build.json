@@ -1,0 +1,6 @@
+{
+ "what": "the oracle with ThreadCount=1",
+ "defines": {
+  "SHIM_INI": "/opt/ssvk/ini/threads1"
+ }
+}

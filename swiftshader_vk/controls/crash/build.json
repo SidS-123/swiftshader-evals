@@ -1,0 +1,6 @@
+{
+ "what": "SIGSEGV on the second vkQueueSubmit",
+ "defines": {
+  "CONTROL_CRASH": 1
+ }
+}

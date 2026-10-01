@@ -1,0 +1,6 @@
+{
+ "what": "SwiftShader's Subzero backend",
+ "defines": {
+  "SHIM_TARGET": "/opt/swiftshader/subzero/libvk_swiftshader.so"
+ }
+}

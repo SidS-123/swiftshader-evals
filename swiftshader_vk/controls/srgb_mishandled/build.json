@@ -1,0 +1,6 @@
+{
+ "what": "sRGB-format readbacks hold the linear value (encode skipped)",
+ "defines": {
+  "CONTROL_SRGB_MISHANDLED": 1
+ }
+}

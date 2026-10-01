@@ -1,0 +1,6 @@
+{
+ "what": "every viewport moved +0.5 px in x and y",
+ "defines": {
+  "CONTROL_HALF_PIXEL": 1
+ }
+}

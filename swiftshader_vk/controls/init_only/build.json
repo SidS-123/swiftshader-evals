@@ -1,0 +1,6 @@
+{
+ "what": "instance and physical-device queries work; vkCreateDevice fails",
+ "defines": {
+  "CONTROL_INIT_ONLY": 1
+ }
+}

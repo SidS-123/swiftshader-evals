@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.10** (first iteration, "v1") |
-| Status | **Stage 7 done (2026-10-01).** Stage 8 next. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.11** (first iteration, "v1") |
+| Status | **Stage 8 in progress (2026-10-01): predictions committed, controls being measured.** Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -501,6 +501,8 @@ python -m evalbase.reports.controls_summary --write   # regenerates docs/CONTROL
 9. Controls sweeps run on an otherwise idle host (never alongside anything else).
 
 **Exit:** reference 1.0 both splits; stub in null band; hardcode_public null on hidden; every control inside its (possibly restated) band; D5 decided; CONTROLS.md generated.
+
+**Predictions (v1.11, 2026-10-01, before any control run).** The table above is v1.0's; the committed predictions with bands are in `swiftshader_vk/docs/DESIGN.md` ("Controls"). Four are restated against this table, with reasons there: `round_trunc` = 1.0, `one_thread` and `wrong_limits` reach full success, `gain_x2` / `half_pixel` replay ≈ 0.5. Added controls: `reference_subzero`, `lavapipe`, `one_thread` run through the same shim; `success_everywhere` (carried from Stage 5). No `control.json` mounts: the reference image holds the real drivers.
 
 ---
 

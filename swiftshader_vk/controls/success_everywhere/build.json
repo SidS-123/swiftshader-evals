@@ -1,0 +1,6 @@
+{
+ "what": "reports the profile, returns VK_SUCCESS, executes nothing",
+ "defines": {
+  "CONTROL_SUCCESS_EVERYWHERE": 1
+ }
+}

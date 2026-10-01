@@ -110,16 +110,109 @@ in a partial run.
 
 ## Controls (predicted, then observed)
 
-| Control | Predicted | Why | Observed |
-|---|---|---|---|
-| reference as candidate | exactly 1.0, both splits | the grader must accept what defined it | |
-| stub | the null band | a fraction of checks is satisfied by doing nothing; know the floor | |
-| <tolerated perturbation> | category >= 0.9; per case >= 0.7 outside the T_hi cap | the tolerance must accept what it is built from | |
-| <untolerated perturbation> | penalised: category band | the cost of the defect is documented, not demanded to be small | |
-| <bias x2> | fidelity <= 0.2 | a uniform gain must be visible | |
-| stale output | fidelity ~1/snapshots on sequences | sequences catch a candidate one step late | |
-| hardcoded public | ~1.0 public, null band hidden | the split defeats memorisation | |
-| malformed / crash | snapshots after the crash 0; no grader exception | hostile output must not take the grader down | |
+**Predictions committed 2026-10-01, before any control was run** (PLAN_v1.md
+§12 step 1; the commit is the proof). Metric `ssvk-1.0`, both splits.
+
+**How the controls are built.** Every control is a `libvk_candidate.so` the
+grader runs exactly like a model's build (`controls/<name>/build.json`,
+`instance.py: SsvkControls`): the wrapper ICD `controls/common/shim.cpp`
+compiled with one `CONTROL_*` macro, or the task's starter for `stub`. The shim
+dlopens the real driver from the reference image, makes the oracle's ini
+directory its working directory (so `reference` runs with ThreadCount=4 like
+the oracle), and forwards every call; the macro alters one thing. vkreplay
+gives a candidate a clean environment, so nothing is chosen at run time.
+Readback alterations rewrite image->buffer copies after the wait that
+completes them (how vkreplay reads every image snapshot); buffer snapshots are
+read through their own mappings and are never altered.
+
+**How the numbers were predicted.** `tools/predict_controls.py` applies each
+control's alteration to the structure of every case (snapshot items and their
+formats, samplers, draws, the submissions vkreplay makes) and to the
+reference's own ledgers in both caches (call results; query events before or
+after the device), scores an altered snapshot 0 and an untouched one 1, and
+aggregates with the grader's rules (replay = mean of family means). No control
+was run. `reference_subzero` and `lavapipe` replay predictions come from the
+Subzero and lavapipe runs already stored in the caches (the same drivers,
+driven directly). Perf ratios for `one_thread` and `reference_subzero` come
+from the Stage 7 gate timings.
+
+**Bands.** A category score within ±0.05 and an overall within ±0.03 of the
+prediction is a hit, except: exactly 1.000 (replay and procedural) for
+`reference`, `one_thread`, `round_trunc` and `hardcode_public` on public, with
+performance ≥ 0.98; ±0.10 for `lavapipe`, and for the procedural score of
+`stub`, `init_only`, `success_everywhere`, `crash`, `malformed` and
+`hardcode_public` on hidden (their procedural checks depend on call-by-call
+details the predictor approximates). `lavapipe` performance is not predicted.
+Full success is predicted yes/no.
+
+| Control | Alteration | Split | Replay | Procedural | Perf | Overall | Full success | Observed |
+|---|---|---|---|---|---|---|---|---|
+| `reference` | the oracle (SwiftShader LLVM, ThreadCount=4) through the shim, unaltered | public | 1.000 | 1.000 | 1.000 | 1.000 | yes | |
+| `reference` |  | hidden | 1.000 | 1.000 | 1.000 | 1.000 | yes | |
+| `one_thread` | the oracle with ThreadCount=1 | public | 1.000 | 1.000 | 0.999 | 1.000 | yes | |
+| `one_thread` |  | hidden | 1.000 | 1.000 | 0.999 | 1.000 | yes | |
+| `reference_subzero` | SwiftShader's Subzero backend | public | 0.985 | 0.979 | 0.998 | 0.984 | no | |
+| `reference_subzero` |  | hidden | 0.992 | 0.977 | 0.998 | 0.988 | no | |
+| `lavapipe` | Mesa lavapipe, an independent CPU driver | public | 0.826 | 0.228 | — | 0.564 | measured | |
+| `lavapipe` |  | hidden | 0.828 | 0.225 | — | 0.564 | measured | |
+| `stub` | the task's starter ICD (loads, reports no physical device) | public | 0.000 | 0.051 | 0.000 | 0.015 | no | |
+| `stub` |  | hidden | 0.000 | 0.030 | 0.000 | 0.009 | no | |
+| `init_only` | instance and physical-device queries work; vkCreateDevice fails | public | 0.000 | 0.341 | 0.000 | 0.102 | no | |
+| `init_only` |  | hidden | 0.000 | 0.344 | 0.000 | 0.103 | no | |
+| `success_everywhere` | reports the profile, returns VK_SUCCESS, executes nothing | public | 0.000 | 0.698 | 0.000 | 0.209 | no | |
+| `success_everywhere` |  | hidden | 0.000 | 0.692 | 0.000 | 0.208 | no | |
+| `hardcode_public` | the oracle on a byte-identical public case file, init_only otherwise | public | 1.000 | 1.000 | 1.000 | 1.000 | yes | |
+| `hardcode_public` |  | hidden | 0.000 | 0.344 | 0.000 | 0.103 | no | |
+| `gain_x2` | colour readbacks (8-bit UNORM/sRGB, 16/32-bit float) x2, alpha untouched | public | 0.497 | 0.972 | 0.250 | 0.615 | no | |
+| `gain_x2` |  | hidden | 0.486 | 0.970 | 0.250 | 0.607 | no | |
+| `srgb_mishandled` | sRGB-format readbacks hold the linear value (encode skipped) | public | 0.974 | 1.000 | 1.000 | 0.985 | no | |
+| `srgb_mishandled` |  | hidden | 0.978 | 1.000 | 1.000 | 0.987 | no | |
+| `half_pixel` | every viewport moved +0.5 px in x and y | public | 0.524 | 0.972 | 0.250 | 0.631 | no | |
+| `half_pixel` |  | hidden | 0.521 | 0.970 | 0.250 | 0.628 | no | |
+| `nearest_filter` | every sampler's mag/min filter forced to nearest | public | 0.950 | 1.000 | 0.750 | 0.945 | no | |
+| `nearest_filter` |  | hidden | 0.951 | 1.000 | 0.750 | 0.946 | no | |
+| `round_trunc` | 8-bit UNORM/sRGB readbacks: about half the codes one LSB low (truncation) | public | 1.000 | 1.000 | 1.000 | 1.000 | yes | |
+| `round_trunc` |  | hidden | 1.000 | 1.000 | 1.000 | 1.000 | yes | |
+| `stale_frame` | each image readback returns the previous readback of that image | public | 0.690 | 0.972 | 1.000 | 0.806 | no | |
+| `stale_frame` |  | hidden | 0.699 | 0.970 | 1.000 | 0.810 | no | |
+| `aux_garbage` | every depth/stencil readback is garbage | public | 0.844 | 0.972 | 0.750 | 0.873 | no | |
+| `aux_garbage` |  | hidden | 0.837 | 0.970 | 0.750 | 0.868 | no | |
+| `wrong_limits` | maxImageDimension2D halved, maxBoundDescriptorSets - 1, R8G8B8A8_UNORM loses storage-image | public | 1.000 | 0.972 | 1.000 | 0.991 | yes | |
+| `wrong_limits` |  | hidden | 1.000 | 0.965 | 1.000 | 0.990 | yes | |
+| `wrong_errors` | VK_SUCCESS instead of FORMAT_NOT_SUPPORTED, INCOMPLETE (device extensions), TIMEOUT, NOT_READY | public | 1.000 | 0.884 | 1.000 | 0.965 | no | |
+| `wrong_errors` |  | hidden | 1.000 | 0.859 | 1.000 | 0.958 | no | |
+| `crash` | SIGSEGV on the second vkQueueSubmit | public | 0.191 | 0.501 | 0.000 | 0.265 | no | |
+| `crash` |  | hidden | 0.192 | 0.509 | 0.000 | 0.268 | no | |
+| `malformed` | absurd memory requirements (2^60 bytes) for every buffer and image | public | 0.000 | 0.429 | 0.000 | 0.129 | no | |
+| `malformed` |  | hidden | 0.000 | 0.444 | 0.000 | 0.133 | no | |
+
+**What the predictions say about the metric (to be confirmed by measurement).**
+1. `round_trunc` scores exactly 1.0: the free 1 LSB (and a bias term computed
+   on the error after it) makes one-LSB truncation free *by design*. PLAN_v1
+   §12 said "high but not 1.0"; that was written before `ssvk-1.0` fixed the
+   free allowance. Restated here, before measuring.
+2. `one_thread` gets **full success**: its timed runs are 1.5-3.4x slower than
+   the reference, inside the 8x performance gate, and the Hill half-point of 16
+   makes that cost ~0.1 % of performance. PLAN_v1 §12 predicted "no full
+   success"; restated. This is the input to D5 (decided after measurement).
+3. `wrong_limits` gets **full success**: two wrong limits and one wrong format
+   bit fail 3-4 % of procedural checks, and the procedural bar is a mean of
+   0.95. Whether that is acceptable is decided after measurement.
+4. Replay alterations are diluted by the family mean: `gain_x2` and
+   `half_pixel` zero every image family but leave the compute and buffer
+   families at 1.0, so replay ≈ 0.5, not ≤ 0.2 as PLAN_v1 §12 said (that
+   number holds per affected family). Restated.
+5. `srgb_mishandled` only alters readbacks of sRGB images (attachments and
+   copies); sampling an sRGB texture into a UNORM target is not altered by this
+   control, so only a few cases see it (replay ≈ 0.97).
+6. The hidden split defeats memorisation: `hardcode_public` falls to the
+   `init_only` level on hidden (≈ 0.10: instance-level profile queries are the
+   same for every case and are memorisable).
+7. The null band: `stub` ≈ 0.01-0.02 overall (only the loader's instance
+   version matches); `init_only` ≈ 0.10; `success_everywhere` ≈ 0.21 (the
+   profile and many call results without doing any work).
+8. Hostile candidates: `crash` and `malformed` must produce scores, not grader
+   exceptions; their snapshots before the crash still count.
 
 ## Known limitations
 

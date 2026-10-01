@@ -1,16 +1,18 @@
 # Controls
 
-One subdirectory per control; `ControlSpec.build(name, out_dir)` turns it into
-a candidate directory. Write every prediction in `docs/DESIGN.md` before the
-first measurement, then measure on both splits and record the observations in
-`docs/CONTROLS.md`.
+One subdirectory per control, each with a `build.json`: what the control is and
+the macros it is built with. `instance.py: SsvkControls.build` compiles the
+wrapper ICD `common/shim.cpp` with those macros (or the task's starter, for
+`stub`) in the toolchain image into a candidate directory holding
+`libvk_candidate.so`, which the grader runs like any model's build:
 
-| Control | What it is | Predicted |
-|---|---|---|
-| `reference` | the oracle as the candidate | 1.0 on every category, both splits |
-| `stub` | every call succeeds, empty outputs | the null band (measure it) |
-| ... | one perturbed-reference control per tolerated perturbation | fidelity >= 0.9 |
-| ... | a uniform bias (gain, offset) | fidelity low |
-| ... | the previous output returned again | fidelity ~1/snapshots on sequences |
-| ... | a candidate that returns stored public outputs by case name | ~1.0 public, null band hidden |
-| ... | a crash mid-case, absurd output | snapshots after the crash 0; no grader exception |
+```sh
+python -m evalbase.grader.cli control <name> --out swiftshader_vk/runs/control-<name>-public
+python -m evalbase.grader.cli --corpus swiftshader_vk/corpus/hidden --cache swiftshader_vk/runs/refcache-hidden     control <name> --out swiftshader_vk/runs/control-<name>-hidden
+```
+
+The shim dlopens the real driver from the reference image (`SHIM_TARGET`),
+makes the oracle's ini directory its working directory (`SHIM_INI`), forwards
+every call, and alters one thing per `CONTROL_*` macro. Predictions for every
+control, written before any was run, are in `docs/DESIGN.md` ("Controls");
+`tools/predict_controls.py` derives them. Observations go to `docs/CONTROLS.md`.

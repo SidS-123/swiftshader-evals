@@ -1,0 +1,6 @@
+{
+ "what": "colour readbacks (8-bit UNORM/sRGB, 16/32-bit float) x2, alpha untouched",
+ "defines": {
+  "CONTROL_GAIN_X2": 1
+ }
+}

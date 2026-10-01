@@ -1,2 +1,0 @@
-# A candidate that answers every call and produces nothing.
-# Prediction: the null band; see docs/DESIGN.md.

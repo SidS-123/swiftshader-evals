@@ -1,0 +1,6 @@
+{
+ "what": "every sampler's mag/min filter forced to nearest",
+ "defines": {
+  "CONTROL_NEAREST_FILTER": 1
+ }
+}

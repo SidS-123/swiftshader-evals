@@ -1,0 +1,6 @@
+{
+ "what": "absurd memory requirements (2^60 bytes) for every buffer and image",
+ "defines": {
+  "CONTROL_MALFORMED": 1
+ }
+}

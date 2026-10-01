@@ -1,0 +1,6 @@
+{
+ "what": "maxImageDimension2D halved, maxBoundDescriptorSets - 1, R8G8B8A8_UNORM loses storage-image",
+ "defines": {
+  "CONTROL_WRONG_LIMITS": 1
+ }
+}

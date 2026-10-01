@@ -1,0 +1,6 @@
+{
+ "what": "every depth/stencil readback is garbage",
+ "defines": {
+  "CONTROL_AUX_GARBAGE": 1
+ }
+}

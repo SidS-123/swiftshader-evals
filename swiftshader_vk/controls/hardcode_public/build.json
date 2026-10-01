@@ -1,0 +1,6 @@
+{
+ "what": "the oracle on a byte-identical public case file, init_only otherwise",
+ "defines": {
+  "CONTROL_HARDCODE_PUBLIC": 1
+ }
+}

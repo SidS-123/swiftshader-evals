@@ -1,0 +1,6 @@
+{
+ "what": "Mesa lavapipe, an independent CPU driver",
+ "defines": {
+  "SHIM_TARGET": "/opt/lavapipe/lib/libvulkan_lvp.so"
+ }
+}
