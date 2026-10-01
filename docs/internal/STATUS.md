@@ -151,7 +151,7 @@ Appended at the end of every stage (PLAN_v1.md §16.5). Internal; stripped on ex
 |---|---|---|
 | Generators | 20 modules for 21 families (`perf.py` makes the four `perf_*`); shared builders in `corpus/gen/common.py` (`compute_case`, `raster_scene`, `texture_scene`, `spec_allow`, ...) | `swiftshader_vk/corpus/gen/` |
 | Public corpus | **91 cases** (replay 75, procedural 12, performance 4), 498 assets across both splits | `swiftshader_vk/corpus/public/` |
-| Hidden corpus | **187 cases** (replay 161, procedural 22, performance 4); private tables over the public builders | `~/swiftshader-evals-hidden/gen/` (commits `5689456`, `67c2910`, not pushed) |
+| Hidden corpus | **187 cases** (replay 161, procedural 22, performance 4); private tables over the public builders | `~/swiftshader-evals-hidden/gen/` (commits `5689456`, `67c2910`, pushed 2026-10-01) |
 | vkreplay | render pass objects: `render_pass`, `framebuffer`, `begin_render_pass` / `next_subpass` / `end_render_pass`, pipelines bound to a subpass | `driver/src/child_{pipelines,commands}.cpp`, `child.hpp`; CASE_FORMAT, REPLAY_FORMAT |
 | Validity gate | public 91/91, hidden 187/187: validation layer 0 spec violations, exit ok, repeats and ThreadCount 1/4 byte-identical | `tools/gate.sh` → `runs/gate-*/determinism.json` |
 | Generation determinism | 776/776 files identical (two generations, numpy default vs AVX features disabled) | `python -m evalbase.corpus.determinism --split both` |
@@ -164,7 +164,7 @@ Appended at the end of every stage (PLAN_v1.md §16.5). Internal; stripped on ex
 
 **Open items carried forward:**
 - Stage 8: whether the `t_hi` cases (vertex nudges that flip occlusion counts and edge pixels) are too loose; depth-interpolation and filtered-sampling allowances (`depth_allow` is still `None`); D5 performance scaling; controls' predictions first.
-- The hidden generator commit is local only: pushing `~/swiftshader-evals-hidden` to its private remote (D11 says same day) waits for your go-ahead, like every push.
+- Pushed 2026-10-01: public `4395275` to `SidS-123/swiftshader-evals`, hidden `67c2910` to `SidS-123/private-repo-swiftshader`. From now on both repos are pushed as work is committed (your standing approval); the public repo's WSL `credential.helper` is the Windows Git Credential Manager, as the hidden repo's already was.
 - `snapshot.py` prints a NumPy `RuntimeWarning` when a float snapshot holds NaN (harmless; silence it in Stage 8).
 
 **Next stage (8) starts from:** both caches and grade-ref = 1.0. It commits the controls' predictions to DESIGN.md first, then builds the wrapper-ICD controls and measures them on both splits.
