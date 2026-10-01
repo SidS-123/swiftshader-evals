@@ -14,6 +14,11 @@
 // return the shim's function for an intercepted name the real driver implements, and
 // the real driver's otherwise.
 //
+// CONTROL_POISON is not a control but a corpus gate (tools/determinism.py): every new
+// allocation is filled with 0xA5 before the case sees it, so a case whose outputs differ
+// from the oracle's reads memory it never wrote (uninitialised contents are stable inside
+// one process, which repeat runs cannot reveal).
+//
 // Readback alterations act on image -> buffer copies (how vkreplay reads every image
 // snapshot): a vkCmdCopyImageToBuffer is remembered with its command buffer, the
 // command buffer's copies become pending at vkQueueSubmit, and after the next
@@ -416,6 +421,19 @@ VKAPI_ATTR void VKAPI_CALL shim_UnmapMemory(VkDevice d, VkDeviceMemory m) {
     RD(vkUnmapMemory)(d, m);
 }
 
+VKAPI_ATTR VkResult VKAPI_CALL shim_AllocateMemory(VkDevice d, const VkMemoryAllocateInfo* ai,
+                                                   const VkAllocationCallbacks* a, VkDeviceMemory* m) {
+    VkResult r = RD(vkAllocateMemory)(d, ai, a, m);
+#if defined(CONTROL_POISON)
+    void* p = nullptr;
+    if (r == VK_SUCCESS && RD(vkMapMemory)(d, *m, 0, VK_WHOLE_SIZE, 0, &p) == VK_SUCCESS && p) {
+        std::memset(p, 0xA5, (size_t)ai->allocationSize);
+        RD(vkUnmapMemory)(d, *m);
+    }
+#endif
+    return r;
+}
+
 VKAPI_ATTR void VKAPI_CALL shim_GetBufferMemoryRequirements(VkDevice d, VkBuffer b, VkMemoryRequirements* r) {
     RD(vkGetBufferMemoryRequirements)(d, b, r);
 #if defined(CONTROL_MALFORMED)
@@ -620,6 +638,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction>& table() {
         ENTRY("vkBindBufferMemory", shim_BindBufferMemory),
         ENTRY("vkBindBufferMemory2", shim_BindBufferMemory2),
         ENTRY("vkBindBufferMemory2KHR", shim_BindBufferMemory2),
+        ENTRY("vkAllocateMemory", shim_AllocateMemory),
         ENTRY("vkMapMemory", shim_MapMemory),
         ENTRY("vkUnmapMemory", shim_UnmapMemory),
         ENTRY("vkGetBufferMemoryRequirements", shim_GetBufferMemoryRequirements),

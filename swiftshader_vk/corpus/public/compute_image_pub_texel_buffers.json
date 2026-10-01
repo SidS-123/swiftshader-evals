@@ -4,7 +4,7 @@
  "family": "compute_image",
  "category": "replay",
  "assets": {
-  "1793e00bd34c9822e16bbe7502bceee55e822babe56530b865c84117c87e39bf.bin": {
+  "a985e5590baedd97b9d25956c30a976eebea3cb28145b27a41e4251da1a8b1f1.bin": {
    "kind": "spirv"
   },
   "3e9bac81cad80f11692ccb659672e2a099ad6bb2c2ac0cc736a8bf1f81b36e2d.bin": {
@@ -86,7 +86,7 @@
    "op": "shader",
    "name": "cs",
    "asset": {
-    "file": "1793e00bd34c9822e16bbe7502bceee55e822babe56530b865c84117c87e39bf.bin"
+    "file": "a985e5590baedd97b9d25956c30a976eebea3cb28145b27a41e4251da1a8b1f1.bin"
    }
   },
   {

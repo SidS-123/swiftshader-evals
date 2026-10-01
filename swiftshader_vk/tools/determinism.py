@@ -92,6 +92,10 @@ def compare(a: dict, b: dict) -> dict:
 
 #: Extra oracle variants compared against the base run (set by --perturb).
 PERTURB: list[str] = []
+#: The CONTROL_POISON shim (built in main unless --no-poison): the oracle with every new
+#: allocation filled with 0xA5. A case whose outputs differ under it reads memory it never
+#: wrote -- stable inside one process, so repeats and thread counts cannot reveal it.
+POISON_LIB: list[str] = []
 
 
 def is_violation(msg: str) -> bool:
@@ -122,6 +126,11 @@ def run_case(inst, case: Path, assets: Path, work: Path, repeats: int) -> dict:
         o = work / name / p
         drive(inst, case, o, assets, perturb=p)
         runs[p] = outputs(o)
+    if POISON_LIB:
+        o = work / name / "poison"
+        os.makedirs(o, exist_ok=True)
+        inst.driver.run(str(case), str(o), str(assets), candidate=POISON_LIB[0], timeout_s=300, cpus="4")
+        runs["poison"] = outputs(o)
     base = runs["base0"]
     msgs = runs["valid"].get("validation", [])
     violations = [v for v in msgs if is_violation(v["msg"])]
@@ -138,6 +147,9 @@ def run_case(inst, case: Path, assets: Path, work: Path, repeats: int) -> dict:
     rep["repeat_identical"] = all(r["identical"] for r in rep["repeat"])
     rep["threads_identical"] = all(r["identical"] for r in rep["threads"])
     rep["backend_identical"] = rep["backend"]["identical"]
+    if POISON_LIB:
+        rep["poison"] = compare(base, runs["poison"])
+        rep["poison_identical"] = rep["poison"]["identical"]
     return rep
 
 
@@ -166,11 +178,15 @@ def main():
     ap.add_argument("--repeats", type=int, default=3)
     ap.add_argument("--out", default=None)
     ap.add_argument("--only", nargs="*")
+    ap.add_argument("--no-poison", action="store_true", help="skip the poisoned-memory run")
     ap.add_argument("--perturb", nargs="*", default=[],
                     help="also compare these oracle variants to the base run (vtxjitter texcoord_ulp lavapipe)")
     a = ap.parse_args()
     PERTURB[:] = a.perturb
     inst = load_instance(os.environ.get("EVALBASE_INSTANCE") or str(HERE.parent))
+    if not a.no_poison:
+        lib = Path(a.out or HERE.parent / "runs" / "determinism") / "poison_lib"
+        POISON_LIB[:] = [str(inst.controls.build_from({"defines": {"CONTROL_POISON": 1}}, lib, "poison"))]
     cases = sorted(Path(a.case_dir).glob("*.json"))
     if a.only:
         cases = [c for c in cases if c.stem in a.only]

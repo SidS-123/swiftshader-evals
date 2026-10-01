@@ -78,6 +78,18 @@
      }
     },
     {
+     "cmd": "clear_color_image",
+     "image": "b",
+     "color": {
+      "u32": [
+       195948557,
+       0,
+       0,
+       0
+      ]
+     }
+    },
+    {
      "cmd": "copy_buffer_to_image",
      "buffer": "src",
      "image": "a",

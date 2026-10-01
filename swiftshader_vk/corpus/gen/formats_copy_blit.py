@@ -163,7 +163,10 @@ def v_copies(name, p, r):
                 "extent": [32, 24, 1]},
                {"buffer_offset": 512, "row_length": 0, "sub": {"mip": 1, "base_layer": 1, "layers": 1},
                 "offset": [3, 2, 0], "extent": [13, 10, 1]}]
+    # both images are cleared first: the copies cover only parts of them, and everything
+    # snapshotted must have been written (the poisoned-memory gate, Stage 8)
     c.exec([{"cmd": "clear_color_image", "image": "a", "color": {"f32": [0.1, 0.2, 0.3, 0.4]}},
+            {"cmd": "clear_color_image", "image": "b", "color": {"u32": [0x0BADF00D, 0, 0, 0]}},
             {"cmd": "copy_buffer_to_image", "buffer": "src", "image": "a", "regions": regions},
             {"cmd": "copy_image", "src": "a", "dst": "b", "regions": [
                 {"src_sub": {"mip": 0, "base_layer": 1}, "dst_sub": {"mip": 0, "base_layer": 0},

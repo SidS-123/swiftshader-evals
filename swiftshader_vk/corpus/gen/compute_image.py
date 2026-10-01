@@ -65,13 +65,15 @@ def build(name, p):
         decl = f"layout(set = 0, binding = 0) uniform {skind}samplerBuffer srcBuf;"
         read = f"texelFetch(srcBuf, q.y * {w} + q.x)"
     dst_scalar = {"u": "uvec4", "i": "ivec4", "": "vec4"}[dkind]
-    # transform: exact arithmetic in the destination's type
+    # transform: exact arithmetic in the destination's type. pc.k (different per dispatch)
+    # reaches every channel, so the second dispatch's image differs from the first and a
+    # candidate that returns the previous result is caught (Stage 8: stale_frame).
     if dst_scalar == "vec4":
-        xform = f"vec4({read}) * 2.0 + vec4(float(q.x), float(q.y), 0.5, -1.0)"
+        xform = f"vec4({read}) * 2.0 + vec4(float(q.x), float(q.y), 0.5, -1.0) + vec4(float(pc.k) * 0.03125)"
     elif dst_scalar == "uvec4":
-        xform = f"uvec4({read}) * 3u + uvec4(uint(q.x), uint(q.y), pc.k, 1u)"
+        xform = f"uvec4({read}) * 3u + uvec4(uint(q.x), uint(q.y), 0u, 1u) + uvec4(pc.k)"
     else:
-        xform = f"ivec4({read}) - ivec4(q.x, q.y, int(pc.k), 7)"
+        xform = f"ivec4({read}) - ivec4(q.x, q.y, 0, 7) - ivec4(int(pc.k))"
     src = f"""#version 450
 layout(local_size_x = 8, local_size_y = 8) in;
 {decl}

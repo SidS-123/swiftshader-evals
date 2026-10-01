@@ -131,7 +131,13 @@ class SsvkControls(ControlSpec):
         self.root = Path(root)
 
     def build(self, name, out_dir, *, owner=None):
-        cfg = json.loads((self.root / name / "build.json").read_text())
+        return self.build_from(json.loads((self.root / name / "build.json").read_text()), out_dir, name)
+
+    def build_from(self, cfg: dict, out_dir, name: str = "shim"):
+        """Build one shim configuration ({"defines": {...}} or {"starter": true}) into out_dir.
+
+        Also used outside the controls: tools/determinism.py builds the CONTROL_POISON shim
+        (a corpus gate, not a control)."""
         out = Path(out_dir).resolve()
         out.mkdir(parents=True, exist_ok=True)
         user = f"{os.getuid()}:{os.getgid()}"
