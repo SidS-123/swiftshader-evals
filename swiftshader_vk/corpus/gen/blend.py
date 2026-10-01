@@ -6,9 +6,15 @@ its own blend state (drawn from the parameter tables), so every pass's snapshot
 shows one blend configuration composed over the last. Multiple targets get
 different states (independent blending). The advanced-blend pass uses
 VK_EXT_blend_operation_advanced (the fragment shader declares
-blend_support_all_equations).
+blend_support_all_equations). The reference does not support
+`advancedBlendCoherentOperations`, and without it advanced blending of
+primitives that overlap within one draw is undefined, so the advanced passes
+draw non-overlapping triangles (one per grid cell); each pass is its own
+rendering scope, separated by vkreplay's full barrier.
 """
 from __future__ import annotations
+
+import numpy as np
 
 from common import pub_name, random_triangles, raster_scene, rng, write_all
 
@@ -59,6 +65,21 @@ def random_state(r, mask=False):
     return s
 
 
+def cell_triangles(r, n, alpha_lo=0.2):
+    """n triangles, each strictly inside its own grid cell (no two share a pixel)."""
+    k = int(np.ceil(np.sqrt(n)))
+    cells = r.choice(k * k, size=n, replace=False)
+    tris = []
+    for c in cells:
+        x0, y0 = -1.0 + 2.0 * (c % k) / k, -1.0 + 2.0 * (c // k) / k
+        w = 2.0 / k
+        col = (*r.uniform(0, 1, 3), float(r.uniform(alpha_lo, 1.0)))
+        z = float(r.uniform(0.05, 0.95))
+        for _ in range(3):
+            tris.append(((x0 + w * float(r.uniform(0.1, 0.9)), y0 + w * float(r.uniform(0.1, 0.9)), z, 1.0), col))
+    return tris
+
+
 def build(name, p):
     r = rng(p["seed"])
     targets = p["targets"]
@@ -74,10 +95,8 @@ def build(name, p):
     fs = mrt_fs(len(targets))
     if p.get("advanced"):
         exts = ["VK_EXT_blend_operation_advanced"]
-        features["VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT"] = {"advancedBlendCoherentOperations": True}
         for op in r.choice(ADVANCED, 2, replace=False):
-            tris = [(pos, col[:3] + (float(r.uniform(0.2, 1.0)),))
-                    for pos, col in random_triangles(r, p["n"], spread=0.7)]
+            tris = cell_triangles(r, p["n"])
             passes.append({"verts": tris, "fs": ADV_FS,
                            "pipeline": {"blend": {"attachments": [{"enable": True, "color_op": str(op),
                                                                    "alpha_op": str(op)}]}}})

@@ -4,7 +4,9 @@
  "family": "errors_robust",
  "category": "procedural",
  "assets": {},
- "meta": {},
+ "meta": {
+  "expect_skips": true
+ },
  "split": "public",
  "ops": [
   {

@@ -62,9 +62,20 @@ hidden case name appears anywhere in the public tree.
 | Timing (non-perf reference sub-second) | max 0.63 s public, 0.54 s hidden | refcache `reference_wall_seconds` (7.5) |
 | Perf timed runs ≥ 2 s | see 7.4 | gate ledgers, refcache |
 
-The only skip in the corpus is intended: `errors_robust` `bad_device` asks for
-an unsupported feature, gets `VK_ERROR_FEATURE_NOT_PRESENT`, and every later
-op is skipped (the case grades that sequence).
+~~The only skip in the corpus is intended~~ **Erratum (2026-10-01, found in
+Stage 8):** this was wrong. The gate printed skipped ops but did not fail a
+case on them, and four cases skipped everything on the reference:
+`blend_pub_advanced` and three hidden advanced-blend cases requested
+`advancedBlendCoherentOperations`, which the reference does not support, so
+the device was never created and every snapshot was empty on both sides (any
+candidate, even one that crashes, "matched" them). The `crash` control
+exposed it. Fixed: the advanced-blend passes no longer request the feature and
+draw non-overlapping triangles (overlap within a draw is undefined without
+it); `tools/gate.sh` now fails any case with a skipped op unless its meta says
+`expect_skips` (only `errors_robust` `bad_device`, which asks for an
+unsupported feature on purpose and grades the failure). Both splits were
+regenerated and re-gated under the new rule, and the stale cache entries
+rebuilt (`docs/internal/stage8_findings.md`).
 
 ## 7.3 Findings that changed the surface
 

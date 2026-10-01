@@ -55,7 +55,7 @@ def v_errors(name, p, r):
 
 
 def v_bad_device(name, p, r):
-    c = Case(name, FAMILY, "procedural")
+    c = Case(name, FAMILY, "procedural", meta={"expect_skips": True})   # the failing device is the point
     c.instance()
     struct, field = p["bad_feature"]
     c.device(features={struct: {field: True}})
