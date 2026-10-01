@@ -1,0 +1,273 @@
+{
+ "version": 1,
+ "name": "compute_subgroup_pub_vote_divergent",
+ "family": "compute_subgroup",
+ "category": "replay",
+ "assets": {
+  "315830ded635cc0f8aaabf0a5772d43c4e57184f1135acdb324d1969000487dd.bin": {
+   "kind": "spirv"
+  },
+  "f6a9d7d4a7ba6bd38a761afe8089084566e9164c86a8eb94b52baece4d2d21e7.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "f6a9d7d4a7ba6bd38a761afe8089084566e9164c86a8eb94b52baece4d2d21e7.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 5120,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "315830ded635cc0f8aaabf0a5772d43c4e57184f1135acdb324d1969000487dd.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 4
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "vote",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "elect",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "div_add",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "div_ballot",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "add",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       5
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "vote",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "elect",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "div_add",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "div_ballot",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "add",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,425 @@
+{
+ "version": 1,
+ "name": "compute_arith_pub_transcendental",
+ "family": "compute_arith",
+ "category": "replay",
+ "assets": {
+  "796d8389c400aa0f783730710167644a860c151b70637f4c3e8ab4df0f969d12.bin": {
+   "kind": "spirv"
+  },
+  "670d76797d658a0c0bd430b64264ad13586103a476e7fe937b96fe0bf1c2fb38.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "58a1c2113b6072d50ca3accc634430b5636cad21c9311f7619cf58fb74378f50.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "670d76797d658a0c0bd430b64264ad13586103a476e7fe937b96fe0bf1c2fb38.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b",
+   "asset": {
+    "file": "58a1c2113b6072d50ca3accc634430b5636cad21c9311f7619cf58fb74378f50.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 9216,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "796d8389c400aa0f783730710167644a860c151b70637f4c3e8ab4df0f969d12.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 8
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "b"
+      }
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       3
+      ],
+      "f32": [
+       1.0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "fdiv",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 6
+     }
+    },
+    {
+     "name": "sqrt",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 6
+     }
+    },
+    {
+     "name": "isqrt",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 4
+     }
+    },
+    {
+     "name": "exp",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 32
+     }
+    },
+    {
+     "name": "log",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 134
+     }
+    },
+    {
+     "name": "sin",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 131072
+     }
+    },
+    {
+     "name": "cos",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 131072
+     }
+    },
+    {
+     "name": "atan",
+     "buffer": "out",
+     "offset": 7168,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 8192
+     }
+    },
+    {
+     "name": "pow",
+     "buffer": "out",
+     "offset": 8192,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 16384
+     }
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       20
+      ],
+      "f32": [
+       0.5
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "fdiv",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 6
+     }
+    },
+    {
+     "name": "sqrt",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 6
+     }
+    },
+    {
+     "name": "isqrt",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 4
+     }
+    },
+    {
+     "name": "exp",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 32
+     }
+    },
+    {
+     "name": "log",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 134
+     }
+    },
+    {
+     "name": "sin",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 131072
+     }
+    },
+    {
+     "name": "cos",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 131072
+     }
+    },
+    {
+     "name": "atan",
+     "buffer": "out",
+     "offset": 7168,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 8192
+     }
+    },
+    {
+     "name": "pow",
+     "buffer": "out",
+     "offset": 8192,
+     "size": 1024,
+     "elem": "f32",
+     "allow": {
+      "ulp": 16384
+     }
+    }
+   ]
+  }
+ ]
+}

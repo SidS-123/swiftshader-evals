@@ -1,0 +1,420 @@
+{
+ "version": 1,
+ "name": "mem_buf_pub_copies",
+ "family": "mem_buf",
+ "category": "replay",
+ "assets": {
+  "934d7d7580b19c6e02b746346650a2ed2d0c4f09d30283929753fdc8247e91de.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 4099
+  },
+  "74101d69abf1b5d5832971c2117a97bb0b1173a99e2ac2b72004fddd6843d663.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 4099
+  },
+  "f1cf4bdd5a048296d0807ebbdd2c2384c9f69e3c4f1a6b30612e39254abd54c6.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 1508
+  },
+  "0ef23b0cfc3598796a9fd5235ee82501eec55a924bb08adfabf5795eb1f15a8c.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 2704
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "x",
+   "size": 4099,
+   "usage": []
+  },
+  {
+   "op": "upload",
+   "buffer": "x",
+   "asset": {
+    "file": "934d7d7580b19c6e02b746346650a2ed2d0c4f09d30283929753fdc8247e91de.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "y",
+   "size": 4099,
+   "usage": []
+  },
+  {
+   "op": "upload",
+   "buffer": "y",
+   "asset": {
+    "file": "74101d69abf1b5d5832971c2117a97bb0b1173a99e2ac2b72004fddd6843d663.bin"
+   }
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "copy_buffer",
+     "src": "x",
+     "dst": "y",
+     "regions": [
+      [
+       232,
+       2556,
+       62
+      ],
+      [
+       441,
+       2744,
+       28
+      ],
+      [
+       519,
+       2922,
+       50
+      ],
+      [
+       915,
+       3129,
+       254
+      ],
+      [
+       1928,
+       3981,
+       92
+      ]
+     ]
+    },
+    {
+     "cmd": "copy_buffer",
+     "src": "y",
+     "dst": "y",
+     "regions": [
+      [
+       143,
+       2473,
+       150
+      ],
+      [
+       1910,
+       3973,
+       65
+      ]
+     ]
+    },
+    {
+     "cmd": "copy_buffer",
+     "src": "y",
+     "dst": "x",
+     "regions": [
+      [
+       2693,
+       471,
+       533
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "x",
+     "buffer": "x"
+    },
+    {
+     "name": "y",
+     "buffer": "y"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "copy_buffer",
+     "src": "x",
+     "dst": "y",
+     "regions": [
+      [
+       1,
+       2166,
+       31
+      ],
+      [
+       592,
+       2840,
+       48
+      ],
+      [
+       906,
+       3207,
+       87
+      ],
+      [
+       1250,
+       3319,
+       291
+      ],
+      [
+       1718,
+       3789,
+       173
+      ]
+     ]
+    },
+    {
+     "cmd": "copy_buffer",
+     "src": "y",
+     "dst": "y",
+     "regions": [
+      [
+       57,
+       2194,
+       1279
+      ],
+      [
+       1786,
+       3873,
+       13
+      ]
+     ]
+    },
+    {
+     "cmd": "copy_buffer",
+     "src": "y",
+     "dst": "x",
+     "regions": [
+      [
+       2375,
+       12,
+       600
+      ],
+      [
+       3044,
+       878,
+       449
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "x",
+     "buffer": "x"
+    },
+    {
+     "name": "y",
+     "buffer": "y"
+    }
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "x",
+   "offset": 961,
+   "asset": {
+    "file": "f1cf4bdd5a048296d0807ebbdd2c2384c9f69e3c4f1a6b30612e39254abd54c6.bin"
+   }
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "copy_buffer",
+     "src": "x",
+     "dst": "y",
+     "regions": [
+      [
+       52,
+       2267,
+       472
+      ],
+      [
+       588,
+       2967,
+       124
+      ],
+      [
+       1024,
+       3189,
+       18
+      ],
+      [
+       1247,
+       3445,
+       112
+      ],
+      [
+       2020,
+       4069,
+       24
+      ]
+     ]
+    },
+    {
+     "cmd": "copy_buffer",
+     "src": "y",
+     "dst": "y",
+     "regions": [
+      [
+       73,
+       2216,
+       522
+      ],
+      [
+       725,
+       2928,
+       265
+      ],
+      [
+       1399,
+       3476,
+       303
+      ]
+     ]
+    },
+    {
+     "cmd": "copy_buffer",
+     "src": "y",
+     "dst": "x",
+     "regions": [
+      [
+       2694,
+       614,
+       820
+      ],
+      [
+       3834,
+       1739,
+       49
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_002",
+   "items": [
+    {
+     "name": "x",
+     "buffer": "x"
+    },
+    {
+     "name": "y",
+     "buffer": "y"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "copy_buffer",
+     "src": "x",
+     "dst": "y",
+     "regions": [
+      [
+       165,
+       2616,
+       10
+      ],
+      [
+       566,
+       2913,
+       224
+      ],
+      [
+       1152,
+       3318,
+       71
+      ],
+      [
+       1642,
+       3694,
+       66
+      ]
+     ]
+    },
+    {
+     "cmd": "copy_buffer",
+     "src": "y",
+     "dst": "y",
+     "regions": [
+      [
+       674,
+       2836,
+       94
+      ],
+      [
+       1225,
+       3288,
+       259
+      ],
+      [
+       1488,
+       3591,
+       273
+      ]
+     ]
+    },
+    {
+     "cmd": "copy_buffer",
+     "src": "y",
+     "dst": "x",
+     "regions": [
+      [
+       3439,
+       1217,
+       4
+      ],
+      [
+       3677,
+       1623,
+       331
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_003",
+   "items": [
+    {
+     "name": "x",
+     "buffer": "x"
+    },
+    {
+     "name": "y",
+     "buffer": "y"
+    }
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "x",
+   "offset": 335,
+   "asset": {
+    "file": "0ef23b0cfc3598796a9fd5235ee82501eec55a924bb08adfabf5795eb1f15a8c.bin"
+   }
+  }
+ ]
+}

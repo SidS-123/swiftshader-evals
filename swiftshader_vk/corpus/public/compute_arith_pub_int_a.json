@@ -1,0 +1,357 @@
+{
+ "version": 1,
+ "name": "compute_arith_pub_int_a",
+ "family": "compute_arith",
+ "category": "replay",
+ "assets": {
+  "237b3a98566e09f94a016093f1b8a04c83c748fc1b05dcbcaa19be9f16db097d.bin": {
+   "kind": "spirv"
+  },
+  "9c7af271b692cf34c5fe841be79c9bd21f19d3fc4bdc241f15bc3af6078ac741.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "ce3b1fd73a0e5e92be957641ada8f3b5004cfa1d50f27a7e76b266bdb2dc0b2e.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "9c7af271b692cf34c5fe841be79c9bd21f19d3fc4bdc241f15bc3af6078ac741.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b",
+   "asset": {
+    "file": "ce3b1fd73a0e5e92be957641ada8f3b5004cfa1d50f27a7e76b266bdb2dc0b2e.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 8192,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "237b3a98566e09f94a016093f1b8a04c83c748fc1b05dcbcaa19be9f16db097d.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 8
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "b"
+      }
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       3
+      ],
+      "f32": [
+       1.0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "uadd",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "usub",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "umul",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "udiv",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "umod",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "shifts",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "minmax",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "cmp",
+     "buffer": "out",
+     "offset": 7168,
+     "size": 1024,
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       15
+      ],
+      "f32": [
+       0.5
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "uadd",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "usub",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "umul",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "udiv",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "umod",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "shifts",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "minmax",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "cmp",
+     "buffer": "out",
+     "offset": 7168,
+     "size": 1024,
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

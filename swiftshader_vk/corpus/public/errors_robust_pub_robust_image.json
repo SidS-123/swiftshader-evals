@@ -1,0 +1,261 @@
+{
+ "version": 1,
+ "name": "errors_robust_pub_robust_image",
+ "family": "errors_robust",
+ "category": "procedural",
+ "assets": {
+  "7353563bfe579982d04715fbf21a0eeb1509e45c155909476208cce8f59e2a0c.bin": {
+   "kind": "spirv"
+  },
+  "697a7eb2ac50891a42d46225f9567b8786497978bec1266f098d753166bb7659.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 480
+  },
+  "0b1c2e2abb4d16b44679eddfa7197674fa0b0b12ca1e6aad9996802af3918758.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 1920
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceVulkan13Features": {
+     "robustImageAccess": true
+    }
+   }
+  },
+  {
+   "op": "image",
+   "name": "simg",
+   "format": "R32_UINT",
+   "extent": [
+    24,
+    20
+   ],
+   "usage": [
+    "storage"
+   ]
+  },
+  {
+   "op": "upload_image",
+   "image": "simg",
+   "asset": {
+    "file": "697a7eb2ac50891a42d46225f9567b8786497978bec1266f098d753166bb7659.bin"
+   }
+  },
+  {
+   "op": "image",
+   "name": "timg",
+   "format": "R8G8B8A8_UNORM",
+   "extent": [
+    24,
+    20
+   ],
+   "usage": [
+    "sampled"
+   ]
+  },
+  {
+   "op": "upload_image",
+   "image": "timg",
+   "asset": {
+    "file": "0b1c2e2abb4d16b44679eddfa7197674fa0b0b12ca1e6aad9996802af3918758.bin"
+   }
+  },
+  {
+   "op": "view",
+   "name": "simg_v",
+   "image": "simg"
+  },
+  {
+   "op": "view",
+   "name": "timg_v",
+   "image": "timg"
+  },
+  {
+   "op": "image",
+   "name": "dimg",
+   "format": "R32_UINT",
+   "extent": [
+    24,
+    20
+   ],
+   "usage": [
+    "storage"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "dimg_v",
+   "image": "dimg"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "clear_color_image",
+     "image": "dimg",
+     "color": {
+      "u32": [
+       7,
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 16896,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "7353563bfe579982d04715fbf21a0eeb1509e45c155909476208cce8f59e2a0c.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_image",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "sampled_image",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_image",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 3,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_image",
+     "images": [
+      {
+       "view": "simg_v"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "sampled_image",
+     "images": [
+      {
+       "view": "timg_v"
+      }
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_image",
+     "images": [
+      {
+       "view": "dimg_v"
+      }
+     ]
+    },
+    {
+     "binding": 3,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      6,
+      6
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "out",
+     "buffer": "out",
+     "elem": "u32"
+    },
+    {
+     "name": "dimg",
+     "image": "dimg"
+    }
+   ]
+  }
+ ]
+}

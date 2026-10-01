@@ -1,0 +1,260 @@
+{
+ "version": 1,
+ "name": "errors_robust_pub_robust_buffer",
+ "family": "errors_robust",
+ "category": "procedural",
+ "assets": {
+  "18535a7af21182ec58cb2cc6d68380a6bbf50bb19e35821a3ff5882f93e891cb.bin": {
+   "kind": "spirv"
+  },
+  "285184179859368beb163944059b42e9d0857c6d78ba512c55bef1df928b317a.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "e75809e0d15667ce44e6aa5c64689a4917b245eb0920094ff0b017dc0612a17a.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceFeatures": {
+     "robustBufferAccess": true
+    }
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "src",
+   "size": 1024,
+   "usage": [
+    "storage_buffer",
+    "uniform_buffer",
+    "uniform_texel_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "src",
+   "asset": {
+    "file": "285184179859368beb163944059b42e9d0857c6d78ba512c55bef1df928b317a.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "dst",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "dst",
+   "asset": {
+    "file": "e75809e0d15667ce44e6aa5c64689a4917b245eb0920094ff0b017dc0612a17a.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 1920,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "buffer_view",
+   "name": "tb",
+   "buffer": "src",
+   "format": "R32_UINT",
+   "offset": 256,
+   "range": 384
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "18535a7af21182ec58cb2cc6d68380a6bbf50bb19e35821a3ff5882f93e891cb.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "uniform_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "uniform_texel_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 3,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 4,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 4
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "src",
+       "offset": 256,
+       "range": 384
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "uniform_buffer",
+     "buffers": [
+      {
+       "buffer": "src",
+       "offset": 512,
+       "range": 384
+      }
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "uniform_texel_buffer",
+     "texel_buffers": [
+      "tb"
+     ]
+    },
+    {
+     "binding": 3,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "dst",
+       "offset": 256,
+       "range": 384
+      }
+     ]
+    },
+    {
+     "binding": 4,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      5
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "out",
+     "buffer": "out",
+     "elem": "u32"
+    },
+    {
+     "name": "dst",
+     "buffer": "dst",
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

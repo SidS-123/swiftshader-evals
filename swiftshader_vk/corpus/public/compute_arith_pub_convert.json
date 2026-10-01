@@ -1,0 +1,343 @@
+{
+ "version": 1,
+ "name": "compute_arith_pub_convert",
+ "family": "compute_arith",
+ "category": "replay",
+ "assets": {
+  "f12120de69901085cc92f8ae38a37ccd70de1ac46185c02ee013636016cf4bd9.bin": {
+   "kind": "spirv"
+  },
+  "18593b37d773bcd92128b66440ffb3263d4b8afaec663228d10f2f5a0b28c3a9.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "2c633580f9fe9dae51c082d66acd3f4371c65a9debcdc54216a6b967b3457553.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "18593b37d773bcd92128b66440ffb3263d4b8afaec663228d10f2f5a0b28c3a9.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b",
+   "asset": {
+    "file": "2c633580f9fe9dae51c082d66acd3f4371c65a9debcdc54216a6b967b3457553.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 7168,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "f12120de69901085cc92f8ae38a37ccd70de1ac46185c02ee013636016cf4bd9.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 8
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "b"
+      }
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       3
+      ],
+      "f32": [
+       1.0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "cvt_f2i",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "i32"
+    },
+    {
+     "name": "cvt_f2u",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "cvt_i2f",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "cvt_u2f",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "pack_unorm",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "pack_half",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "ldexp",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "f32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       19
+      ],
+      "f32": [
+       0.5
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "cvt_f2i",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "i32"
+    },
+    {
+     "name": "cvt_f2u",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "cvt_i2f",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "cvt_u2f",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "pack_unorm",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "pack_half",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "ldexp",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "f32"
+    }
+   ]
+  }
+ ]
+}

@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.9** (first iteration, "v1") |
-| Status | **Stage 6 done (2026-09-30).** Stage 7 next. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.10** (first iteration, "v1") |
+| Status | **Stage 7 done (2026-10-01).** Stage 8 next. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -431,6 +431,32 @@ Do families 1, 3, 9, 14 first (~10 public cases), push them through refcache
 → grade-ref → two controls, fix what breaks, then scale out.
 
 **Exit:** both splits generated; determinism k/k; both caches built; grade-ref = 1.0 on both; tolerance table recorded.
+
+**As built (v1.10, 2026-10-01).** 21 families, **91 public / 187 hidden** cases
+(replay 75/161, procedural 12/22, performance 4/4); per-family counts and every
+finding in `swiftshader_vk/docs/internal/stage7_findings.md`. Gates: validity
+91/91 and 187/187 with 0 spec violations; oracle repeats and ThreadCount 1/4
+byte-identical; generation determinism 776/776 files (both splits, two numpy
+dispatch modes); `tests/test_hidden_leak.py` (new seeds, different
+parameters, no hidden seed or name in the public tree). Perf timed runs
+2.6-3.1 s on the reference; every other case under 0.7 s. Differences from §11.1-11.2:
+- vkreplay gained **render pass objects** (`render_pass`, `framebuffer`,
+  `begin_render_pass` / `next_subpass` / `end_render_pass`, pipelines bound to
+  a subpass) for `mrt_renderpass`; image rebuilt.
+- **Narrowed by the oracle:** buffer device addresses only through push
+  constants (dereferencing a pointer loaded from memory crashes SwiftShader);
+  no image atomics (nondeterministic); `errors_robust` uses core
+  `robustBufferAccess` / `robustImageAccess` (no `VK_EXT_robustness2`).
+- Hidden modules import the public builders and hold only parameter tables;
+  the whole hidden split is gated (a hidden draw found a builder bug no public
+  draw reached).
+- Timing gate: `compute_cf` programs are size-capped (uncapped ones took up
+  to 6.4 s of LLVM compile time on the reference).
+- Both reference caches built (91 + 187 entries): T = 0.03 for 270 of 278 cases, `t_hi` for 6
+  (vertex nudges flipping edge pixels or occlusion counts), tolerance table in
+  `stage7_findings.md` 7.5. **grade-ref = 1.0000 with full success on both splits.**
+- Performance is calibrated from the cache (built with nothing else running), not the
+  gate: parallel load slowed the same timed runs by 15-45 %.
 
 ---
 

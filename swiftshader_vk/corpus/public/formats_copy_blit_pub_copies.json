@@ -1,0 +1,250 @@
+{
+ "version": 1,
+ "name": "formats_copy_blit_pub_copies",
+ "family": "formats_copy_blit",
+ "category": "replay",
+ "assets": {
+  "f9797585c87cd90b2106ad1d11089a13f26a98832662c2bc5d3d6e0f9aab9831.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 7680
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "src",
+   "size": 7680,
+   "usage": []
+  },
+  {
+   "op": "upload",
+   "buffer": "src",
+   "asset": {
+    "file": "f9797585c87cd90b2106ad1d11089a13f26a98832662c2bc5d3d6e0f9aab9831.bin"
+   }
+  },
+  {
+   "op": "image",
+   "name": "a",
+   "format": "R8G8B8A8_UNORM",
+   "extent": [
+    32,
+    24
+   ],
+   "usage": [],
+   "mips": 2,
+   "layers": 2
+  },
+  {
+   "op": "image",
+   "name": "b",
+   "format": "R32_UINT",
+   "extent": [
+    32,
+    24
+   ],
+   "usage": [],
+   "mips": 2,
+   "layers": 2
+  },
+  {
+   "op": "buffer",
+   "name": "dst",
+   "size": 3072,
+   "usage": []
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "clear_color_image",
+     "image": "a",
+     "color": {
+      "f32": [
+       0.1,
+       0.2,
+       0.3,
+       0.4
+      ]
+     }
+    },
+    {
+     "cmd": "copy_buffer_to_image",
+     "buffer": "src",
+     "image": "a",
+     "regions": [
+      {
+       "buffer_offset": 0,
+       "row_length": 40,
+       "image_height": 24,
+       "sub": {
+        "mip": 0,
+        "base_layer": 0,
+        "layers": 2
+       },
+       "extent": [
+        32,
+        24,
+        1
+       ]
+      },
+      {
+       "buffer_offset": 512,
+       "row_length": 0,
+       "sub": {
+        "mip": 1,
+        "base_layer": 1,
+        "layers": 1
+       },
+       "offset": [
+        3,
+        2,
+        0
+       ],
+       "extent": [
+        13,
+        10,
+        1
+       ]
+      }
+     ]
+    },
+    {
+     "cmd": "copy_image",
+     "src": "a",
+     "dst": "b",
+     "regions": [
+      {
+       "src_sub": {
+        "mip": 0,
+        "base_layer": 1
+       },
+       "dst_sub": {
+        "mip": 0,
+        "base_layer": 0
+       },
+       "src_offset": [
+        4,
+        3,
+        0
+       ],
+       "dst_offset": [
+        0,
+        0,
+        0
+       ],
+       "extent": [
+        28,
+        21,
+        1
+       ]
+      },
+      {
+       "src_sub": {
+        "mip": 1,
+        "base_layer": 1
+       },
+       "dst_sub": {
+        "mip": 1,
+        "base_layer": 1
+       },
+       "extent": [
+        16,
+        12,
+        1
+       ]
+      }
+     ]
+    },
+    {
+     "cmd": "copy_image_to_buffer",
+     "buffer": "dst",
+     "image": "b",
+     "regions": [
+      {
+       "buffer_offset": 0,
+       "row_length": 32,
+       "sub": {
+        "mip": 0,
+        "base_layer": 0
+       },
+       "extent": [
+        32,
+        24,
+        1
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "a_mip0",
+     "image": "a",
+     "mip": 0
+    },
+    {
+     "name": "a_mip1",
+     "image": "a",
+     "mip": 1
+    },
+    {
+     "name": "b_mip1",
+     "image": "b",
+     "mip": 1
+    },
+    {
+     "name": "dst",
+     "buffer": "dst",
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "copy_buffer",
+     "src": "dst",
+     "dst": "src",
+     "regions": [
+      [
+       64,
+       0,
+       1024
+      ],
+      [
+       0,
+       2048,
+       256
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "src",
+     "buffer": "src",
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

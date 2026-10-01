@@ -1,0 +1,193 @@
+{
+ "version": 1,
+ "name": "formats_copy_blit_pub_clears",
+ "family": "formats_copy_blit",
+ "category": "replay",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceVulkan13Features": {
+     "dynamicRendering": true,
+     "synchronization2": true,
+     "shaderDemoteToHelperInvocation": true
+    }
+   }
+  },
+  {
+   "op": "image",
+   "name": "img",
+   "format": "R16G16B16A16_UNORM",
+   "extent": [
+    32,
+    32
+   ],
+   "usage": [
+    "color_attachment"
+   ],
+   "mips": 3,
+   "layers": 3
+  },
+  {
+   "op": "view",
+   "name": "img_v",
+   "image": "img",
+   "mips": 1,
+   "layers": 1,
+   "base_layer": 1
+  },
+  {
+   "op": "image",
+   "name": "ds",
+   "format": "D32_SFLOAT_S8_UINT",
+   "extent": [
+    32,
+    32
+   ],
+   "usage": [
+    "depth_stencil_attachment"
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "clear_color_image",
+     "image": "img",
+     "color": {
+      "f32": [
+       0.3698394,
+       0.2839813,
+       0.7551902,
+       0.17367966
+      ]
+     }
+    },
+    {
+     "cmd": "clear_color_image",
+     "image": "img",
+     "color": {
+      "f32": [
+       0.5,
+       0.25,
+       0.125,
+       1.0
+      ]
+     },
+     "ranges": [
+      {
+       "base_mip": 1,
+       "mips": 2,
+       "base_layer": 1,
+       "layers": 2
+      }
+     ]
+    },
+    {
+     "cmd": "clear_depth_stencil_image",
+     "image": "ds",
+     "depth": 0.46093807,
+     "stencil": 104
+    },
+    {
+     "cmd": "begin_rendering",
+     "area": [
+      0,
+      0,
+      32,
+      32
+     ],
+     "color": [
+      {
+       "view": "img_v",
+       "load": "load",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "cmd": "clear_attachments",
+     "attachments": [
+      {
+       "aspect": [
+        "color"
+       ],
+       "color_attachment": 0,
+       "clear": {
+        "f32": [
+         0.6116713,
+         0.6561748,
+         0.51934814,
+         0.75362355
+        ]
+       }
+      }
+     ],
+     "rects": [
+      [
+       11,
+       4,
+       9,
+       13
+      ],
+      [
+       20,
+       2,
+       10,
+       5
+      ]
+     ]
+    },
+    {
+     "cmd": "end_rendering"
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "mip0_l1",
+     "image": "img",
+     "mip": 0,
+     "base_layer": 1,
+     "layers": 1
+    },
+    {
+     "name": "mip1",
+     "image": "img",
+     "mip": 1
+    },
+    {
+     "name": "mip2",
+     "image": "img",
+     "mip": 2
+    },
+    {
+     "name": "depth",
+     "image": "ds",
+     "aspect": "depth"
+    },
+    {
+     "name": "stencil",
+     "image": "ds",
+     "aspect": "stencil"
+    }
+   ]
+  }
+ ]
+}

@@ -55,7 +55,7 @@ Cases are grouped in families. Public cases of every family are in
 | `mrt_renderpass` | multiple colour attachments, load/store operations, dynamic rendering, render passes and subpasses |
 | `descriptors_push` | descriptor types, dynamic offsets, push constants, specialization constants, descriptor indexing |
 | `queries_sync` | occlusion and timestamp queries, fences, events, binary and timeline semaphores, barriers, multiple submissions |
-| `errors_robust` | error results of valid calls (discoverable with the `oracle`), `robustness2` out-of-bounds behaviour |
+| `errors_robust` | error results of valid calls (discoverable with the `oracle`), out-of-bounds behaviour with the core `robustBufferAccess` and `robustImageAccess` features |
 | `perf_*` | timed runs: fill rate, compute throughput, geometry, texture-heavy rendering |
 
 Every case is valid Vulkan usage: it replays on the reference with the Khronos

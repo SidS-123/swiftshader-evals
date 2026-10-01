@@ -1,0 +1,385 @@
+{
+ "version": 1,
+ "name": "compute_arith_pub_float_exact",
+ "family": "compute_arith",
+ "category": "replay",
+ "assets": {
+  "8a078e9c56c9690b684f99dd8735bcd143bc3e5ae8bef57a4e6d71f571434601.bin": {
+   "kind": "spirv"
+  },
+  "892bfc7b7434f5b61e3e62f19b2e0ec6b1efc7aeaa1195d01ad49fc7db995505.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "cff53037b7951642385418a2175c62291fc8a28e2330470464a6d78f2b8d00cf.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "892bfc7b7434f5b61e3e62f19b2e0ec6b1efc7aeaa1195d01ad49fc7db995505.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b",
+   "asset": {
+    "file": "cff53037b7951642385418a2175c62291fc8a28e2330470464a6d78f2b8d00cf.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 10240,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "8a078e9c56c9690b684f99dd8735bcd143bc3e5ae8bef57a4e6d71f571434601.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 8
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "b"
+      }
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       3
+      ],
+      "f32": [
+       1.0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "fadd",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fsub",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fmul",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fminmax",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fclamp",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fround",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "froundeven",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "ffract",
+     "buffer": "out",
+     "offset": 7168,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fabs_sign",
+     "buffer": "out",
+     "offset": 8192,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fstep",
+     "buffer": "out",
+     "offset": 9216,
+     "size": 1024,
+     "elem": "f32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       18
+      ],
+      "f32": [
+       0.5
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "fadd",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fsub",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fmul",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fminmax",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fclamp",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fround",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "froundeven",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "ffract",
+     "buffer": "out",
+     "offset": 7168,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fabs_sign",
+     "buffer": "out",
+     "offset": 8192,
+     "size": 1024,
+     "elem": "f32"
+    },
+    {
+     "name": "fstep",
+     "buffer": "out",
+     "offset": 9216,
+     "size": 1024,
+     "elem": "f32"
+    }
+   ]
+  }
+ ]
+}

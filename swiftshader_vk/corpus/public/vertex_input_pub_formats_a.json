@@ -1,0 +1,783 @@
+{
+ "version": 1,
+ "name": "vertex_input_pub_formats_a",
+ "family": "vertex_input",
+ "category": "replay",
+ "assets": {
+  "fe98661fdba4a28299ed20f79c473141e18ea17b5b3284526d3611a2e1887b63.bin": {
+   "kind": "spirv"
+  },
+  "c7e252198e3b0101232656cdf98c8962e45022ac2a2aca0e77b5aa8027086a70.bin": {
+   "kind": "spirv"
+  },
+  "24b3db60383c89f3c17fef1b9a132383ab1f474002f22f72af93f2782e2b168c.bin": {
+   "kind": "spirv"
+  },
+  "b6b4bd2692c24a78a043bfb12667eca5a7a0faf2e8d36cd337d02d43ca183b53.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 4096
+  },
+  "7ab8f6c26e4f9862c95a18c8e5c50403eeb64d8869fbbf9a7a6397d9a63b7b0e.bin": {
+   "kind": "data",
+   "dtype": "float32",
+   "count": 4
+  },
+  "4596a9d056e062398f69015c60a2a01046c1f16927136edba5962580d776a6c5.bin": {
+   "kind": "data",
+   "dtype": "uint16",
+   "count": 128
+  },
+  "fda8b46af63cece43961450cc3c4d41876bb3b1863b7c6975c4f163ffb3dcabd.bin": {
+   "kind": "data",
+   "dtype": "uint16",
+   "count": 120
+  },
+  "03dfecc375634a4a97abc62141663616879b43cd2a3de2aa561b6d30efcc479e.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 5
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceFeatures": {
+     "largePoints": true
+    },
+    "VkPhysicalDeviceVulkan13Features": {
+     "dynamicRendering": true,
+     "synchronization2": true,
+     "shaderDemoteToHelperInvocation": true
+    }
+   }
+  },
+  {
+   "op": "image",
+   "name": "color0",
+   "format": "R32G32B32A32_SFLOAT",
+   "extent": [
+    64,
+    64
+   ],
+   "usage": [
+    "color_attachment"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "color0_v",
+   "image": "color0"
+  },
+  {
+   "op": "image",
+   "name": "color1",
+   "format": "R32G32B32A32_SFLOAT",
+   "extent": [
+    64,
+    64
+   ],
+   "usage": [
+    "color_attachment"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "color1_v",
+   "image": "color1"
+  },
+  {
+   "op": "image",
+   "name": "color2",
+   "format": "R32G32B32A32_SFLOAT",
+   "extent": [
+    64,
+    64
+   ],
+   "usage": [
+    "color_attachment"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "color2_v",
+   "image": "color2"
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl"
+  },
+  {
+   "op": "buffer",
+   "name": "vb0_0",
+   "size": 4096,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb0_0",
+   "asset": {
+    "file": "b6b4bd2692c24a78a043bfb12667eca5a7a0faf2e8d36cd337d02d43ca183b53.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "vb0_1",
+   "size": 16,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb0_1",
+   "asset": {
+    "file": "7ab8f6c26e4f9862c95a18c8e5c50403eeb64d8869fbbf9a7a6397d9a63b7b0e.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "ib0",
+   "size": 256,
+   "usage": [
+    "index_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "ib0",
+   "asset": {
+    "file": "4596a9d056e062398f69015c60a2a01046c1f16927136edba5962580d776a6c5.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "vs0",
+   "asset": {
+    "file": "fe98661fdba4a28299ed20f79c473141e18ea17b5b3284526d3611a2e1887b63.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "fs1",
+   "asset": {
+    "file": "c7e252198e3b0101232656cdf98c8962e45022ac2a2aca0e77b5aa8027086a70.bin"
+   }
+  },
+  {
+   "op": "graphics_pipeline",
+   "name": "gp0",
+   "layout": "pl",
+   "vs": "vs0",
+   "fs": "fs1",
+   "vertex_input": {
+    "bindings": [
+     {
+      "binding": 0,
+      "stride": 32
+     },
+     {
+      "binding": 1,
+      "stride": 8,
+      "rate": "instance"
+     }
+    ],
+    "attributes": [
+     {
+      "location": 0,
+      "binding": 0,
+      "format": "R32G32_SFLOAT",
+      "offset": 0
+     },
+     {
+      "location": 1,
+      "binding": 0,
+      "format": "R8G8B8A8_UNORM",
+      "offset": 8
+     },
+     {
+      "location": 2,
+      "binding": 0,
+      "format": "R16G16_SINT",
+      "offset": 12
+     },
+     {
+      "location": 3,
+      "binding": 0,
+      "format": "R32G32B32_SFLOAT",
+      "offset": 16
+     },
+     {
+      "location": 4,
+      "binding": 1,
+      "format": "R32G32_SFLOAT",
+      "offset": 0
+     }
+    ]
+   },
+   "viewport": [
+    0,
+    0,
+    64,
+    64
+   ],
+   "rendering": {
+    "color_formats": [
+     "R32G32B32A32_SFLOAT",
+     "R32G32B32A32_SFLOAT",
+     "R32G32B32A32_SFLOAT"
+    ]
+   },
+   "topology": "point_list"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "begin_rendering",
+     "area": [
+      0,
+      0,
+      64,
+      64
+     ],
+     "color": [
+      {
+       "view": "color0_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      },
+      {
+       "view": "color1_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      },
+      {
+       "view": "color2_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp0"
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb0_0"
+      },
+      {
+       "buffer": "vb0_1"
+      }
+     ]
+    },
+    {
+     "cmd": "bind_index_buffer",
+     "buffer": "ib0",
+     "type": "uint16"
+    },
+    {
+     "cmd": "draw_indexed",
+     "indices": 128,
+     "instances": 2
+    },
+    {
+     "cmd": "end_rendering"
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "color0",
+     "image": "color0"
+    },
+    {
+     "name": "color1",
+     "image": "color1"
+    },
+    {
+     "name": "color2",
+     "image": "color2"
+    }
+   ]
+  },
+  {
+   "op": "buffer",
+   "name": "vb1_0",
+   "size": 4096,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb1_0",
+   "asset": {
+    "file": "b6b4bd2692c24a78a043bfb12667eca5a7a0faf2e8d36cd337d02d43ca183b53.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "vb1_1",
+   "size": 16,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb1_1",
+   "asset": {
+    "file": "7ab8f6c26e4f9862c95a18c8e5c50403eeb64d8869fbbf9a7a6397d9a63b7b0e.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "ib1",
+   "size": 240,
+   "usage": [
+    "index_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "ib1",
+   "asset": {
+    "file": "fda8b46af63cece43961450cc3c4d41876bb3b1863b7c6975c4f163ffb3dcabd.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "vs2",
+   "asset": {
+    "file": "24b3db60383c89f3c17fef1b9a132383ab1f474002f22f72af93f2782e2b168c.bin"
+   }
+  },
+  {
+   "op": "graphics_pipeline",
+   "name": "gp1",
+   "layout": "pl",
+   "vs": "vs2",
+   "fs": "fs1",
+   "vertex_input": {
+    "bindings": [
+     {
+      "binding": 0,
+      "stride": 32
+     },
+     {
+      "binding": 1,
+      "stride": 8,
+      "rate": "instance"
+     }
+    ],
+    "attributes": [
+     {
+      "location": 0,
+      "binding": 0,
+      "format": "R32G32_SFLOAT",
+      "offset": 0
+     },
+     {
+      "location": 1,
+      "binding": 0,
+      "format": "R8G8B8A8_UNORM",
+      "offset": 8
+     },
+     {
+      "location": 2,
+      "binding": 0,
+      "format": "R16G16_SINT",
+      "offset": 12
+     },
+     {
+      "location": 3,
+      "binding": 0,
+      "format": "R32G32B32_SFLOAT",
+      "offset": 16
+     },
+     {
+      "location": 4,
+      "binding": 1,
+      "format": "R32G32_SFLOAT",
+      "offset": 0
+     }
+    ]
+   },
+   "viewport": [
+    0,
+    0,
+    64,
+    64
+   ],
+   "rendering": {
+    "color_formats": [
+     "R32G32B32A32_SFLOAT",
+     "R32G32B32A32_SFLOAT",
+     "R32G32B32A32_SFLOAT"
+    ]
+   },
+   "topology": "triangle_strip",
+   "primitive_restart": true
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "begin_rendering",
+     "area": [
+      0,
+      0,
+      64,
+      64
+     ],
+     "color": [
+      {
+       "view": "color0_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      },
+      {
+       "view": "color1_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      },
+      {
+       "view": "color2_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp1"
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb1_0"
+      },
+      {
+       "buffer": "vb1_1"
+      }
+     ]
+    },
+    {
+     "cmd": "bind_index_buffer",
+     "buffer": "ib1",
+     "type": "uint16"
+    },
+    {
+     "cmd": "draw_indexed",
+     "indices": 120,
+     "instances": 1,
+     "vertex_offset": 0
+    },
+    {
+     "cmd": "end_rendering"
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "color0",
+     "image": "color0"
+    },
+    {
+     "name": "color1",
+     "image": "color1"
+    },
+    {
+     "name": "color2",
+     "image": "color2"
+    }
+   ]
+  },
+  {
+   "op": "buffer",
+   "name": "vb2_0",
+   "size": 4096,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb2_0",
+   "asset": {
+    "file": "b6b4bd2692c24a78a043bfb12667eca5a7a0faf2e8d36cd337d02d43ca183b53.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "vb2_1",
+   "size": 16,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb2_1",
+   "asset": {
+    "file": "7ab8f6c26e4f9862c95a18c8e5c50403eeb64d8869fbbf9a7a6397d9a63b7b0e.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "ib2",
+   "size": 240,
+   "usage": [
+    "index_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "ib2",
+   "asset": {
+    "file": "fda8b46af63cece43961450cc3c4d41876bb3b1863b7c6975c4f163ffb3dcabd.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "ind2",
+   "size": 20,
+   "usage": [
+    "indirect_buffer",
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "ind2",
+   "asset": {
+    "file": "03dfecc375634a4a97abc62141663616879b43cd2a3de2aa561b6d30efcc479e.bin"
+   }
+  },
+  {
+   "op": "graphics_pipeline",
+   "name": "gp2",
+   "layout": "pl",
+   "vs": "vs2",
+   "fs": "fs1",
+   "vertex_input": {
+    "bindings": [
+     {
+      "binding": 0,
+      "stride": 32
+     },
+     {
+      "binding": 1,
+      "stride": 8,
+      "rate": "instance"
+     }
+    ],
+    "attributes": [
+     {
+      "location": 0,
+      "binding": 0,
+      "format": "R32G32_SFLOAT",
+      "offset": 0
+     },
+     {
+      "location": 1,
+      "binding": 0,
+      "format": "R8G8B8A8_UNORM",
+      "offset": 8
+     },
+     {
+      "location": 2,
+      "binding": 0,
+      "format": "R16G16_SINT",
+      "offset": 12
+     },
+     {
+      "location": 3,
+      "binding": 0,
+      "format": "R32G32B32_SFLOAT",
+      "offset": 16
+     },
+     {
+      "location": 4,
+      "binding": 1,
+      "format": "R32G32_SFLOAT",
+      "offset": 0
+     }
+    ]
+   },
+   "viewport": [
+    0,
+    0,
+    64,
+    64
+   ],
+   "rendering": {
+    "color_formats": [
+     "R32G32B32A32_SFLOAT",
+     "R32G32B32A32_SFLOAT",
+     "R32G32B32A32_SFLOAT"
+    ]
+   },
+   "topology": "triangle_strip",
+   "primitive_restart": true
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "begin_rendering",
+     "area": [
+      0,
+      0,
+      64,
+      64
+     ],
+     "color": [
+      {
+       "view": "color0_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      },
+      {
+       "view": "color1_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      },
+      {
+       "view": "color2_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp2"
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb2_0"
+      },
+      {
+       "buffer": "vb2_1"
+      }
+     ]
+    },
+    {
+     "cmd": "bind_index_buffer",
+     "buffer": "ib2",
+     "type": "uint16"
+    },
+    {
+     "cmd": "draw_indexed_indirect",
+     "buffer": "ind2"
+    },
+    {
+     "cmd": "end_rendering"
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_002",
+   "items": [
+    {
+     "name": "color0",
+     "image": "color0"
+    },
+    {
+     "name": "color1",
+     "image": "color1"
+    },
+    {
+     "name": "color2",
+     "image": "color2"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,225 @@
+{
+ "version": 1,
+ "name": "compute_atomics_pub_shared",
+ "family": "compute_atomics",
+ "category": "replay",
+ "assets": {
+  "48cee9d15e347ed8271219b74fcf9244115f7e3b6bf4d80563521f5baefadc1a.bin": {
+   "kind": "spirv"
+  },
+  "acea97e762dcad41ce59059b4c889e640b28fa0869f794a0c3190b4c3467ffbe.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 1024
+  },
+  "30e05fb9283de0fe2f6e352659b7eb75b97cade076b230b3170f47b8f45469cf.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 64
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 4096,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "acea97e762dcad41ce59059b4c889e640b28fa0869f794a0c3190b4c3467ffbe.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 256,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "out",
+   "asset": {
+    "file": "30e05fb9283de0fe2f6e352659b7eb75b97cade076b230b3170f47b8f45469cf.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "48cee9d15e347ed8271219b74fcf9244115f7e3b6bf4d80563521f5baefadc1a.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 4
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      16
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "buffer_totals",
+     "buffer": "out",
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       8
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      16
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "buffer_totals",
+     "buffer": "out",
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

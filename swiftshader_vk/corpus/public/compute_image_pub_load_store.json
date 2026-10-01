@@ -1,0 +1,307 @@
+{
+ "version": 1,
+ "name": "compute_image_pub_load_store",
+ "family": "compute_image",
+ "category": "replay",
+ "assets": {
+  "0e4fd9e8fde1e6b62a9821a7f1bb5c5de3d85096ceca0968037f874c15f4be0c.bin": {
+   "kind": "spirv"
+  },
+  "4af8d03214f6f56a8475d94c2a78c927b8d4c5e55bd8b7abe60722384f335dbc.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 2048
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "sz",
+   "size": 16,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "image",
+   "name": "srcimg",
+   "format": "R8G8B8A8_UNORM",
+   "extent": [
+    32,
+    16
+   ],
+   "usage": [
+    "storage"
+   ]
+  },
+  {
+   "op": "upload_image",
+   "image": "srcimg",
+   "asset": {
+    "file": "4af8d03214f6f56a8475d94c2a78c927b8d4c5e55bd8b7abe60722384f335dbc.bin"
+   }
+  },
+  {
+   "op": "view",
+   "name": "src_v",
+   "image": "srcimg"
+  },
+  {
+   "op": "image",
+   "name": "dstimg",
+   "format": "R32G32B32A32_SFLOAT",
+   "extent": [
+    32,
+    16
+   ],
+   "usage": [
+    "storage"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "dst_v",
+   "image": "dstimg"
+  },
+  {
+   "op": "buffer",
+   "name": "tb_out",
+   "size": 2048,
+   "usage": [
+    "storage_texel_buffer"
+   ]
+  },
+  {
+   "op": "buffer_view",
+   "name": "tb_out_v",
+   "buffer": "tb_out",
+   "format": "R32_UINT"
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "0e4fd9e8fde1e6b62a9821a7f1bb5c5de3d85096ceca0968037f874c15f4be0c.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_image",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 4,
+     "type": "storage_texel_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 0,
+     "type": "storage_image",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 4
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "sz"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_image",
+     "images": [
+      {
+       "view": "dst_v",
+       "layout": "general"
+      }
+     ]
+    },
+    {
+     "binding": 4,
+     "type": "storage_texel_buffer",
+     "texel_buffers": [
+      "tb_out_v"
+     ]
+    },
+    {
+     "binding": 0,
+     "type": "storage_image",
+     "images": [
+      {
+       "view": "src_v",
+       "layout": "general"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4,
+      2,
+      1
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "dst",
+     "image": "dstimg"
+    },
+    {
+     "name": "texel_out",
+     "buffer": "tb_out",
+     "elem": "u32"
+    },
+    {
+     "name": "sizes",
+     "buffer": "sz",
+     "elem": "i32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       10
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4,
+      2,
+      1
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "dst",
+     "image": "dstimg"
+    },
+    {
+     "name": "texel_out",
+     "buffer": "tb_out",
+     "elem": "u32"
+    },
+    {
+     "name": "sizes",
+     "buffer": "sz",
+     "elem": "i32"
+    }
+   ]
+  }
+ ]
+}

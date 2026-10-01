@@ -1,0 +1,463 @@
+{
+ "version": 1,
+ "name": "queries_sync_pub_multi_submit",
+ "family": "queries_sync",
+ "category": "replay",
+ "assets": {
+  "4d15c99d494126ad7428143873a8cfa4e91927f7e2c6fd88929be44856ee3b1b.bin": {
+   "kind": "spirv"
+  },
+  "277a2ca15d725b16e2d2c21b3c04eedfa171152078089cc3ef336971e0a783e8.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "facc05eea77ea517a2e7c8f63d660e235668a7e156b61351ba8448d6eb2a9002.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "4457430c02094dd23cc77ee847aa70010ee375a9e5d1ad8f0ed3de60ca634390.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "e4d1a659eb1df3f8a587bf2579e196cfbc5af7735b7a1180e198bd02aac01eb4.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "14b617af493eacc0a2435c673b17ed1fcf4ca7ad146b0d279bd69aabb5fa4531.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "4698371d3ace277eddd6579516baf528b64d3e6a6df0ce3ba6f0a4d66f930568.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "277a2ca15d725b16e2d2c21b3c04eedfa171152078089cc3ef336971e0a783e8.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b",
+   "asset": {
+    "file": "facc05eea77ea517a2e7c8f63d660e235668a7e156b61351ba8448d6eb2a9002.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "4d15c99d494126ad7428143873a8cfa4e91927f7e2c6fd88929be44856ee3b1b.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 8
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "b"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "semaphore",
+   "name": "s0"
+  },
+  {
+   "op": "record",
+   "name": "fwd",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       3,
+       0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "record",
+   "name": "back",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       4,
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "4457430c02094dd23cc77ee847aa70010ee375a9e5d1ad8f0ed3de60ca634390.bin"
+   }
+  },
+  {
+   "op": "fence",
+   "name": "f0"
+  },
+  {
+   "op": "submit",
+   "cbs": [
+    "fwd"
+   ],
+   "signal": [
+    {
+     "semaphore": "s0"
+    }
+   ]
+  },
+  {
+   "op": "submit",
+   "cbs": [
+    "back"
+   ],
+   "wait": [
+    {
+     "semaphore": "s0",
+     "stage": "compute_shader"
+    }
+   ],
+   "fence": "f0"
+  },
+  {
+   "op": "wait_fence",
+   "name": "w0",
+   "fences": [
+    "f0"
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "a",
+     "buffer": "a",
+     "elem": "u32"
+    },
+    {
+     "name": "b",
+     "buffer": "b",
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "e4d1a659eb1df3f8a587bf2579e196cfbc5af7735b7a1180e198bd02aac01eb4.bin"
+   }
+  },
+  {
+   "op": "fence",
+   "name": "f1"
+  },
+  {
+   "op": "submit",
+   "cbs": [
+    "fwd"
+   ],
+   "signal": [
+    {
+     "semaphore": "s0"
+    }
+   ]
+  },
+  {
+   "op": "submit",
+   "cbs": [
+    "back"
+   ],
+   "wait": [
+    {
+     "semaphore": "s0",
+     "stage": "compute_shader"
+    }
+   ],
+   "fence": "f1"
+  },
+  {
+   "op": "wait_fence",
+   "name": "w1",
+   "fences": [
+    "f1"
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "a",
+     "buffer": "a",
+     "elem": "u32"
+    },
+    {
+     "name": "b",
+     "buffer": "b",
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "14b617af493eacc0a2435c673b17ed1fcf4ca7ad146b0d279bd69aabb5fa4531.bin"
+   }
+  },
+  {
+   "op": "fence",
+   "name": "f2"
+  },
+  {
+   "op": "submit",
+   "cbs": [
+    "fwd"
+   ],
+   "signal": [
+    {
+     "semaphore": "s0"
+    }
+   ]
+  },
+  {
+   "op": "submit",
+   "cbs": [
+    "back"
+   ],
+   "wait": [
+    {
+     "semaphore": "s0",
+     "stage": "compute_shader"
+    }
+   ],
+   "fence": "f2"
+  },
+  {
+   "op": "wait_fence",
+   "name": "w2",
+   "fences": [
+    "f2"
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_002",
+   "items": [
+    {
+     "name": "a",
+     "buffer": "a",
+     "elem": "u32"
+    },
+    {
+     "name": "b",
+     "buffer": "b",
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "4698371d3ace277eddd6579516baf528b64d3e6a6df0ce3ba6f0a4d66f930568.bin"
+   }
+  },
+  {
+   "op": "fence",
+   "name": "f3"
+  },
+  {
+   "op": "submit",
+   "cbs": [
+    "fwd"
+   ],
+   "signal": [
+    {
+     "semaphore": "s0"
+    }
+   ]
+  },
+  {
+   "op": "submit",
+   "cbs": [
+    "back"
+   ],
+   "wait": [
+    {
+     "semaphore": "s0",
+     "stage": "compute_shader"
+    }
+   ],
+   "fence": "f3"
+  },
+  {
+   "op": "wait_fence",
+   "name": "w3",
+   "fences": [
+    "f3"
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_003",
+   "items": [
+    {
+     "name": "a",
+     "buffer": "a",
+     "elem": "u32"
+    },
+    {
+     "name": "b",
+     "buffer": "b",
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,74 @@
+{
+ "version": 1,
+ "name": "inst_dev_pub_enum_create",
+ "family": "inst_dev",
+ "category": "procedural",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance",
+   "extensions": [
+    "VK_KHR_get_physical_device_properties2",
+    "VK_KHR_external_memory_capabilities"
+   ]
+  },
+  {
+   "op": "enumerate",
+   "name": "enum0_instance_extensions",
+   "what": "instance_extensions",
+   "capacity": 0
+  },
+  {
+   "op": "enumerate",
+   "name": "enum1_instance_extensions",
+   "what": "instance_extensions",
+   "capacity": 100
+  },
+  {
+   "op": "enumerate",
+   "name": "enum2_device_extensions",
+   "what": "device_extensions",
+   "capacity": 0
+  },
+  {
+   "op": "enumerate",
+   "name": "enum3_device_extensions",
+   "what": "device_extensions",
+   "capacity": 40
+  },
+  {
+   "op": "enumerate",
+   "name": "enum4_device_extensions",
+   "what": "device_extensions",
+   "capacity": 200
+  },
+  {
+   "op": "enumerate",
+   "name": "enum5_physical_devices",
+   "what": "physical_devices",
+   "capacity": 1
+  },
+  {
+   "op": "enumerate",
+   "name": "enum6_physical_devices",
+   "what": "physical_devices",
+   "capacity": 3
+  },
+  {
+   "op": "device",
+   "extensions": [
+    "VK_EXT_host_query_reset",
+    "VK_EXT_line_rasterization"
+   ]
+  },
+  {
+   "op": "query",
+   "name": "ext",
+   "what": {
+    "device_extensions": true
+   }
+  }
+ ]
+}

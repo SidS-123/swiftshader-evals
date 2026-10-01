@@ -1,0 +1,714 @@
+{
+ "version": 1,
+ "name": "formats_copy_blit_pub_sample_formats",
+ "family": "formats_copy_blit",
+ "category": "replay",
+ "assets": {
+  "091d3a51af16ffd7df56ee1111ceb4b389ef7f5f8879d9a374e9d35d166745df.bin": {
+   "kind": "spirv"
+  },
+  "708d95af6dad260efe712494ddd0ffc09e3d4650b52a94822fb0b67322d149d7.bin": {
+   "kind": "spirv"
+  },
+  "0b8d9482ae285cd533625273775864296a6791979f3f3e1058bc134b6e69ddf5.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 512
+  },
+  "0b90dc0ba030708bc6c3922edcd418f666b31ebe7db3a4b5010a04195e0e18e7.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 1024
+  },
+  "48965ee50f05a64a09213b001131df66a0cc71b7ab2aabff6f7e95d3a757614e.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 512
+  },
+  "bee5c3c13c71881b07874dae716c457bd56e76fef9ffd4d1a13aaf185c74b95f.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 512
+  }
+ },
+ "meta": {
+  "formats": [
+   "R5G5B5A1_UNORM_PACK16",
+   "A8B8G8R8_UNORM_PACK32",
+   "B5G5R5A1_UNORM_PACK16",
+   "R16_SNORM"
+  ]
+ },
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceVulkan13Features": {
+     "dynamicRendering": true,
+     "synchronization2": true,
+     "shaderDemoteToHelperInvocation": true
+    }
+   }
+  },
+  {
+   "op": "image",
+   "name": "color0",
+   "format": "R32G32B32A32_SFLOAT",
+   "extent": [
+    64,
+    16
+   ],
+   "usage": [
+    "color_attachment"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "color0_v",
+   "image": "color0"
+  },
+  {
+   "op": "sampler",
+   "name": "s",
+   "mag": "nearest",
+   "min": "nearest"
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "combined_image_sampler",
+     "stages": [
+      "fragment"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "vs",
+   "asset": {
+    "file": "091d3a51af16ffd7df56ee1111ceb4b389ef7f5f8879d9a374e9d35d166745df.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "fs",
+   "asset": {
+    "file": "708d95af6dad260efe712494ddd0ffc09e3d4650b52a94822fb0b67322d149d7.bin"
+   }
+  },
+  {
+   "op": "graphics_pipeline",
+   "name": "gp",
+   "layout": "pl",
+   "vs": "vs",
+   "fs": "fs",
+   "vertex_input": {
+    "bindings": [
+     {
+      "binding": 0,
+      "stride": 32
+     }
+    ],
+    "attributes": [
+     {
+      "location": 0,
+      "format": "R32G32B32A32_SFLOAT",
+      "offset": 0
+     },
+     {
+      "location": 1,
+      "format": "R32G32B32A32_SFLOAT",
+      "offset": 16
+     }
+    ]
+   },
+   "viewport": [
+    0,
+    0,
+    64,
+    16
+   ],
+   "rendering": {
+    "color_formats": [
+     "R32G32B32A32_SFLOAT"
+    ]
+   }
+  },
+  {
+   "op": "image",
+   "name": "t0",
+   "format": "R5G5B5A1_UNORM_PACK16",
+   "extent": [
+    16,
+    16
+   ],
+   "usage": [
+    "sampled"
+   ]
+  },
+  {
+   "op": "upload_image",
+   "image": "t0",
+   "asset": {
+    "file": "0b8d9482ae285cd533625273775864296a6791979f3f3e1058bc134b6e69ddf5.bin"
+   }
+  },
+  {
+   "op": "view",
+   "name": "t0_v",
+   "image": "t0"
+  },
+  {
+   "op": "desc_set",
+   "name": "ds0",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "combined_image_sampler",
+     "images": [
+      {
+       "view": "t0_v",
+       "sampler": "s",
+       "layout": "general"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "buffer",
+   "name": "vb0",
+   "size": 192,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb0",
+   "data": {
+    "f32": [
+     -1.0,
+     -1.0,
+     0.5,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     -0.5,
+     -1.0,
+     0.5,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     -1.0,
+     1.0,
+     0.5,
+     1.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0,
+     -0.5,
+     -1.0,
+     0.5,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     -0.5,
+     1.0,
+     0.5,
+     1.0,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     -1.0,
+     1.0,
+     0.5,
+     1.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "op": "image",
+   "name": "t1",
+   "format": "A8B8G8R8_UNORM_PACK32",
+   "extent": [
+    16,
+    16
+   ],
+   "usage": [
+    "sampled"
+   ]
+  },
+  {
+   "op": "upload_image",
+   "image": "t1",
+   "asset": {
+    "file": "0b90dc0ba030708bc6c3922edcd418f666b31ebe7db3a4b5010a04195e0e18e7.bin"
+   }
+  },
+  {
+   "op": "view",
+   "name": "t1_v",
+   "image": "t1"
+  },
+  {
+   "op": "desc_set",
+   "name": "ds1",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "combined_image_sampler",
+     "images": [
+      {
+       "view": "t1_v",
+       "sampler": "s",
+       "layout": "general"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "buffer",
+   "name": "vb1",
+   "size": 192,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb1",
+   "data": {
+    "f32": [
+     -0.5,
+     -1.0,
+     0.5,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     -1.0,
+     0.5,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     -0.5,
+     1.0,
+     0.5,
+     1.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     -1.0,
+     0.5,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0,
+     0.5,
+     1.0,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     -0.5,
+     1.0,
+     0.5,
+     1.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "op": "image",
+   "name": "t2",
+   "format": "B5G5R5A1_UNORM_PACK16",
+   "extent": [
+    16,
+    16
+   ],
+   "usage": [
+    "sampled"
+   ]
+  },
+  {
+   "op": "upload_image",
+   "image": "t2",
+   "asset": {
+    "file": "48965ee50f05a64a09213b001131df66a0cc71b7ab2aabff6f7e95d3a757614e.bin"
+   }
+  },
+  {
+   "op": "view",
+   "name": "t2_v",
+   "image": "t2"
+  },
+  {
+   "op": "desc_set",
+   "name": "ds2",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "combined_image_sampler",
+     "images": [
+      {
+       "view": "t2_v",
+       "sampler": "s",
+       "layout": "general"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "buffer",
+   "name": "vb2",
+   "size": 192,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb2",
+   "data": {
+    "f32": [
+     0.0,
+     -1.0,
+     0.5,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.5,
+     -1.0,
+     0.5,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0,
+     0.5,
+     1.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0,
+     0.5,
+     -1.0,
+     0.5,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     0.5,
+     1.0,
+     0.5,
+     1.0,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0,
+     0.5,
+     1.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "op": "image",
+   "name": "t3",
+   "format": "R16_SNORM",
+   "extent": [
+    16,
+    16
+   ],
+   "usage": [
+    "sampled"
+   ]
+  },
+  {
+   "op": "upload_image",
+   "image": "t3",
+   "asset": {
+    "file": "bee5c3c13c71881b07874dae716c457bd56e76fef9ffd4d1a13aaf185c74b95f.bin"
+   }
+  },
+  {
+   "op": "view",
+   "name": "t3_v",
+   "image": "t3"
+  },
+  {
+   "op": "desc_set",
+   "name": "ds3",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "combined_image_sampler",
+     "images": [
+      {
+       "view": "t3_v",
+       "sampler": "s",
+       "layout": "general"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "buffer",
+   "name": "vb3",
+   "size": 192,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb3",
+   "data": {
+    "f32": [
+     0.5,
+     -1.0,
+     0.5,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0,
+     -1.0,
+     0.5,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     0.5,
+     1.0,
+     0.5,
+     1.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0,
+     1.0,
+     -1.0,
+     0.5,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0,
+     1.0,
+     0.5,
+     1.0,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.5,
+     1.0,
+     0.5,
+     1.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "begin_rendering",
+     "area": [
+      0,
+      0,
+      64,
+      16
+     ],
+     "color": [
+      {
+       "view": "color0_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "bind_point": "graphics",
+     "sets": [
+      "ds0"
+     ]
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb0"
+      }
+     ]
+    },
+    {
+     "cmd": "draw",
+     "vertices": 6
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "bind_point": "graphics",
+     "sets": [
+      "ds1"
+     ]
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb1"
+      }
+     ]
+    },
+    {
+     "cmd": "draw",
+     "vertices": 6
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "bind_point": "graphics",
+     "sets": [
+      "ds2"
+     ]
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb2"
+      }
+     ]
+    },
+    {
+     "cmd": "draw",
+     "vertices": 6
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "bind_point": "graphics",
+     "sets": [
+      "ds3"
+     ]
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb3"
+      }
+     ]
+    },
+    {
+     "cmd": "draw",
+     "vertices": 6
+    },
+    {
+     "cmd": "end_rendering"
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "decoded",
+     "image": "color0"
+    }
+   ]
+  }
+ ]
+}

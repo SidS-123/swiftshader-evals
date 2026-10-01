@@ -1,0 +1,284 @@
+{
+ "version": 1,
+ "name": "perf_geometry_pub_a",
+ "family": "perf_geometry",
+ "category": "performance",
+ "assets": {
+  "6823370c6ea672d715ce46a2e8578e29a79bce2713d2e377e3b3db0ef6191f37.bin": {
+   "kind": "spirv"
+  },
+  "13195a4172112b45fb2bb5f6c50bb3be711749c33226709e180edfe2a3539750.bin": {
+   "kind": "spirv"
+  },
+  "fcd1bcf4401c6da6ed93826a05e9f07ada81e23217863e59e7f41005f30269e7.bin": {
+   "kind": "data",
+   "dtype": "float32",
+   "count": 165888
+  },
+  "46c5050c55f4b25eedef02c1a4c8ec4672876b0431d9e76ddd4678fc77728211.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 60000
+  },
+  "dc162a6e3404885bb96d23c10d16b4766fdb449779829246247db221011b641e.bin": {
+   "kind": "data",
+   "dtype": "float32",
+   "count": 8
+  }
+ },
+ "meta": {
+  "timed_run_index": 0
+ },
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceFeatures": {
+     "samplerAnisotropy": true
+    },
+    "VkPhysicalDeviceVulkan13Features": {
+     "dynamicRendering": true,
+     "synchronization2": true,
+     "shaderDemoteToHelperInvocation": true
+    }
+   }
+  },
+  {
+   "op": "image",
+   "name": "color0",
+   "format": "R8G8B8A8_UNORM",
+   "extent": [
+    512,
+    512
+   ],
+   "usage": [
+    "color_attachment"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "color0_v",
+   "image": "color0"
+  },
+  {
+   "op": "image",
+   "name": "depth",
+   "format": "D32_SFLOAT",
+   "extent": [
+    512,
+    512
+   ],
+   "usage": [
+    "depth_stencil_attachment"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "depth_v",
+   "image": "depth"
+  },
+  {
+   "op": "buffer",
+   "name": "vb",
+   "size": 663552,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb",
+   "asset": {
+    "file": "fcd1bcf4401c6da6ed93826a05e9f07ada81e23217863e59e7f41005f30269e7.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "ib",
+   "size": 240000,
+   "usage": [
+    "index_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "ib",
+   "asset": {
+    "file": "46c5050c55f4b25eedef02c1a4c8ec4672876b0431d9e76ddd4678fc77728211.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "inst",
+   "size": 32,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "inst",
+   "asset": {
+    "file": "dc162a6e3404885bb96d23c10d16b4766fdb449779829246247db221011b641e.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "vs",
+   "asset": {
+    "file": "6823370c6ea672d715ce46a2e8578e29a79bce2713d2e377e3b3db0ef6191f37.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "fs",
+   "asset": {
+    "file": "13195a4172112b45fb2bb5f6c50bb3be711749c33226709e180edfe2a3539750.bin"
+   }
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl"
+  },
+  {
+   "op": "graphics_pipeline",
+   "name": "gp",
+   "layout": "pl",
+   "vs": "vs",
+   "fs": "fs",
+   "vertex_input": {
+    "bindings": [
+     {
+      "binding": 0,
+      "stride": 32
+     },
+     {
+      "binding": 1,
+      "stride": 16,
+      "rate": "instance"
+     }
+    ],
+    "attributes": [
+     {
+      "location": 0,
+      "format": "R32G32B32A32_SFLOAT",
+      "offset": 0
+     },
+     {
+      "location": 1,
+      "format": "R32G32B32A32_SFLOAT",
+      "offset": 16
+     },
+     {
+      "location": 2,
+      "binding": 1,
+      "format": "R32G32B32A32_SFLOAT",
+      "offset": 0
+     }
+    ]
+   },
+   "viewport": [
+    0,
+    0,
+    512,
+    512
+   ],
+   "depth_stencil": {
+    "test": true,
+    "write": true,
+    "compare": "less"
+   },
+   "rendering": {
+    "color_formats": [
+     "R8G8B8A8_UNORM"
+    ],
+    "depth_format": "D32_SFLOAT"
+   }
+  },
+  {
+   "op": "run",
+   "name": "timed",
+   "iterations": 720,
+   "warmup": 1,
+   "cmds": [
+    {
+     "cmd": "begin_rendering",
+     "area": [
+      0,
+      0,
+      512,
+      512
+     ],
+     "color": [
+      {
+       "view": "color0_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     ],
+     "depth": {
+      "view": "depth_v",
+      "load": "clear",
+      "clear": {
+       "depth": 1.0,
+       "stencil": 0
+      }
+     }
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp"
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb"
+      },
+      {
+       "buffer": "inst"
+      }
+     ]
+    },
+    {
+     "cmd": "bind_index_buffer",
+     "buffer": "ib",
+     "type": "uint32"
+    },
+    {
+     "cmd": "draw_indexed",
+     "indices": 60000,
+     "instances": 2
+    },
+    {
+     "cmd": "end_rendering"
+    }
+   ],
+   "snapshot": {
+    "name": "snap_000",
+    "items": [
+     {
+      "name": "color0",
+      "image": "color0"
+     },
+     {
+      "name": "depth",
+      "image": "depth",
+      "aspect": "depth"
+     }
+    ]
+   }
+  }
+ ]
+}

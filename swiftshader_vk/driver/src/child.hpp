@@ -58,6 +58,11 @@ struct Semaphore {
     VkSemaphore sem = VK_NULL_HANDLE;
     bool timeline = false;
 };
+struct RenderPass {
+    VkRenderPass rp = VK_NULL_HANDLE;
+    std::vector<uint32_t> color_counts;     // per subpass: number of colour attachments
+    std::vector<bool> has_depth;            // per subpass: a depth/stencil attachment
+};
 
 struct State {
     int fd_out = -1, fd_in = -1;
@@ -98,6 +103,8 @@ struct State {
     std::map<std::string, Semaphore> semaphores;
     std::map<std::string, VkEvent> events;
     std::map<std::string, QueryPool> query_pools;
+    std::map<std::string, RenderPass> render_passes;
+    std::map<std::string, VkFramebuffer> framebuffers;
 
     // messaging
     void send(const json& head, const void* blob = nullptr, size_t len = 0);

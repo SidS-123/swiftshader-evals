@@ -1,0 +1,226 @@
+{
+ "version": 1,
+ "name": "formats_copy_blit_pub_blits",
+ "family": "formats_copy_blit",
+ "category": "replay",
+ "assets": {
+  "0f7e34f7b285a711583bea85b5fd24ab5acfd107f769d4728676299faf959c6e.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 768
+  }
+ },
+ "meta": {
+  "formats": [
+   "R16_UNORM",
+   "B8G8R8A8_SRGB",
+   "R16G16_UNORM"
+  ]
+ },
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "image",
+   "name": "src",
+   "format": "R16_UNORM",
+   "extent": [
+    24,
+    16
+   ],
+   "usage": []
+  },
+  {
+   "op": "upload_image",
+   "image": "src",
+   "asset": {
+    "file": "0f7e34f7b285a711583bea85b5fd24ab5acfd107f769d4728676299faf959c6e.bin"
+   }
+  },
+  {
+   "op": "image",
+   "name": "d0",
+   "format": "B8G8R8A8_SRGB",
+   "extent": [
+    48,
+    40
+   ],
+   "usage": []
+  },
+  {
+   "op": "image",
+   "name": "d1",
+   "format": "R16G16_UNORM",
+   "extent": [
+    20,
+    12
+   ],
+   "usage": []
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "clear_color_image",
+     "image": "d0",
+     "color": {
+      "f32": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "clear_color_image",
+     "image": "d1",
+     "color": {
+      "f32": [
+       0,
+       0,
+       0,
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "blit_image",
+     "src": "src",
+     "dst": "d0",
+     "filter": "linear",
+     "regions": [
+      {
+       "src_offsets": [
+        [
+         0,
+         0,
+         0
+        ],
+        [
+         24,
+         16,
+         1
+        ]
+       ],
+       "dst_offsets": [
+        [
+         2,
+         3,
+         0
+        ],
+        [
+         46,
+         37,
+         1
+        ]
+       ]
+      }
+     ]
+    },
+    {
+     "cmd": "blit_image",
+     "src": "src",
+     "dst": "d1",
+     "filter": "nearest",
+     "regions": [
+      {
+       "src_offsets": [
+        [
+         24,
+         0,
+         0
+        ],
+        [
+         0,
+         16,
+         1
+        ]
+       ],
+       "dst_offsets": [
+        [
+         0,
+         12,
+         0
+        ],
+        [
+         20,
+         0,
+         1
+        ]
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "d0",
+     "image": "d0"
+    },
+    {
+     "name": "d1",
+     "image": "d1"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "blit_image",
+     "src": "d0",
+     "dst": "d1",
+     "filter": "linear",
+     "regions": [
+      {
+       "src_offsets": [
+        [
+         5,
+         5,
+         0
+        ],
+        [
+         41,
+         33,
+         1
+        ]
+       ],
+       "dst_offsets": [
+        [
+         1,
+         1,
+         0
+        ],
+        [
+         19,
+         11,
+         1
+        ]
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "d1_again",
+     "image": "d1"
+    }
+   ]
+  }
+ ]
+}

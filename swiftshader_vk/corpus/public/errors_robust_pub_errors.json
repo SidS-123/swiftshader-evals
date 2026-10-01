@@ -1,0 +1,136 @@
+{
+ "version": 1,
+ "name": "errors_robust_pub_errors",
+ "family": "errors_robust",
+ "category": "procedural",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "image_format_props",
+   "name": "fmt0",
+   "format": "BC1_RGBA_UNORM_BLOCK",
+   "type": "2d",
+   "tiling": "optimal",
+   "usage": [
+    "storage"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "fmt1",
+   "format": "D32_SFLOAT",
+   "type": "3d",
+   "tiling": "optimal",
+   "usage": [
+    "depth_stencil_attachment"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "fmt2",
+   "format": "R8G8B8A8_UNORM",
+   "type": "2d",
+   "tiling": "linear",
+   "usage": [
+    "color_attachment"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "fmt3",
+   "format": "E5B9G9R9_UFLOAT_PACK32",
+   "type": "2d",
+   "tiling": "optimal",
+   "usage": [
+    "color_attachment"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "fmt4",
+   "format": "R32G32B32_SFLOAT",
+   "type": "2d",
+   "tiling": "optimal",
+   "usage": [
+    "sampled"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "fmt5",
+   "format": "R16G16B16A16_SFLOAT",
+   "type": "2d",
+   "tiling": "optimal",
+   "usage": [
+    "sampled",
+    "storage"
+   ],
+   "flags": [
+    "cube_compatible"
+   ]
+  },
+  {
+   "op": "enumerate",
+   "name": "enum_instance_extensions",
+   "what": "instance_extensions",
+   "capacity": 2
+  },
+  {
+   "op": "enumerate",
+   "name": "enum_device_extensions",
+   "what": "device_extensions",
+   "capacity": 5
+  },
+  {
+   "op": "enumerate",
+   "name": "enum_physical_devices",
+   "what": "physical_devices",
+   "capacity": 0
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "image",
+   "name": "big",
+   "format": "R32G32B32A32_SFLOAT",
+   "extent": [
+    16384,
+    6144
+   ],
+   "usage": [
+    "sampled"
+   ],
+   "auto_usage": false
+  },
+  {
+   "op": "buffer",
+   "name": "after",
+   "size": 64,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "after",
+     "buffer": "after",
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

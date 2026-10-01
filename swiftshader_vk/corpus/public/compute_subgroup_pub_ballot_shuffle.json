@@ -1,0 +1,287 @@
+{
+ "version": 1,
+ "name": "compute_subgroup_pub_ballot_shuffle",
+ "family": "compute_subgroup",
+ "category": "replay",
+ "assets": {
+  "534bf684a77d4db9d7d8c1eeef22779dcfd28dca231f7593537e01aa19d6d75c.bin": {
+   "kind": "spirv"
+  },
+  "52a8ab6faec8e8a6d3686b792d238b164c237c79a4e8912e9137ba874ed4f10d.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "52a8ab6faec8e8a6d3686b792d238b164c237c79a4e8912e9137ba874ed4f10d.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 6144,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "534bf684a77d4db9d7d8c1eeef22779dcfd28dca231f7593537e01aa19d6d75c.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 4
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "ballot",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "bcast",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "shuffle",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "shufxor",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "shufupdown",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "quad",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       4
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "ballot",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "bcast",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "shuffle",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "shufxor",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "shufupdown",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "quad",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

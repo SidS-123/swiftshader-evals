@@ -1,0 +1,131 @@
+{
+ "version": 1,
+ "name": "inst_dev_pub_formats",
+ "family": "inst_dev",
+ "category": "procedural",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "query",
+   "name": "formats",
+   "what": {
+    "formats": "all"
+   }
+  },
+  {
+   "op": "image_format_props",
+   "name": "ifp0",
+   "format": "R8G8B8A8_UNORM",
+   "type": "2d",
+   "tiling": "optimal",
+   "usage": [
+    "sampled",
+    "color_attachment",
+    "storage"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "ifp1",
+   "format": "R8G8B8A8_SRGB",
+   "type": "2d",
+   "tiling": "linear",
+   "usage": [
+    "sampled"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "ifp2",
+   "format": "B8G8R8A8_UNORM",
+   "type": "3d",
+   "tiling": "optimal",
+   "usage": [
+    "sampled",
+    "storage"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "ifp3",
+   "format": "R16G16B16A16_SFLOAT",
+   "type": "2d",
+   "tiling": "optimal",
+   "usage": [
+    "color_attachment"
+   ],
+   "flags": [
+    "cube_compatible"
+   ]
+  },
+  {
+   "op": "image_format_props",
+   "name": "ifp4",
+   "format": "D32_SFLOAT_S8_UINT",
+   "type": "2d",
+   "tiling": "optimal",
+   "usage": [
+    "depth_stencil_attachment",
+    "sampled"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "ifp5",
+   "format": "BC3_UNORM_BLOCK",
+   "type": "2d",
+   "tiling": "optimal",
+   "usage": [
+    "sampled"
+   ],
+   "flags": [
+    "block_texel_view_compatible",
+    "mutable_format",
+    "extended_usage"
+   ]
+  },
+  {
+   "op": "image_format_props",
+   "name": "ifp6",
+   "format": "ETC2_R8G8B8A8_UNORM_BLOCK",
+   "type": "3d",
+   "tiling": "optimal",
+   "usage": [
+    "sampled"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "ifp7",
+   "format": "R32_UINT",
+   "type": "1d",
+   "tiling": "optimal",
+   "usage": [
+    "storage"
+   ],
+   "flags": []
+  },
+  {
+   "op": "image_format_props",
+   "name": "ifp8",
+   "format": "A2B10G10R10_UNORM_PACK32",
+   "type": "2d",
+   "tiling": "optimal",
+   "usage": [
+    "color_attachment",
+    "input_attachment"
+   ],
+   "flags": []
+  }
+ ]
+}

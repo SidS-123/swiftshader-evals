@@ -197,10 +197,23 @@ void op_graphics_pipeline(State& st, const json& op, const std::string& ctx) {
     ri.depthAttachmentFormat = rend.contains("depth_format") ? parse_format(rend["depth_format"], ctx) : VK_FORMAT_UNDEFINED;
     ri.stencilAttachmentFormat = rend.contains("stencil_format") ? parse_format(rend["stencil_format"], ctx) : VK_FORMAT_UNDEFINED;
 
+    // A render-pass pipeline takes its attachment counts from the subpass; a
+    // dynamic-rendering one from "rendering".
+    const RenderPass* rpass = nullptr;
+    uint32_t subpass = (uint32_t)opt_u64(op, "subpass", 0);
+    size_t color_count = color_formats.size();
+    bool subpass_depth = false;
+    if (op.contains("render_pass")) {
+        rpass = &st.get(st.render_passes, req_str(op, "render_pass", ctx), "render_pass");
+        if (subpass >= rpass->color_counts.size()) throw CaseError(ctx + ": subpass out of range");
+        color_count = rpass->color_counts[subpass];
+        subpass_depth = rpass->has_depth[subpass];
+    }
+
     const json bl_j = op.value("blend", json::object());
     std::vector<VkPipelineColorBlendAttachmentState> atts;
     const json att_list = bl_j.value("attachments", json::array());
-    for (size_t k = 0; k < color_formats.size(); ++k) {
+    for (size_t k = 0; k < color_count; ++k) {
         const json a = k < att_list.size() ? att_list[k] : json::object();
         VkPipelineColorBlendAttachmentState s{};
         s.blendEnable = opt_bool(a, "enable", false);
@@ -239,7 +252,11 @@ void op_graphics_pipeline(State& st, const json& op, const std::string& ctx) {
     dsi.pDynamicStates = dyn.data();
 
     VkGraphicsPipelineCreateInfo ci{VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
-    ci.pNext = &ri;
+    ci.pNext = rpass ? nullptr : &ri;
+    if (rpass) {
+        ci.renderPass = rpass->rp;
+        ci.subpass = subpass;
+    }
     ci.stageCount = (uint32_t)stages.size();
     ci.pStages = stages.data();
     ci.pVertexInputState = &vis;
@@ -247,9 +264,10 @@ void op_graphics_pipeline(State& st, const json& op, const std::string& ctx) {
     ci.pViewportState = rs.rasterizerDiscardEnable ? nullptr : &vps;
     ci.pRasterizationState = &rs;
     ci.pMultisampleState = rs.rasterizerDiscardEnable ? nullptr : &ms;
-    bool has_ds = ri.depthAttachmentFormat != VK_FORMAT_UNDEFINED || ri.stencilAttachmentFormat != VK_FORMAT_UNDEFINED;
+    bool has_ds = rpass ? subpass_depth
+                        : (ri.depthAttachmentFormat != VK_FORMAT_UNDEFINED || ri.stencilAttachmentFormat != VK_FORMAT_UNDEFINED);
     ci.pDepthStencilState = has_ds && !rs.rasterizerDiscardEnable ? &ds : nullptr;
-    ci.pColorBlendState = color_formats.empty() || rs.rasterizerDiscardEnable ? nullptr : &cb;
+    ci.pColorBlendState = color_count == 0 || rs.rasterizerDiscardEnable ? nullptr : &cb;
     ci.pDynamicState = dyn.empty() ? nullptr : &dsi;
     ci.layout = layout;
     Pipeline p;
@@ -258,9 +276,127 @@ void op_graphics_pipeline(State& st, const json& op, const std::string& ctx) {
     st.pipelines[name] = p;
 }
 
+// {"op": "render_pass", "name",
+//  "attachments": [{"format", "samples", "load", "store", "stencil_load", "stencil_store", "initial", "final"}],
+//  "subpasses": [{"color": [{"attachment", "layout"}], "depth": {...}, "input": [...], "resolve": [...|null],
+//                 "preserve": [indices]}],
+//  "dependencies": [{"src": index|"external", "dst": ..., "src_stage", "dst_stage", "src_access", "dst_access",
+//                    "by_region"}]}
+VkAttachmentReference att_ref(const json& r, const std::string& ctx) {
+    if (r.is_null()) return {VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED};
+    return {(uint32_t)req_u64(r, "attachment", ctx), parse_layout(r.value("layout", json("general")), ctx)};
+}
+
+void op_render_pass(State& st, const json& op, const std::string& ctx) {
+    std::string name = req_str(op, "name", ctx);
+    st.declare(name, ctx);
+    st.need_device();
+    std::vector<VkAttachmentDescription> atts;
+    for (const json& a : req(op, "attachments", ctx)) {
+        auto lop = [&](const char* k, const char* d) {
+            return (VkAttachmentLoadOp)parse_enum("VkAttachmentLoadOp", "VK_ATTACHMENT_LOAD_OP_", a.value(k, json(d)), ctx);
+        };
+        auto sop = [&](const char* k, const char* d) {
+            return (VkAttachmentStoreOp)parse_enum("VkAttachmentStoreOp", "VK_ATTACHMENT_STORE_OP_", a.value(k, json(d)), ctx);
+        };
+        VkAttachmentDescription d{};
+        d.format = parse_format(req(a, "format", ctx), ctx);
+        d.samples = (VkSampleCountFlagBits)opt_u64(a, "samples", 1);
+        d.loadOp = lop("load", "load");
+        d.storeOp = sop("store", "store");
+        d.stencilLoadOp = lop("stencil_load", "load");
+        d.stencilStoreOp = sop("stencil_store", "store");
+        d.initialLayout = parse_layout(a.value("initial", json("general")), ctx);
+        d.finalLayout = parse_layout(a.value("final", json("general")), ctx);
+        atts.push_back(d);
+    }
+    const json& subs = req(op, "subpasses", ctx);
+    std::vector<std::vector<VkAttachmentReference>> colors(subs.size()), inputs(subs.size()), resolves(subs.size());
+    std::vector<VkAttachmentReference> depths(subs.size());
+    std::vector<std::vector<uint32_t>> preserves(subs.size());
+    std::vector<VkSubpassDescription> sd;
+    RenderPass rp;
+    for (size_t k = 0; k < subs.size(); ++k) {
+        const json& s = subs[k];
+        VkSubpassDescription d{};
+        d.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        if (s.contains("color")) for (const json& r : s["color"]) colors[k].push_back(att_ref(r, ctx));
+        if (s.contains("input")) for (const json& r : s["input"]) inputs[k].push_back(att_ref(r, ctx));
+        if (s.contains("resolve")) for (const json& r : s["resolve"]) resolves[k].push_back(att_ref(r, ctx));
+        if (s.contains("preserve")) for (const json& p : s["preserve"]) preserves[k].push_back(p.get<uint32_t>());
+        if (!resolves[k].empty() && resolves[k].size() != colors[k].size())
+            throw CaseError(ctx + ": 'resolve' needs one entry (or null) per colour attachment");
+        d.colorAttachmentCount = (uint32_t)colors[k].size();
+        d.pColorAttachments = colors[k].data();
+        d.pResolveAttachments = resolves[k].empty() ? nullptr : resolves[k].data();
+        d.inputAttachmentCount = (uint32_t)inputs[k].size();
+        d.pInputAttachments = inputs[k].data();
+        d.preserveAttachmentCount = (uint32_t)preserves[k].size();
+        d.pPreserveAttachments = preserves[k].data();
+        if (s.contains("depth")) {
+            depths[k] = att_ref(s["depth"], ctx);
+            d.pDepthStencilAttachment = &depths[k];
+        }
+        sd.push_back(d);
+        rp.color_counts.push_back(d.colorAttachmentCount);
+        rp.has_depth.push_back(s.contains("depth") && !s["depth"].is_null());
+    }
+    std::vector<VkSubpassDependency> deps;
+    if (op.contains("dependencies")) {
+        for (const json& d : op["dependencies"]) {
+            auto idx = [&](const char* k) {
+                const json& v = req(d, k, ctx);
+                return v.is_string() && v.get<std::string>() == "external" ? VK_SUBPASS_EXTERNAL : v.get<uint32_t>();
+            };
+            auto stages = [&](const char* k) {
+                return (VkPipelineStageFlags)parse_flags("VkPipelineStageFlagBits", "VK_PIPELINE_STAGE_",
+                                                         d.value(k, json("all_commands")), ctx);
+            };
+            auto access = [&](const char* k, json dflt) {
+                return (VkAccessFlags)parse_flags("VkAccessFlagBits", "VK_ACCESS_", d.value(k, dflt), ctx);
+            };
+            deps.push_back({idx("src"), idx("dst"), stages("src_stage"), stages("dst_stage"),
+                            access("src_access", json("memory_write")),
+                            access("dst_access", json::array({"memory_read", "memory_write"})),
+                            opt_bool(d, "by_region", true) ? (VkDependencyFlags)VK_DEPENDENCY_BY_REGION_BIT : 0u});
+        }
+    }
+    VkRenderPassCreateInfo ci{VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
+    ci.attachmentCount = (uint32_t)atts.size();
+    ci.pAttachments = atts.data();
+    ci.subpassCount = (uint32_t)sd.size();
+    ci.pSubpasses = sd.data();
+    ci.dependencyCount = (uint32_t)deps.size();
+    ci.pDependencies = deps.data();
+    if (VKC(st, vkCreateRenderPass, st.device, &ci, nullptr, &rp.rp) != VK_SUCCESS) return;
+    st.render_passes[name] = rp;
+}
+
+// {"op": "framebuffer", "name", "render_pass", "views": [...], "extent": [w, h], "layers": 1}
+void op_framebuffer(State& st, const json& op, const std::string& ctx) {
+    std::string name = req_str(op, "name", ctx);
+    st.declare(name, ctx);
+    RenderPass& rp = st.get(st.render_passes, req_str(op, "render_pass", ctx), "render_pass");
+    std::vector<VkImageView> views;
+    for (const json& v : req(op, "views", ctx)) views.push_back(st.get(st.views, v.get<std::string>(), "view").view);
+    const json& e = req(op, "extent", ctx);
+    VkFramebufferCreateInfo ci{VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO};
+    ci.renderPass = rp.rp;
+    ci.attachmentCount = (uint32_t)views.size();
+    ci.pAttachments = views.data();
+    ci.width = e[0].get<uint32_t>();
+    ci.height = e[1].get<uint32_t>();
+    ci.layers = (uint32_t)opt_u64(op, "layers", 1);
+    VkFramebuffer fb = VK_NULL_HANDLE;
+    if (VKC(st, vkCreateFramebuffer, st.device, &ci, nullptr, &fb) != VK_SUCCESS) return;
+    st.framebuffers[name] = fb;
+}
+
 }  // namespace
 
 void register_pipeline_ops(std::map<std::string, OpFn>& ops) {
     ops["compute_pipeline"] = op_compute_pipeline;
     ops["graphics_pipeline"] = op_graphics_pipeline;
+    ops["render_pass"] = op_render_pass;
+    ops["framebuffer"] = op_framebuffer;
 }

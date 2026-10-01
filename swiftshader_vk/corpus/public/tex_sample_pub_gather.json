@@ -1,0 +1,485 @@
+{
+ "version": 1,
+ "name": "tex_sample_pub_gather",
+ "family": "tex_sample",
+ "category": "replay",
+ "assets": {
+  "091d3a51af16ffd7df56ee1111ceb4b389ef7f5f8879d9a374e9d35d166745df.bin": {
+   "kind": "spirv"
+  },
+  "e737c24248b0ed7ed96ab82e764ee22e5a224d9e35585d860dc57ce36915689f.bin": {
+   "kind": "spirv"
+  },
+  "7ae2cf5e154012574cc7507fc977b18464d1095acd35a5c725032599d12269bd.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 1024
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceVulkan13Features": {
+     "dynamicRendering": true,
+     "synchronization2": true,
+     "shaderDemoteToHelperInvocation": true
+    }
+   }
+  },
+  {
+   "op": "image",
+   "name": "color0",
+   "format": "R8G8B8A8_UNORM",
+   "extent": [
+    64,
+    64
+   ],
+   "usage": [
+    "color_attachment"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "color0_v",
+   "image": "color0"
+  },
+  {
+   "op": "image",
+   "name": "tex",
+   "format": "R8G8B8A8_UNORM",
+   "extent": [
+    16,
+    16
+   ],
+   "usage": [
+    "sampled"
+   ],
+   "mips": 1
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 0,
+   "layers": 1,
+   "asset": {
+    "file": "7ae2cf5e154012574cc7507fc977b18464d1095acd35a5c725032599d12269bd.bin"
+   }
+  },
+  {
+   "op": "view",
+   "name": "tex_v",
+   "image": "tex"
+  },
+  {
+   "op": "sampler",
+   "name": "s",
+   "mag": "linear",
+   "min": "linear"
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "combined_image_sampler",
+     "stages": [
+      "fragment"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "fragment"
+     ],
+     "offset": 0,
+     "size": 16
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "combined_image_sampler",
+     "images": [
+      {
+       "view": "tex_v",
+       "layout": "general",
+       "sampler": "s"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "vs",
+   "asset": {
+    "file": "091d3a51af16ffd7df56ee1111ceb4b389ef7f5f8879d9a374e9d35d166745df.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "fs",
+   "asset": {
+    "file": "e737c24248b0ed7ed96ab82e764ee22e5a224d9e35585d860dc57ce36915689f.bin"
+   }
+  },
+  {
+   "op": "graphics_pipeline",
+   "name": "gp",
+   "layout": "pl",
+   "vs": "vs",
+   "fs": "fs",
+   "vertex_input": {
+    "bindings": [
+     {
+      "binding": 0,
+      "stride": 32
+     }
+    ],
+    "attributes": [
+     {
+      "location": 0,
+      "format": "R32G32B32A32_SFLOAT",
+      "offset": 0
+     },
+     {
+      "location": 1,
+      "format": "R32G32B32A32_SFLOAT",
+      "offset": 16
+     }
+    ]
+   },
+   "viewport": [
+    0,
+    0,
+    64,
+    64
+   ],
+   "rendering": {
+    "color_formats": [
+     "R8G8B8A8_UNORM"
+    ]
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "vb0",
+   "size": 192,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb0",
+   "data": {
+    "f32": [
+     -1.0,
+     -1.0,
+     0.5,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0,
+     -1.0,
+     0.5,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     -1.0,
+     1.0,
+     0.5,
+     1.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0,
+     1.0,
+     -1.0,
+     0.5,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     0.0,
+     1.0,
+     1.0,
+     0.5,
+     1.0,
+     1.0,
+     1.0,
+     0.0,
+     0.0,
+     -1.0,
+     1.0,
+     0.5,
+     1.0,
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ]
+   },
+   "perturb": {
+    "class": "texcoord",
+    "stride": 32,
+    "offset": 16,
+    "components": 2
+   }
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "begin_rendering",
+     "area": [
+      0,
+      0,
+      64,
+      64
+     ],
+     "color": [
+      {
+       "view": "color0_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "bind_point": "graphics",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb0"
+      }
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "fragment"
+     ],
+     "data": {
+      "f32": [
+       0.0,
+       0,
+       0,
+       0
+      ]
+     }
+    },
+    {
+     "cmd": "draw",
+     "vertices": 6
+    },
+    {
+     "cmd": "end_rendering"
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "color0",
+     "image": "color0"
+    }
+   ]
+  },
+  {
+   "op": "buffer",
+   "name": "vb1",
+   "size": 192,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb1",
+   "data": {
+    "f32": [
+     -1.0,
+     -1.0,
+     0.5,
+     1.0,
+     0.3,
+     0.2,
+     0.0,
+     0.0,
+     1.0,
+     -1.0,
+     0.5,
+     1.0,
+     1.3,
+     0.2,
+     0.0,
+     0.0,
+     -1.0,
+     1.0,
+     0.5,
+     1.0,
+     0.3,
+     0.9,
+     0.0,
+     0.0,
+     1.0,
+     -1.0,
+     0.5,
+     1.0,
+     1.3,
+     0.2,
+     0.0,
+     0.0,
+     1.0,
+     1.0,
+     0.5,
+     1.0,
+     1.3,
+     0.9,
+     0.0,
+     0.0,
+     -1.0,
+     1.0,
+     0.5,
+     1.0,
+     0.3,
+     0.9,
+     0.0,
+     0.0
+    ]
+   },
+   "perturb": {
+    "class": "texcoord",
+    "stride": 32,
+    "offset": 16,
+    "components": 2
+   }
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "begin_rendering",
+     "area": [
+      0,
+      0,
+      64,
+      64
+     ],
+     "color": [
+      {
+       "view": "color0_v",
+       "load": "load",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "bind_point": "graphics",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb1"
+      }
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "fragment"
+     ],
+     "data": {
+      "f32": [
+       3.0,
+       0,
+       0,
+       0
+      ]
+     }
+    },
+    {
+     "cmd": "draw",
+     "vertices": 6
+    },
+    {
+     "cmd": "end_rendering"
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "color0",
+     "image": "color0"
+    }
+   ]
+  }
+ ]
+}

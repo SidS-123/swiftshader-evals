@@ -1,0 +1,497 @@
+{
+ "version": 1,
+ "name": "queries_sync_pub_timestamps_events",
+ "family": "queries_sync",
+ "category": "procedural",
+ "assets": {
+  "4d15c99d494126ad7428143873a8cfa4e91927f7e2c6fd88929be44856ee3b1b.bin": {
+   "kind": "spirv"
+  },
+  "1cce9dbe560ec6f0410a6d64f7e3dd11c2821429bc5772fea02f464a565e88da.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "9f04de219611eb933e27c487be3ace35dca51fb9e2869a5ae6bb120d1dfe9aa9.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "1cce9dbe560ec6f0410a6d64f7e3dd11c2821429bc5772fea02f464a565e88da.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b",
+   "asset": {
+    "file": "9f04de219611eb933e27c487be3ace35dca51fb9e2869a5ae6bb120d1dfe9aa9.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "4d15c99d494126ad7428143873a8cfa4e91927f7e2c6fd88929be44856ee3b1b.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 8
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "b"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "query_pool",
+   "name": "ts",
+   "type": "timestamp",
+   "count": 4
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "reset_query_pool",
+     "pool": "ts"
+    },
+    {
+     "cmd": "write_timestamp",
+     "pool": "ts",
+     "query": 0
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       1,
+       0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    },
+    {
+     "cmd": "write_timestamp",
+     "pool": "ts",
+     "query": 1
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       2,
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    },
+    {
+     "cmd": "write_timestamp",
+     "pool": "ts",
+     "query": 2
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       3,
+       0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    },
+    {
+     "cmd": "write_timestamp",
+     "pool": "ts",
+     "query": 3
+    }
+   ]
+  },
+  {
+   "op": "read_queries",
+   "name": "ts_host",
+   "pool": "ts"
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "a",
+     "buffer": "a",
+     "elem": "u32"
+    },
+    {
+     "name": "b",
+     "buffer": "b",
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "event",
+   "name": "e0"
+  },
+  {
+   "op": "event",
+   "name": "e1"
+  },
+  {
+   "op": "event_status",
+   "name": "e0_initial",
+   "event": "e0"
+  },
+  {
+   "op": "set_event",
+   "event": "e0"
+  },
+  {
+   "op": "event_status",
+   "name": "e0_host_set",
+   "event": "e0"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "wait_events",
+     "events": [
+      "e0"
+     ],
+     "src_stage": "host"
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       9,
+       0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    },
+    {
+     "cmd": "set_event",
+     "event": "e1"
+    },
+    {
+     "cmd": "reset_event",
+     "event": "e0"
+    }
+   ]
+  },
+  {
+   "op": "event_status",
+   "name": "e0_after",
+   "event": "e0"
+  },
+  {
+   "op": "event_status",
+   "name": "e1_after",
+   "event": "e1"
+  },
+  {
+   "op": "reset_event",
+   "event": "e1"
+  },
+  {
+   "op": "event_status",
+   "name": "e1_host_reset",
+   "event": "e1"
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "b",
+     "buffer": "b",
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "fence",
+   "name": "f_sig",
+   "signaled": true
+  },
+  {
+   "op": "fence",
+   "name": "f_un"
+  },
+  {
+   "op": "fence_status",
+   "name": "f_sig_status",
+   "fence": "f_sig"
+  },
+  {
+   "op": "fence_status",
+   "name": "f_un_status",
+   "fence": "f_un"
+  },
+  {
+   "op": "wait_fence",
+   "name": "wait_zero",
+   "fences": [
+    "f_un"
+   ],
+   "timeout_ns": 0
+  },
+  {
+   "op": "wait_fence",
+   "name": "wait_any",
+   "fences": [
+    "f_sig",
+    "f_un"
+   ],
+   "all": false,
+   "timeout_ns": 0
+  },
+  {
+   "op": "reset_fence",
+   "fences": [
+    "f_sig"
+   ]
+  },
+  {
+   "op": "fence_status",
+   "name": "f_sig_reset",
+   "fence": "f_sig"
+  },
+  {
+   "op": "record",
+   "name": "cb",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       11,
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "submit",
+   "cbs": [
+    "cb"
+   ],
+   "fence": "f_un"
+  },
+  {
+   "op": "wait_fence",
+   "name": "wait_done",
+   "fences": [
+    "f_un"
+   ]
+  },
+  {
+   "op": "fence_status",
+   "name": "f_un_done",
+   "fence": "f_un"
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_002",
+   "items": [
+    {
+     "name": "a",
+     "buffer": "a",
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

@@ -99,3 +99,20 @@ Loader messages about an unsupported extension or feature that a case asks
 for on purpose (to observe `VK_ERROR_EXTENSION_NOT_PRESENT` /
 `VK_ERROR_FEATURE_NOT_PRESENT`) are not violations. `tools/determinism.py`
 applies the gate; Stage 7's generators apply it to every generated case.
+
+`tools/gate.sh SPLIT [PREFIX...]` (Stage 7) regenerates a split from scratch
+and runs `tools/determinism.py` on it (2 repeats, ThreadCount 1, Subzero,
+validation), printing every case that fails: a validation message, an exit
+other than `ok`, a skipped op, or a difference between repeats or thread
+counts. Generation and the gate run inside the venv (`source .envrc`);
+glslang comes from `ssvk-ref:1` (`corpus/gen/common.py: glsl`).
+
+## Render pass objects (added in Stage 7)
+
+`render_pass` and `framebuffer` create `VkRenderPass` / `VkFramebuffer`;
+`begin_render_pass` / `next_subpass` / `end_render_pass` record the
+commands. A graphics pipeline built with `render_pass` and `subpass` takes its
+colour-attachment count and depth/stencil presence from that subpass
+(`driver/src/child_pipelines.cpp`). vkreplay records no automatic barrier
+inside a render pass, including before `end_render_pass`; the case's subpass
+dependencies are the only synchronisation within it. Field lists: `task/CASE_FORMAT.md`.

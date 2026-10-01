@@ -1,0 +1,124 @@
+{
+ "version": 1,
+ "name": "mem_buf_pub_large",
+ "family": "mem_buf",
+ "category": "replay",
+ "assets": {
+  "3822dd5635fdfd2c8d446b7c2f6380d331f66c6dff3d1685d9f5b746cdd73a70.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 1572864
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "src",
+   "size": 6291456,
+   "usage": []
+  },
+  {
+   "op": "buffer",
+   "name": "dst",
+   "size": 6291456,
+   "usage": []
+  },
+  {
+   "op": "upload",
+   "buffer": "src",
+   "asset": {
+    "file": "3822dd5635fdfd2c8d446b7c2f6380d331f66c6dff3d1685d9f5b746cdd73a70.bin"
+   }
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "fill_buffer",
+     "buffer": "dst",
+     "value": 16909060
+    },
+    {
+     "cmd": "copy_buffer",
+     "src": "src",
+     "dst": "dst",
+     "regions": [
+      [
+       0,
+       5033165,
+       1258290
+      ],
+      [
+       1258294,
+       3774875,
+       1258283
+      ],
+      [
+       2516588,
+       2516585,
+       1258276
+      ],
+      [
+       3774882,
+       1258295,
+       1258269
+      ],
+      [
+       5033176,
+       5,
+       1258262
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "dst_0",
+     "buffer": "dst",
+     "offset": 5882748,
+     "size": 16384,
+     "elem": "u32"
+    },
+    {
+     "name": "dst_1",
+     "buffer": "dst",
+     "offset": 4331360,
+     "size": 16384,
+     "elem": "u32"
+    },
+    {
+     "name": "dst_2",
+     "buffer": "dst",
+     "offset": 3514292,
+     "size": 16384,
+     "elem": "u32"
+    },
+    {
+     "name": "dst_3",
+     "buffer": "dst",
+     "offset": 2433968,
+     "size": 16384,
+     "elem": "u32"
+    },
+    {
+     "name": "dst_tail",
+     "buffer": "dst",
+     "offset": 6225920,
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

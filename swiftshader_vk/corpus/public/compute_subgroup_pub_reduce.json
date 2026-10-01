@@ -1,0 +1,343 @@
+{
+ "version": 1,
+ "name": "compute_subgroup_pub_reduce",
+ "family": "compute_subgroup",
+ "category": "replay",
+ "assets": {
+  "196ea0b629ebdf2a72efbc763174a98bc404866d1e79fd92bee30704e7b438df.bin": {
+   "kind": "spirv"
+  },
+  "2cab513e0c317524274524eba3ae278068565ccd5849555f28d8315786803eae.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "2cab513e0c317524274524eba3ae278068565ccd5849555f28d8315786803eae.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 10240,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "196ea0b629ebdf2a72efbc763174a98bc404866d1e79fd92bee30704e7b438df.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 4
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "add",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "mul",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "min",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "max",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "and",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "or",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "xor",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "iadd",
+     "buffer": "out",
+     "offset": 7168,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "eadd",
+     "buffer": "out",
+     "offset": 8192,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "imax",
+     "buffer": "out",
+     "offset": 9216,
+     "size": 1024,
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       3
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "add",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "mul",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "min",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "max",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "and",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "or",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "xor",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "iadd",
+     "buffer": "out",
+     "offset": 7168,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "eadd",
+     "buffer": "out",
+     "offset": 8192,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "imax",
+     "buffer": "out",
+     "offset": 9216,
+     "size": 1024,
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

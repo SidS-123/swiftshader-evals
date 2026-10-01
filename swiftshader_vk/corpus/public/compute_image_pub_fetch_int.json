@@ -1,0 +1,327 @@
+{
+ "version": 1,
+ "name": "compute_image_pub_fetch_int",
+ "family": "compute_image",
+ "category": "replay",
+ "assets": {
+  "7c8c98f8d1cade56bcde5d07e86cfc84e75dc984fc1d7b22f60a0259c796394d.bin": {
+   "kind": "spirv"
+  },
+  "d473096450b1f46258a1c381adaeb5453896572146bb8ebb59103b0c5bdbf6a1.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 1024
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "sz",
+   "size": 16,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "image",
+   "name": "srcimg",
+   "format": "R8G8B8A8_UINT",
+   "extent": [
+    16,
+    16
+   ],
+   "usage": [
+    "sampled"
+   ]
+  },
+  {
+   "op": "upload_image",
+   "image": "srcimg",
+   "asset": {
+    "file": "d473096450b1f46258a1c381adaeb5453896572146bb8ebb59103b0c5bdbf6a1.bin"
+   }
+  },
+  {
+   "op": "view",
+   "name": "src_v",
+   "image": "srcimg"
+  },
+  {
+   "op": "sampler",
+   "name": "s"
+  },
+  {
+   "op": "image",
+   "name": "dstimg",
+   "format": "R32_UINT",
+   "extent": [
+    16,
+    16
+   ],
+   "usage": [
+    "storage"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "dst_v",
+   "image": "dstimg"
+  },
+  {
+   "op": "buffer",
+   "name": "tb_out",
+   "size": 1024,
+   "usage": [
+    "storage_texel_buffer"
+   ]
+  },
+  {
+   "op": "buffer_view",
+   "name": "tb_out_v",
+   "buffer": "tb_out",
+   "format": "R32_UINT"
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "7c8c98f8d1cade56bcde5d07e86cfc84e75dc984fc1d7b22f60a0259c796394d.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_image",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 4,
+     "type": "storage_texel_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 0,
+     "type": "sampled_image",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 3,
+     "type": "sampler",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 4
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "sz"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_image",
+     "images": [
+      {
+       "view": "dst_v",
+       "layout": "general"
+      }
+     ]
+    },
+    {
+     "binding": 4,
+     "type": "storage_texel_buffer",
+     "texel_buffers": [
+      "tb_out_v"
+     ]
+    },
+    {
+     "binding": 0,
+     "type": "sampled_image",
+     "images": [
+      {
+       "view": "src_v",
+       "layout": "general"
+      }
+     ]
+    },
+    {
+     "binding": 3,
+     "type": "sampler",
+     "images": [
+      {
+       "sampler": "s"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      2,
+      2,
+      1
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "dst",
+     "image": "dstimg"
+    },
+    {
+     "name": "texel_out",
+     "buffer": "tb_out",
+     "elem": "u32"
+    },
+    {
+     "name": "sizes",
+     "buffer": "sz",
+     "elem": "i32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       11
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      2,
+      2,
+      1
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "dst",
+     "image": "dstimg"
+    },
+    {
+     "name": "texel_out",
+     "buffer": "tb_out",
+     "elem": "u32"
+    },
+    {
+     "name": "sizes",
+     "buffer": "sz",
+     "elem": "i32"
+    }
+   ]
+  }
+ ]
+}

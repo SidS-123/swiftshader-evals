@@ -1,0 +1,63 @@
+{
+ "version": 1,
+ "name": "inst_dev_pub_props_features",
+ "family": "inst_dev",
+ "category": "procedural",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "query",
+   "name": "props",
+   "what": {
+    "properties": "all",
+    "features": "all"
+   }
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceFeatures": {
+     "samplerAnisotropy": true,
+     "fillModeNonSolid": true,
+     "independentBlend": true
+    },
+    "VkPhysicalDeviceVulkan12Features": {
+     "timelineSemaphore": true,
+     "bufferDeviceAddress": true
+    },
+    "VkPhysicalDeviceVulkan13Features": {
+     "dynamicRendering": true,
+     "synchronization2": true
+    }
+   },
+   "extensions": [
+    "VK_EXT_custom_border_color",
+    "VK_EXT_depth_clip_enable"
+   ]
+  },
+  {
+   "op": "buffer",
+   "name": "b",
+   "size": 256,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "b",
+     "buffer": "b",
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

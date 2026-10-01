@@ -1,0 +1,385 @@
+{
+ "version": 1,
+ "name": "compute_arith_pub_bits",
+ "family": "compute_arith",
+ "category": "replay",
+ "assets": {
+  "0daefa1869483780fdbf52b24df45b33b139a3318e864beeff954686095c60fc.bin": {
+   "kind": "spirv"
+  },
+  "696aac0c2a52fac5af3dc24dcabdde93b69fc5b1729ec1ae96db3f5e87c59e26.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  },
+  "1e8700149bf8ed8924b28a363054e1f4d2a9c5406ed21d8ddd9167581f5a31a7.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 256
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "a",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "a",
+   "asset": {
+    "file": "696aac0c2a52fac5af3dc24dcabdde93b69fc5b1729ec1ae96db3f5e87c59e26.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b",
+   "size": 1024,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b",
+   "asset": {
+    "file": "1e8700149bf8ed8924b28a363054e1f4d2a9c5406ed21d8ddd9167581f5a31a7.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 10240,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "0daefa1869483780fdbf52b24df45b33b139a3318e864beeff954686095c60fc.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 8
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "a"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "b"
+      }
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       3
+      ],
+      "f32": [
+       1.0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "bitcount",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "findlsb_msb",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "reverse",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "extract",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "sextract",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "i32"
+    },
+    {
+     "name": "insert",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "carry",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "borrow",
+     "buffer": "out",
+     "offset": 7168,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "mulext",
+     "buffer": "out",
+     "offset": 8192,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "imulext",
+     "buffer": "out",
+     "offset": 9216,
+     "size": 1024,
+     "elem": "i32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       17
+      ],
+      "f32": [
+       0.5
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      4
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "bitcount",
+     "buffer": "out",
+     "offset": 0,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "findlsb_msb",
+     "buffer": "out",
+     "offset": 1024,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "reverse",
+     "buffer": "out",
+     "offset": 2048,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "extract",
+     "buffer": "out",
+     "offset": 3072,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "sextract",
+     "buffer": "out",
+     "offset": 4096,
+     "size": 1024,
+     "elem": "i32"
+    },
+    {
+     "name": "insert",
+     "buffer": "out",
+     "offset": 5120,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "carry",
+     "buffer": "out",
+     "offset": 6144,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "borrow",
+     "buffer": "out",
+     "offset": 7168,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "mulext",
+     "buffer": "out",
+     "offset": 8192,
+     "size": 1024,
+     "elem": "u32"
+    },
+    {
+     "name": "imulext",
+     "buffer": "out",
+     "offset": 9216,
+     "size": 1024,
+     "elem": "i32"
+    }
+   ]
+  }
+ ]
+}

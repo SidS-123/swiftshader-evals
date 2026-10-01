@@ -300,3 +300,47 @@ lavapipe differs from the reference (525 ULP of D32 depth; 4-5 LSB in
 trilinear sampling); whether to allow for them is decided in Stage 8 from the
 lavapipe run and the controls, not assumed here. First lavapipe number at
 `ssvk-1.0` with no allowances: mean snapshot score 0.773 over 51 pilot cases.
+
+**2026-10-01 — Render pass objects in vkreplay (Stage 7).** `render_pass`,
+`framebuffer`, `begin_render_pass` / `next_subpass` / `end_render_pass`, and
+pipelines bound to a subpass, so `mrt_renderpass` can grade subpasses, input
+attachments and render-pass resolves (dynamic rendering cannot express
+them). vkreplay records no automatic barrier inside a render pass; the case's
+subpass dependencies order it. Validation-gated like everything else.
+
+**2026-10-01 — Buffer device address only through push constants (Stage 7).**
+The oracle crashes (SIGSEGV) when a shader dereferences a device address it
+loaded from memory. An oracle crash cannot be a reference, so no case chases
+pointers; BDA is graded through push-constant pointers. Recorded in
+REQUIREMENTS.md as a narrowing, not hidden from the task (the task does not
+promise pointer chasing is graded).
+
+**2026-10-01 — No image atomics (Stage 7).** Their totals differ between
+repeated oracle runs; nondeterministic references cannot be graded. Buffer
+and shared-memory atomics (commutative totals) stay.
+
+**2026-10-01 — Robustness through the core features (Stage 7).** The oracle
+has no `VK_EXT_robustness2`; `errors_robust` grades `robustBufferAccess` and
+`robustImageAccess`, whose out-of-bounds results the spec leaves partly to the
+implementation. The reference's choice (zeros, dropped writes) is what is
+graded, the same as any other reference behaviour, and the task says the
+`oracle` shows it. SPEC.md row changed from "robustness2".
+
+**2026-10-01 — Hidden generators share the public builders (Stage 7).** A
+private module imports `build` from the public module of the same name and
+supplies only a parameter table: new seeds plus different values and
+compositions. Builders are not secret (the model sees public cases built by
+them anyway); what is secret is which draws are graded. The whole hidden
+split is gated, because a hidden draw can reach builder paths no public draw
+does (it did: a compressed-format block size, `stage7_findings.md` 7.6).
+`tests/test_hidden_leak.py` enforces new seeds, different parameters and no
+hidden seed or case name in the public tree.
+
+**2026-10-01 — Performance calibration (Stage 7).** Iteration counts are fixed
+in the case tables so the reference timed run is ≥ 2 s with margin: 2.6-3.1 s
+in the reference cache, which is built with nothing else running (parallel
+load makes the same runs 15-45 % slower, so calibration uses the cache's
+`reference_run_seconds`, not the gate). Calibration is by editing the table
+and regenerating; the refcache stores the reference time the ratio uses, and
+a reference wall time far above a case's norm is re-measured before it is
+trusted (one 600 s container stall seen, `stage7_findings.md` 7.5).

@@ -1,0 +1,151 @@
+{
+ "version": 1,
+ "name": "perf_compute_pub_a",
+ "family": "perf_compute",
+ "category": "performance",
+ "assets": {
+  "3cf1b513bb4e47bbae85545443d323416bc9942f0a8d8b247a14c74e61b2b824.bin": {
+   "kind": "spirv"
+  },
+  "cd27d3b1a2f604351a6f4729355a95c1d84629919c1c5a7fb1a4a0532d099d03.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 65536
+  }
+ },
+ "meta": {
+  "timed_run_index": 0
+ },
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "in",
+   "size": 262144,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "in",
+   "asset": {
+    "file": "cd27d3b1a2f604351a6f4729355a95c1d84629919c1c5a7fb1a4a0532d099d03.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 524288,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "3cf1b513bb4e47bbae85545443d323416bc9942f0a8d8b247a14c74e61b2b824.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "in"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "run",
+   "name": "timed",
+   "iterations": 550,
+   "warmup": 1,
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      1024
+     ]
+    }
+   ],
+   "snapshot": {
+    "name": "snap_000",
+    "items": [
+     {
+      "name": "out",
+      "buffer": "out",
+      "elem": "u32"
+     }
+    ]
+   }
+  }
+ ]
+}

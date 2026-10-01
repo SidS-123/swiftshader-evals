@@ -1,0 +1,37 @@
+{
+ "version": 1,
+ "name": "errors_robust_pub_bad_device",
+ "family": "errors_robust",
+ "category": "procedural",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceFeatures": {
+     "geometryShader": true
+    }
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b",
+   "size": 64,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "query",
+   "name": "after",
+   "what": {
+    "api_version": true
+   }
+  }
+ ]
+}

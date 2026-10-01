@@ -58,9 +58,13 @@ process (`vkreplay --child ...`), so attach to or follow that process.
   (`ALL_COMMANDS -> ALL_COMMANDS`, `MEMORY_WRITE -> MEMORY_READ | MEMORY_WRITE`)
   is recorded before *every* command (binds and state-setting included) that
   is outside a rendering scope, unless the op says `"auto_barriers": false`.
-  Nothing is recorded between `begin_rendering` and `end_rendering`.
-- **Rendering** uses dynamic rendering (`vkCmdBeginRendering`). vkreplay
-  enables no features on its own: a case that renders lists
+  Nothing is recorded between `begin_rendering` and `end_rendering`, or
+  between `begin_render_pass` and `end_render_pass` (a render pass orders its
+  own subpasses with the dependencies the case gives it).
+- **Rendering** uses dynamic rendering (`vkCmdBeginRendering`), or a render
+  pass object with framebuffers and subpasses when the case creates one
+  (`render_pass`, `framebuffer`, `begin_render_pass`). vkreplay enables no
+  features on its own: a case that renders with dynamic rendering lists
   `"VkPhysicalDeviceVulkan13Features": {"dynamicRendering": true}` (and
   whatever else it uses) in its `device` op.
 - **Every call is logged.** Every Vulkan call that returns a `VkResult`, the
@@ -133,6 +137,8 @@ you advertise it), each through `vkGetPhysicalDeviceFormatProperties2` with
 |---|---|
 | `compute_pipeline` | `name`, `layout`, `shader`, `entry` ("main"), `spec` ([{`id`, one of `u32 i32 f32 bool u64 f64`}]) |
 | `graphics_pipeline` | see below |
+| `render_pass` | see below |
+| `framebuffer` | see below |
 
 `graphics_pipeline`: `name`, `layout`, `vs`, `fs` (none: no fragment
 shader), `vs_entry` / `fs_entry` ("main"), `vs_spec` / `fs_spec`;
@@ -155,8 +161,24 @@ off) {`front`, `back` (= front): {`fail`, `pass`, `depth_fail` ("keep"),
 ("one"), `dst_color` ("zero"), `color_op` ("add"), `src_alpha` ("one"),
 `dst_alpha` ("zero"), `alpha_op` ("add"), `write_mask` ("rgba")}]};
 `dynamic` ([] dynamic states); `rendering` {`color_formats` ([]),
-`depth_format`, `stencil_format`}. Depth/stencil state is used when a depth
-or stencil format is given; colour blend state when there are colour formats.
+`depth_format`, `stencil_format`}; or `render_pass` and `subpass` (0) instead
+of `rendering`, for use inside that subpass of a render pass object. Depth/stencil state is used when a depth
+or stencil format is given (or the subpass has a depth/stencil attachment);
+colour blend state when there are colour attachments.
+
+`render_pass`: `name`, `attachments` [{`format`, `samples` (1), `load`
+("load"), `store` ("store"), `stencil_load` ("load"), `stencil_store`
+("store"), `initial` ("general"), `final` ("general")}], `subpasses`
+[{`color` [{`attachment`, `layout` ("general")}], `depth` {`attachment`,
+`layout`}, `input` [...], `resolve` [... or `null` per colour attachment],
+`preserve` [attachment indices]}], `dependencies` [{`src`, `dst` (a subpass
+index or `"external"`), `src_stage` / `dst_stage` ("all_commands"),
+`src_access` ("memory_write"), `dst_access` (["memory_read",
+"memory_write"]), `by_region` (true)}]. A `null` reference is
+`VK_ATTACHMENT_UNUSED`.
+
+`framebuffer`: `name`, `render_pass`, `views` (one per attachment, in
+order), `extent` [w, h], `layers` (1).
 
 ### Execution
 | op | fields (default) | notes |
@@ -176,6 +198,9 @@ A subresource `sub` is {`aspect` (the image's; depth for depth/stencil),
 |---|---|
 | `begin_rendering` | `area` [x, y, w, h], `layers` (1), `color` [{`view`, `layout` ("general"), `load` ("load"), `store` ("store"), `clear` {`f32` \| `u32` \| `i32`: [4]}, `resolve_view` (none), `resolve_mode` ("average")}], `depth` / `stencil` {`view`, `layout`, `load`, `store`, `clear` {`depth` (1.0), `stencil` (0)}} |
 | `end_rendering` | |
+| `begin_render_pass` | `render_pass`, `framebuffer`, `area` [x, y, w, h], `clears` ([]; one per attachment: {`f32` \| `u32` \| `i32`: [4]} or {`depth` (1.0), `stencil` (0)}) |
+| `next_subpass` | |
+| `end_render_pass` | |
 | `bind_pipeline` | `pipeline` |
 | `bind_vertex_buffers` | `first` (0), `buffers` [{`buffer`, `offset` (0)}] |
 | `bind_index_buffer` | `buffer`, `offset` (0), `type` ("uint32") |

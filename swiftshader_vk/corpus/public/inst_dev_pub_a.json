@@ -1,0 +1,37 @@
+{
+ "version": 1,
+ "name": "inst_dev_pub_a",
+ "family": "inst_dev",
+ "category": "procedural",
+ "assets": {},
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "query",
+   "name": "info",
+   "what": {
+    "api_version": true,
+    "device_version": true,
+    "instance_extensions": true,
+    "device_extensions": true,
+    "queue_families": true,
+    "memory": true
+   }
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "query",
+   "name": "after_device",
+   "what": {
+    "device_version": true,
+    "queue_families": true
+   }
+  }
+ ]
+}

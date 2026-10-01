@@ -23,9 +23,9 @@ coverage and weights are set from Stage 3's CTS pass-list breakdown
 | 2 | `mem_buf` | replay+proc | buffers, memory types, map/unmap, copy/fill/update, alignment |
 | 3 | `compute_arith` | replay | int/float arithmetic, conversions, bit ops, built-ins |
 | 4 | `compute_cf` | replay | branches, loops, switch, functions, early exit |
-| 5 | `compute_types` | replay | vectors, matrices, structs, arrays, shared memory, buffer device address (no 8/16-bit or 64-bit types: unsupported) |
+| 5 | `compute_types` | replay | vectors, matrices, structs, arrays, shared memory, buffer device address through push-constant pointers only (no pointers loaded from memory: oracle crash, Stage 7) (no 8/16-bit or 64-bit types: unsupported) |
 | 6 | `compute_subgroup` | replay | subgroup ops at size 4 |
-| 7 | `compute_atomics` | replay | commutative atomic totals only |
+| 7 | `compute_atomics` | replay | commutative atomic totals only, on buffers and shared memory (no image atomics: nondeterministic on the oracle, Stage 7) |
 | 8 | `compute_image` | replay | storage images, image load/store, texel buffers |
 | 9 | `raster_tri` | replay | fill rules, culling, winding, viewport, scissor, depth bias, clipping |
 | 10 | `raster_lines_points` | replay | lines, points, point size |
@@ -38,7 +38,7 @@ coverage and weights are set from Stage 3's CTS pass-list breakdown
 | 17 | `mrt_renderpass` | replay | multiple attachments, subpasses, input attachments, load/store ops, dynamic rendering |
 | 18 | `descriptors_push` | replay | descriptor types, dynamic offsets, push/spec constants, descriptor indexing |
 | 19 | `queries_sync` | replay+proc | occlusion and timestamp queries (no pipeline statistics: unsupported), fences, events, timeline semaphores, barriers, multi-submit |
-| 20 | `errors_robust` | procedural | graded error codes, robustness2 out-of-bounds behaviour |
+| 20 | `errors_robust` | procedural | error results of valid calls (`VK_ERROR_FORMAT_NOT_SUPPORTED`, `VK_INCOMPLETE`, `VK_ERROR_OUT_OF_DEVICE_MEMORY`, `VK_ERROR_FEATURE_NOT_PRESENT`), out-of-bounds behaviour under the core `robustBufferAccess` / `robustImageAccess` (the oracle has no `VK_EXT_robustness2`) |
 | 21 | `perf_*` | performance | fill rate, compute throughput, geometry, texture-heavy |
 
 ## Measured facts that shape the surface (Stage 3)
@@ -72,6 +72,23 @@ coverage and weights are set from Stage 3's CTS pass-list breakdown
 - **Determinism (Stage 4, `docs/internal/determinism.md`):** the oracle is
   byte-identical across runs and thread counts on every op type except the
   return values of atomics, whose order is undefined.
+
+## Narrowed in Stage 7 (generation; `docs/internal/stage7_findings.md`)
+
+- **Buffer device addresses** are only dereferenced when they come from push
+  constants. Dereferencing an address loaded from memory (a linked list of
+  `buffer_reference` blocks pointing to their own type) crashes the oracle
+  (SIGSEGV), so no case chases pointers.
+- **Image atomics** are not graded: their results on the oracle differ between
+  repeated runs of the same case. Buffer and shared-memory atomics stay
+  (commutative totals only).
+- **Robustness** is the core `robustBufferAccess` (reads outside the bound
+  range return 0, writes are dropped) and `robustImageAccess` (reads outside
+  the image return 0, stores are dropped), as the oracle behaves; the oracle
+  does not expose `VK_EXT_robustness2`.
+- **Layers and loader-made results** are never graded: enumerating instance
+  layers reports what the loader finds (the validation layer during the gate),
+  not the driver.
 
 ## Out of scope (v1)
 

@@ -1,0 +1,440 @@
+{
+ "version": 1,
+ "name": "perf_texture_pub_a",
+ "family": "perf_texture",
+ "category": "performance",
+ "assets": {
+  "091d3a51af16ffd7df56ee1111ceb4b389ef7f5f8879d9a374e9d35d166745df.bin": {
+   "kind": "spirv"
+  },
+  "28363085b7f591b5ad26c9ef5918dc4ca11a26177b2b88d23438d11fcf7d9e9b.bin": {
+   "kind": "spirv"
+  },
+  "7834d170c2fdd5bc94509c4548f33ffe25b0ae2b38a1c3cb35b677491358ae18.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 1048576
+  },
+  "e1c0b37abaf1e85a0bf38b441345af13ea7de14ff774c5dc725d69e835903f26.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 262144
+  },
+  "da6bc1bd8ce010e8fc2fbb1a6854539f212b1974230211ecd4134e78c1247296.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 65536
+  },
+  "5a72f196d7b5127a588dd96b1a075aaf59e26f6711bee5df44251f990cb037e1.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 16384
+  },
+  "e6ed7b09e686cb7d7aaf416430e3ea9683a7494da041049c3e62504ceb11c8e6.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 4096
+  },
+  "868203094f020420846042f2c9ba51062d10ea60b41268f1416a47f8b772ca87.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 1024
+  },
+  "1485efaadd4970506aec4fa0791964d16d4f63ddfab33d3296286a5e02e79691.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 256
+  },
+  "978bf74a7eedbc354dee9b31891747b750fc96ecdeb31cc828e15eca8cd7fb18.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 64
+  },
+  "c2ae684a336bf20ba337377d0b0da96e721893ac100601e2a2056b94cff0b306.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 16
+  },
+  "e529d50f5c5faf80419e5d8864d0f74f491af91d2ff32097eb0929b39f1a092f.bin": {
+   "kind": "data",
+   "dtype": "uint8",
+   "count": 4
+  }
+ },
+ "meta": {
+  "timed_run_index": 0
+ },
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceFeatures": {
+     "samplerAnisotropy": true
+    },
+    "VkPhysicalDeviceVulkan13Features": {
+     "dynamicRendering": true,
+     "synchronization2": true,
+     "shaderDemoteToHelperInvocation": true
+    }
+   }
+  },
+  {
+   "op": "image",
+   "name": "color0",
+   "format": "R8G8B8A8_UNORM",
+   "extent": [
+    512,
+    512
+   ],
+   "usage": [
+    "color_attachment"
+   ]
+  },
+  {
+   "op": "view",
+   "name": "color0_v",
+   "image": "color0"
+  },
+  {
+   "op": "image",
+   "name": "tex",
+   "format": "R8G8B8A8_UNORM",
+   "extent": [
+    512,
+    512
+   ],
+   "usage": [
+    "sampled"
+   ],
+   "mips": 10
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 0,
+   "layers": 1,
+   "asset": {
+    "file": "7834d170c2fdd5bc94509c4548f33ffe25b0ae2b38a1c3cb35b677491358ae18.bin"
+   }
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 1,
+   "layers": 1,
+   "asset": {
+    "file": "e1c0b37abaf1e85a0bf38b441345af13ea7de14ff774c5dc725d69e835903f26.bin"
+   }
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 2,
+   "layers": 1,
+   "asset": {
+    "file": "da6bc1bd8ce010e8fc2fbb1a6854539f212b1974230211ecd4134e78c1247296.bin"
+   }
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 3,
+   "layers": 1,
+   "asset": {
+    "file": "5a72f196d7b5127a588dd96b1a075aaf59e26f6711bee5df44251f990cb037e1.bin"
+   }
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 4,
+   "layers": 1,
+   "asset": {
+    "file": "e6ed7b09e686cb7d7aaf416430e3ea9683a7494da041049c3e62504ceb11c8e6.bin"
+   }
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 5,
+   "layers": 1,
+   "asset": {
+    "file": "868203094f020420846042f2c9ba51062d10ea60b41268f1416a47f8b772ca87.bin"
+   }
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 6,
+   "layers": 1,
+   "asset": {
+    "file": "1485efaadd4970506aec4fa0791964d16d4f63ddfab33d3296286a5e02e79691.bin"
+   }
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 7,
+   "layers": 1,
+   "asset": {
+    "file": "978bf74a7eedbc354dee9b31891747b750fc96ecdeb31cc828e15eca8cd7fb18.bin"
+   }
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 8,
+   "layers": 1,
+   "asset": {
+    "file": "c2ae684a336bf20ba337377d0b0da96e721893ac100601e2a2056b94cff0b306.bin"
+   }
+  },
+  {
+   "op": "upload_image",
+   "image": "tex",
+   "mip": 9,
+   "layers": 1,
+   "asset": {
+    "file": "e529d50f5c5faf80419e5d8864d0f74f491af91d2ff32097eb0929b39f1a092f.bin"
+   }
+  },
+  {
+   "op": "view",
+   "name": "tex_v",
+   "image": "tex"
+  },
+  {
+   "op": "sampler",
+   "name": "s",
+   "mag": "linear",
+   "min": "linear",
+   "mipmap": "linear",
+   "anisotropy": 4.0
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "combined_image_sampler",
+     "stages": [
+      "fragment"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "combined_image_sampler",
+     "images": [
+      {
+       "view": "tex_v",
+       "sampler": "s",
+       "layout": "general"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "vs",
+   "asset": {
+    "file": "091d3a51af16ffd7df56ee1111ceb4b389ef7f5f8879d9a374e9d35d166745df.bin"
+   }
+  },
+  {
+   "op": "shader",
+   "name": "fs",
+   "asset": {
+    "file": "28363085b7f591b5ad26c9ef5918dc4ca11a26177b2b88d23438d11fcf7d9e9b.bin"
+   }
+  },
+  {
+   "op": "graphics_pipeline",
+   "name": "gp",
+   "layout": "pl",
+   "vs": "vs",
+   "fs": "fs",
+   "vertex_input": {
+    "bindings": [
+     {
+      "binding": 0,
+      "stride": 32
+     }
+    ],
+    "attributes": [
+     {
+      "location": 0,
+      "format": "R32G32B32A32_SFLOAT",
+      "offset": 0
+     },
+     {
+      "location": 1,
+      "format": "R32G32B32A32_SFLOAT",
+      "offset": 16
+     }
+    ]
+   },
+   "viewport": [
+    0,
+    0,
+    512,
+    512
+   ],
+   "rendering": {
+    "color_formats": [
+     "R8G8B8A8_UNORM"
+    ]
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "vb",
+   "size": 192,
+   "usage": [
+    "vertex_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "vb",
+   "data": {
+    "f32": [
+     -1.0,
+     -1.0,
+     0.5,
+     1.0,
+     -0.3,
+     -0.2,
+     0.0,
+     0.0,
+     1.0,
+     -1.0,
+     0.5,
+     1.0,
+     2.6,
+     -0.2,
+     0.0,
+     0.0,
+     -1.0,
+     1.0,
+     0.5,
+     1.0,
+     -0.3,
+     1.9,
+     0.0,
+     0.0,
+     1.0,
+     -1.0,
+     0.5,
+     1.0,
+     2.6,
+     -0.2,
+     0.0,
+     0.0,
+     1.0,
+     1.0,
+     0.5,
+     1.0,
+     2.6,
+     1.9,
+     0.0,
+     0.0,
+     -1.0,
+     1.0,
+     0.5,
+     1.0,
+     -0.3,
+     1.9,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "op": "run",
+   "name": "timed",
+   "iterations": 300,
+   "warmup": 1,
+   "cmds": [
+    {
+     "cmd": "begin_rendering",
+     "area": [
+      0,
+      0,
+      512,
+      512
+     ],
+     "color": [
+      {
+       "view": "color0_v",
+       "load": "clear",
+       "clear": {
+        "f32": [
+         0.0,
+         0.0,
+         0.0,
+         1.0
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "gp"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "bind_point": "graphics",
+     "sets": [
+      "ds"
+     ]
+    },
+    {
+     "cmd": "bind_vertex_buffers",
+     "buffers": [
+      {
+       "buffer": "vb"
+      }
+     ]
+    },
+    {
+     "cmd": "draw",
+     "vertices": 6
+    },
+    {
+     "cmd": "end_rendering"
+    }
+   ],
+   "snapshot": {
+    "name": "snap_000",
+    "items": [
+     {
+      "name": "color0",
+      "image": "color0"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -102,7 +102,7 @@ void record_commands(State& st, VkCommandBuffer cb, const json& cmds, bool auto_
         const json& c = cmds[k];
         std::string cmd = req_str(c, "cmd", octx);
         std::string ctx = octx + " cmd " + std::to_string(k) + " (" + cmd + ")";
-        if (auto_barriers && !in_rendering && cmd != "end_rendering") full_barrier(cb);
+        if (auto_barriers && !in_rendering && cmd != "end_rendering" && cmd != "end_render_pass") full_barrier(cb);
 
         if (cmd == "begin_rendering") {
             std::vector<VkRenderingAttachmentInfo> colors;
@@ -121,6 +121,33 @@ void record_commands(State& st, VkCommandBuffer cb, const json& cmds, bool auto_
             in_rendering = true;
         } else if (cmd == "end_rendering") {
             vkCmdEndRendering(cb);
+            in_rendering = false;
+        } else if (cmd == "begin_render_pass") {
+            // {"render_pass", "framebuffer", "area": [x, y, w, h], "clears": [{"f32": [...]} | {"depth", "stencil"}]}
+            VkRenderPassBeginInfo bi{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
+            bi.renderPass = st.get(st.render_passes, req_str(c, "render_pass", ctx), "render_pass").rp;
+            bi.framebuffer = st.get(st.framebuffers, req_str(c, "framebuffer", ctx), "framebuffer");
+            const json& area = req(c, "area", ctx);
+            bi.renderArea = {{area[0].get<int32_t>(), area[1].get<int32_t>()}, {area[2].get<uint32_t>(), area[3].get<uint32_t>()}};
+            std::vector<VkClearValue> clears;
+            if (c.contains("clears")) {
+                for (const json& v : c["clears"]) {
+                    VkClearValue cv{};
+                    if (v.contains("depth") || v.contains("stencil"))
+                        cv.depthStencil = {(float)opt_f64(v, "depth", 1.0), (uint32_t)opt_u64(v, "stencil", 0)};
+                    else
+                        cv.color = clear_color(v, ctx);
+                    clears.push_back(cv);
+                }
+            }
+            bi.clearValueCount = (uint32_t)clears.size();
+            bi.pClearValues = clears.data();
+            vkCmdBeginRenderPass(cb, &bi, VK_SUBPASS_CONTENTS_INLINE);
+            in_rendering = true;
+        } else if (cmd == "next_subpass") {
+            vkCmdNextSubpass(cb, VK_SUBPASS_CONTENTS_INLINE);
+        } else if (cmd == "end_render_pass") {
+            vkCmdEndRenderPass(cb);
             in_rendering = false;
         } else if (cmd == "bind_pipeline") {
             Pipeline& p = st.get(st.pipelines, req_str(c, "pipeline", ctx), "pipeline");
@@ -377,7 +404,7 @@ void record_commands(State& st, VkCommandBuffer cb, const json& cmds, bool auto_
             throw CaseError(ctx + ": unknown command '" + cmd + "'");
         }
     }
-    if (in_rendering) throw CaseError(octx + ": begin_rendering without end_rendering");
+    if (in_rendering) throw CaseError(octx + ": a rendering scope or render pass is not ended");
 }
 
 namespace {

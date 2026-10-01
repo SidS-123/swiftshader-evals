@@ -1,0 +1,311 @@
+{
+ "version": 1,
+ "name": "descriptors_push_pub_dynamic",
+ "family": "descriptors_push",
+ "category": "replay",
+ "assets": {
+  "7e091b889e27692077cfab09ea2e6fcbea59718c64145d65f35b9280d0675283.bin": {
+   "kind": "spirv"
+  },
+  "5d393c90203e0999e8a0b967bb83d01adc01e5c5dd2ce2462d5a13d747627d17.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 320
+  },
+  "4131211d6eddcc6aedcb8bd13c3a227f28cf3b07d4b83b795a18c93c16d722e1.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 384
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device"
+  },
+  {
+   "op": "buffer",
+   "name": "ubo",
+   "size": 1280,
+   "usage": [
+    "uniform_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "ubo",
+   "asset": {
+    "file": "5d393c90203e0999e8a0b967bb83d01adc01e5c5dd2ce2462d5a13d747627d17.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "ssbo",
+   "size": 1536,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "ssbo",
+   "asset": {
+    "file": "4131211d6eddcc6aedcb8bd13c3a227f28cf3b07d4b83b795a18c93c16d722e1.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 1536,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "7e091b889e27692077cfab09ea2e6fcbea59718c64145d65f35b9280d0675283.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "uniform_buffer_dynamic",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer_dynamic",
+     "stages": [
+      "compute"
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ]
+    }
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 4
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "uniform_buffer_dynamic",
+     "buffers": [
+      {
+       "buffer": "ubo",
+       "range": 256
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer_dynamic",
+     "buffers": [
+      {
+       "buffer": "ssbo",
+       "range": 512
+      }
+     ]
+    },
+    {
+     "binding": 2,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ],
+     "first": 0,
+     "dynamic_offsets": [
+      0,
+      256
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       0
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      2
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "out",
+     "buffer": "out",
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ],
+     "first": 0,
+     "dynamic_offsets": [
+      512,
+      0
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       1
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      2
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "out",
+     "buffer": "out",
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ],
+     "first": 0,
+     "dynamic_offsets": [
+      256,
+      768
+     ]
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       2
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      2
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_002",
+   "items": [
+    {
+     "name": "out",
+     "buffer": "out",
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}

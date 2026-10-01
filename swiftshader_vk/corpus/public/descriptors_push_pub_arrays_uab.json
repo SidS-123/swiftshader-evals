@@ -1,0 +1,365 @@
+{
+ "version": 1,
+ "name": "descriptors_push_pub_arrays_uab",
+ "family": "descriptors_push",
+ "category": "replay",
+ "assets": {
+  "8044f9ac2247778f565b264d9b4c01b0e8a197e54771fe9c9af8e3112cb6fd7a.bin": {
+   "kind": "spirv"
+  },
+  "eb1e5a2af00085fe1f788bf8ff8d4206e2954f4f4d44a174a0d35cde3dc0703f.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 128
+  },
+  "386a58f5e002505a345bed0cd315efc02e9362e6baa403a5689391bb98b704ff.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 128
+  },
+  "c30367a0670be472a2d78bd46c5176d8533ae0ea478fb6e5453e7a2554032da0.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 128
+  },
+  "086dbb6fde9a789c9f561fb7bc270153d1c1609a594976c50d32ef0fa1ab1e94.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 128
+  },
+  "0d6a83e9379393bc8ad179054a3f8bcc37a69c4bea35b312e774ede08b8f6e09.bin": {
+   "kind": "data",
+   "dtype": "uint32",
+   "count": 128
+  }
+ },
+ "meta": {},
+ "split": "public",
+ "ops": [
+  {
+   "op": "instance"
+  },
+  {
+   "op": "device",
+   "features": {
+    "VkPhysicalDeviceVulkan12Features": {
+     "shaderStorageBufferArrayNonUniformIndexing": true,
+     "descriptorBindingPartiallyBound": true,
+     "descriptorBindingStorageBufferUpdateAfterBind": true,
+     "runtimeDescriptorArray": true
+    }
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b0",
+   "size": 512,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b0",
+   "asset": {
+    "file": "eb1e5a2af00085fe1f788bf8ff8d4206e2954f4f4d44a174a0d35cde3dc0703f.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b1",
+   "size": 512,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b1",
+   "asset": {
+    "file": "386a58f5e002505a345bed0cd315efc02e9362e6baa403a5689391bb98b704ff.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b2",
+   "size": 512,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b2",
+   "asset": {
+    "file": "c30367a0670be472a2d78bd46c5176d8533ae0ea478fb6e5453e7a2554032da0.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b3",
+   "size": 512,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b3",
+   "asset": {
+    "file": "086dbb6fde9a789c9f561fb7bc270153d1c1609a594976c50d32ef0fa1ab1e94.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "b4",
+   "size": 512,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "upload",
+   "buffer": "b4",
+   "asset": {
+    "file": "0d6a83e9379393bc8ad179054a3f8bcc37a69c4bea35b312e774ede08b8f6e09.bin"
+   }
+  },
+  {
+   "op": "buffer",
+   "name": "out",
+   "size": 512,
+   "usage": [
+    "storage_buffer"
+   ]
+  },
+  {
+   "op": "shader",
+   "name": "cs",
+   "asset": {
+    "file": "8044f9ac2247778f565b264d9b4c01b0e8a197e54771fe9c9af8e3112cb6fd7a.bin"
+   }
+  },
+  {
+   "op": "desc_layout",
+   "name": "dl",
+   "bindings": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "count": 4,
+     "stages": [
+      "compute"
+     ],
+     "flags": [
+      "partially_bound",
+      "update_after_bind"
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "stages": [
+      "compute"
+     ],
+     "flags": [
+      "update_after_bind"
+     ]
+    }
+   ],
+   "flags": [
+    "update_after_bind_pool"
+   ]
+  },
+  {
+   "op": "pipeline_layout",
+   "name": "pl",
+   "set_layouts": [
+    "dl"
+   ],
+   "push_constants": [
+    {
+     "stages": [
+      "compute"
+     ],
+     "offset": 0,
+     "size": 4
+    }
+   ]
+  },
+  {
+   "op": "desc_set",
+   "name": "ds",
+   "layout": "dl",
+   "writes": [
+    {
+     "binding": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "b0"
+      },
+      {
+       "buffer": "b1"
+      },
+      {
+       "buffer": "b2"
+      }
+     ]
+    },
+    {
+     "binding": 1,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "out"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "compute_pipeline",
+   "name": "p",
+   "layout": "pl",
+   "shader": "cs"
+  },
+  {
+   "op": "exec",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ],
+     "first": 0
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       3
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      2
+     ]
+    }
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_000",
+   "items": [
+    {
+     "name": "out",
+     "buffer": "out",
+     "elem": "u32"
+    }
+   ]
+  },
+  {
+   "op": "record",
+   "name": "cb",
+   "cmds": [
+    {
+     "cmd": "bind_pipeline",
+     "pipeline": "p"
+    },
+    {
+     "cmd": "bind_sets",
+     "layout": "pl",
+     "sets": [
+      "ds"
+     ],
+     "first": 0
+    },
+    {
+     "cmd": "push_constants",
+     "layout": "pl",
+     "stages": [
+      "compute"
+     ],
+     "data": {
+      "u32": [
+       4
+      ]
+     }
+    },
+    {
+     "cmd": "dispatch",
+     "groups": [
+      2
+     ]
+    }
+   ]
+  },
+  {
+   "op": "desc_write",
+   "set": "ds",
+   "writes": [
+    {
+     "binding": 0,
+     "array_element": 0,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "b4"
+      }
+     ]
+    },
+    {
+     "binding": 0,
+     "array_element": 3,
+     "type": "storage_buffer",
+     "buffers": [
+      {
+       "buffer": "b1"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "op": "fence",
+   "name": "f"
+  },
+  {
+   "op": "submit",
+   "cbs": [
+    "cb"
+   ],
+   "fence": "f"
+  },
+  {
+   "op": "wait_fence",
+   "name": "wf",
+   "fences": [
+    "f"
+   ]
+  },
+  {
+   "op": "snapshot",
+   "name": "snap_001",
+   "items": [
+    {
+     "name": "out",
+     "buffer": "out",
+     "elem": "u32"
+    }
+   ]
+  }
+ ]
+}
