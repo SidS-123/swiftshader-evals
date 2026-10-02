@@ -241,3 +241,23 @@ Full package: `swiftshader_vk/docs/internal/stage10_preflight.md` (status table,
 **Then (me):** re-run preflight, the model-id check, wire check, both smokes and the credential check on the new CLI; hand back for G-PAID approval of the 1-hour pilot.
 
 **Re-check on Claude Code 2.1.287 (2026-10-01, after the update):** model id **OK** (`claude -p --model claude-opus-5-5` answered, `modelUsage` = `claude-opus-5-5`); wire check **PASSED** (five `mcp__ssvk__*` tools, `cc_version=2.1.287`); no-key smokes **PASSED** (claude-code, openrouter; 0.0069); credential check ok. `preflight_host.sh` passes everything except the three power settings (sleep on AC 300 s, lid close sleeps, power mode Balanced).
+
+## Stage 10 — closed (2026-10-01)
+
+G-PAID: you approved the 1-hour pilot after the host settings and the weekly-usage check (≈31 % used). Power mode could not be confirmed by `preflight_host.sh` (no overlay value stored); the pilot went ahead since it is not a number of record.
+
+## Stage 11 — Opus 5.5 pilot, 1 hour (2026-10-02)
+
+Full write-up: `swiftshader_vk/docs/internal/stage11_pilot.md`.
+
+| Item | State | Evidence |
+|---|---|---|
+| Run | `budget_wall` after 3,601 s; `measurement_valid: true`; no incidents; audit valid, 0 violations; Claude Code 2.1.287 stream fully recognised | `runs/attempts/opus55-pilot/attempt.json` |
+| Score (hidden, not of record) | **0.642** (replay 0.616, procedural 0.909, performance 0.000); public grade_dev 0.6535 | `runs/attempts/opus55-pilot/grade/report.json` |
+| Tools | 198 calls: shell 154, grade_dev 23, checkpoint 18, driver 3, oracle 0 | manifest `tool_calls` |
+| Usage | 5-hour window 0.04 → 0.09, weekly 0.31 → 0.32 over the hour; 12 h predicted: no 5-hour pause, ~12-15 % of the week | `rate_limit_event`s in `events.private.jsonl` |
+| Behaviour | final answer at 24.6 min (public 0.57); declined to submit when asked to confirm, worked on; 8 segments | manifest `segments` |
+
+**Open items:** confirm power mode Best performance before Stage 12 (or accept Balanced and record it); the scope question (0.64 in 1 h vs lavapipe 0.74) is answered by the 12-hour run and judged in Stage 14.
+
+**Next stage (12) starts from:** the same command with `--budget-hours 12 --out .../opus55-a1`, launched detached, after `preflight_host.sh` and your go-ahead.
