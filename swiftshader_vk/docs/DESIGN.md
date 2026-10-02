@@ -113,8 +113,11 @@ in a partial run.
 **Predictions committed 2026-10-01, before any control was run** (PLAN_v1.md
 §12 step 1; the commit is the proof). Metric `ssvk-1.0`, both splits.
 
-**How the controls are built.** Every control is a `libvk_candidate.so` the
-grader runs exactly like a model's build (`controls/<name>/build.json`,
+**How the controls are built.** (Stage 9 correction: controls and candidates
+are now replayed in `ssvk-cand:1`, which holds no driver; the shim's real
+driver arrives as a read-only `control.json` mount, as PLAN §12 first said.
+The text below describes Stage 8, when they ran in `ssvk-ref:1`.) Every
+control is a `libvk_candidate.so` the grader runs exactly like a model's build (`controls/<name>/build.json`,
 `instance.py: SsvkControls`): the wrapper ICD `controls/common/shim.cpp`
 compiled with one `CONTROL_*` macro, or the task's starter for `stub`. The shim
 dlopens the real driver from the reference image, makes the oracle's ini
@@ -496,3 +499,37 @@ with 0xA5 (the shim's `CONTROL_POISON`), and `tools/gate.sh` fails any case
 whose outputs change. Uninitialised contents are stable within one process, so
 only a different memory layout reveals them; without this gate a candidate
 would be graded against allocator garbage.
+
+**2026-10-01 — Candidates are replayed in an image with no driver (Stage 9).**
+Until Stage 9, `drive-candidate` ran in `ssvk-ref:1`, which also holds
+SwiftShader, lavapipe and libLLVM; the Stage 8 controls proved an unprivileged
+candidate there can `dlopen` `/opt/swiftshader/llvm/libvk_swiftshader.so` and
+forward every call. A model could have found that path by probing its own
+process during `grade_dev` and submitted a forwarder. Fixed: candidate replays
+(grading, `grade_dev`, controls, the poisoned-memory gate) run in `ssvk-cand:1`
+(the loader and vkreplay only); driver-wrapping controls get the real driver
+as a read-only mount (`control.json`), as PLAN §12 originally specified. Stage
+8 had dropped those mounts ("the reference image holds the drivers"); that was
+the error. The oracle still runs in `ssvk-ref:1`.
+
+**2026-10-01 — No clang in the solver image (Stage 9).** Ubuntu's clang links
+`libLLVM-18.so`; a candidate could embed that library and use it as a JIT
+backend, which D3 excludes. gcc/g++ 13 is the compiler; the plan's "clang +
+gcc" is narrowed to gcc. The task text says so.
+
+**2026-10-01 — Isolation is checked, not assumed (Stage 9).**
+`tools/isolation_check.sh` fails on any visible ICD manifest, any SwiftShader /
+lavapipe / LLVM / clang / SPIRV-Tools / glslang library, network, or the
+reference drivers' strings on disk under any name. It passes on
+`ssvk-solver:1` and `ssvk-cand:1`, fails on `ssvk-ref:1` and on contaminated
+copies of both (`tools/isolation_selftest.sh`), and runs inside the sandbox in
+every no-key smoke (`TaskSpec.isolation_check`).
+
+**2026-10-01 — Tool boundary recorded from the CLI's own init event (Stage 9).**
+Claude Code 2.1.274, launched by the harness with its exact flags, reports
+exactly the five `mcp__ssvk__*` tools, no built-ins, `apiKeySource: none`
+(`tools/wire_check.sh`). Recording the request body itself needs a fresh
+OAuth token (the expired one refreshes through the overridden base URL, which
+the recorder must not serve); that step is repeated at G-PAID. The same run
+showed this CLI calls `claude-opus-5-5` an unrecognised model for its
+session-title side request: confirm the model id works at G-PAID.

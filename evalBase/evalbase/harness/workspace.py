@@ -302,7 +302,7 @@ def populate(instance: Instance, destination: str | Path, *, corpus: Path | None
                                  f"`python3 -m evalbase.grader.cli refcache` (looked in {n1})")
             continue
         out = dev / "reference" / name
-        out.mkdir(parents=True)
+        out.mkdir(parents=True, exist_ok=True)   # an instance's dev_extra may already have put files here
         events = json.loads(ledger.read_text()).get("events", [])
         for event in events:
             if event.get("op") != "snapshot":

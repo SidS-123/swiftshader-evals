@@ -12,8 +12,12 @@ done < "$here/pins.lock"
 logdir=$here/../docs/internal/build-logs
 mkdir -p "$logdir"
 log=$logdir/ref-$target-$(date -u +%Y%m%dT%H%M%SZ).log
-tag=ssvk-ref:1
-[[ $target != ref ]] && tag=ssvk-ref-stage:$target
+case $target in
+    ref) tag=ssvk-ref:1 ;;          # the oracle (trusted)
+    cand) tag=ssvk-cand:1 ;;        # where a candidate is replayed for grading: no reference drivers
+    solver) tag=ssvk-solver:1 ;;    # the model's sandbox
+    *) tag=ssvk-ref-stage:$target ;;
+esac
 DOCKER_BUILDKIT=1 docker build --progress=plain -f "$here/ref.Dockerfile" --target "$target" \
     --build-context driver="$here/../driver" \
     "${args[@]}" -t "$tag" "$here" 2>&1 | tee "$log"

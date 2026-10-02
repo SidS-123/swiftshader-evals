@@ -199,3 +199,26 @@ on both splits is re-confirmed on the fixed corpus by the `reference` control.
 - A five-run performance-variance study (PERF_VARIANCE.md) is still empty; the controls give the reference's own spread (0.82-1.05).
 
 **Next stage (9) starts from:** the corpus at `a1a8ee9`, both caches, metric `ssvk-1.0`, and the controls as a regression suite (`tools/controls_sweep.sh`). It builds the solver image and the harness the model runs in.
+
+## Stage 9 — Harness (2026-10-01)
+
+| Item | State | Evidence |
+|---|---|---|
+| Integrity hole closed | Candidates were replayed in the oracle image (SwiftShader, lavapipe, libLLVM on disk; a candidate can dlopen and forward). Now every candidate replay (grading, grade_dev, controls, poison gate) runs in `ssvk-cand:1` (loader + vkreplay only); controls get the real driver as read-only mounts | `stage9_findings.md` 9.1; `instance.py: CANDIDATE_IMAGE`; `controls/*/control.json` |
+| Images | `ssvk-solver:1` 1.05 GB (gcc/g++ 13, cmake, ninja, make, gdb, valgrind, strace, python3, git; Vulkan headers, loader, validation layer; vkreplay, spirv-dis, spirv-as); `ssvk-cand:1` 127 MB; `ssvk-ref:1` unchanged | `images/ref.Dockerfile` targets `solver`, `cand`; `images/build_ref.sh` |
+| No clang | Ubuntu's clang links libLLVM-18 (an embeddable JIT); gcc only; task text updated | DESIGN.md log |
+| Isolation | check passes on solver and cand, fails on ssvk-ref:1 and on contaminated copies (renamed SwiftShader + manifest); runs inside every no-key smoke | `tools/isolation_check.sh`, `tools/isolation_selftest.sh` |
+| Workspace | 91 cases, 91 reference dirs, 195 assets, spec 33 MB, dev/spec read-only, nothing hidden | inspected `runs/smoke-claude-code/workspace` |
+| No-key smokes | **claude-code PASSED, openrouter PASSED** (incomplete candidate 0.0069) | `runs/smoke-*` |
+| Tool boundary | Claude Code 2.1.274 init event: exactly the five `mcp__ssvk__*` tools, no built-ins, `apiKeySource: none`; request-body recording deferred to G-PAID (expired OAuth token) | `tools/wire_check.sh` |
+| Credentials | no key/token variable; every sandbox mount is its own workspace at /task; no credential-shaped strings | `tools/credential_check.sh` |
+| Controls in the new image | reference, one_thread, reference_subzero, lavapipe, stub re-graded both splits: identical scores, perf ratios within noise | `stage9_findings.md` 9.6 |
+| evalBase changes | `populate` exist_ok for dev/reference; smoke runs `TaskSpec.isolation_check` | `docs/internal/EVALBASE_CHANGES.md` |
+| Tests | instance 26 passed; evalBase 383 passed / 4 skipped | pytest |
+
+**Open items for Stage 10 (G-PAID):**
+- Record the tool boundary from the request body (`tools/wire_check.sh`) once the WSL Claude login has refreshed its token (any normal Claude Code use in WSL does that).
+- Confirm `claude-opus-5-5` is accepted as the model id by this CLI (it logged it as unrecognised for its session-title side request); uses a little usage.
+- Host for the paid runs: AC power, "Best performance", sleep off while plugged in, lid open; usage estimate and remaining weekly Max allowance.
+
+**Next stage (10) starts from:** the three images, the harness checks above, metric `ssvk-1.0`, and the controls as a regression suite. It produces the pre-flight review and asks for your approval of the paid runs.

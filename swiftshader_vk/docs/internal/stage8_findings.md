@@ -7,6 +7,12 @@ the predictions, with its reason.
 
 ## 8.1 The control mechanism
 
+(Stage 9 correction: the controls below ran in `ssvk-ref:1`, which also holds
+the real drivers. From Stage 9 every candidate and control is replayed in
+`ssvk-cand:1`, which holds none, and driver-wrapping controls get the real
+driver as a read-only mount; re-graded, the controls score identically
+(`stage9_findings.md` 9.1, 9.6).)
+
 Controls are builds of one wrapper ICD (`controls/common/shim.cpp`), each with
 one `CONTROL_*` macro (`controls/<name>/build.json`), or the task's starter for
 `stub`. The shim dlopens the real driver from the reference image, makes the

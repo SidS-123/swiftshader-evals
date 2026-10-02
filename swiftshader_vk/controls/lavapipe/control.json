@@ -1,0 +1,23 @@
+{
+ "mounts": [
+  {
+   "source": "runs/oracle-mount/lavapipe",
+   "target": "/opt/lavapipe",
+   "mode": "ro"
+  },
+  {
+   "source": "runs/oracle-mount/lavapipe-deps",
+   "target": "/opt/lavapipe-deps",
+   "mode": "ro"
+  },
+  {
+   "source": "runs/oracle-mount/ini",
+   "target": "/opt/ssvk/ini",
+   "mode": "ro"
+  }
+ ],
+ "env": {
+  "LD_LIBRARY_PATH": "/opt/vk/lib:/opt/lavapipe-deps"
+ },
+ "_comment": "Control runs only: the real driver the shim wraps, mounted read-only into ssvk-cand:1 (which holds none). Extract with tools/extract_oracle_mounts.sh."
+}

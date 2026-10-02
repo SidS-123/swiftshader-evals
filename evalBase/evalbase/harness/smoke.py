@@ -56,8 +56,13 @@ def build_script(instance: Instance, sandbox: str = "docker") -> list:
     if smoke is None:
         raise ValueError(f"instance {instance.name} declares no smoke script (TaskSpec.smoke)")
     task = instance.task
-    isolation = (DOCKER_ISOLATION if sandbox == "docker" else "set -e\n") + _write_files(smoke.sources) \
-        + "printf 'isolation-ok\\n'\n"
+    isolation = (DOCKER_ISOLATION if sandbox == "docker" else "set -e\n")
+    if sandbox == "docker" and task.isolation_check:
+        # the instance's own image checks (TaskSpec.isolation_check), run as a script so its
+        # exit status decides; documented on the field, previously never run
+        isolation += ("cat > /tmp/evalbase_isolation.sh <<'EVALBASE_EOF'\n" + task.isolation_check
+                      + "\nEVALBASE_EOF\nbash /tmp/evalbase_isolation.sh\n")
+    isolation += _write_files(smoke.sources) + "printf 'isolation-ok\\n'\n"
     build = f"{task.build_command} 2>&1 | tail -3; test -f {shlex.quote('/task/' + task.artifact)} && echo artifact-present"
     write_case = ("mkdir -p mine && cat > mine/tiny.json <<'EVALBASE_EOF'\n"
                   + json.dumps(smoke.case, indent=1) + "\nEVALBASE_EOF\nls -l mine/tiny.json\n")

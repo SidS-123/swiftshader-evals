@@ -96,6 +96,9 @@ PERTURB: list[str] = []
 #: allocation filled with 0xA5. A case whose outputs differ under it reads memory it never
 #: wrote -- stable inside one process, so repeats and thread counts cannot reveal it.
 POISON_LIB: list[str] = []
+#: The poison shim wraps the real driver, which the candidate image does not hold: it gets the
+#: `reference` control's read-only mounts (tools/extract_oracle_mounts.sh).
+POISON_MOUNTS: list[tuple[str, str, str]] = []
 
 
 def is_violation(msg: str) -> bool:
@@ -129,7 +132,8 @@ def run_case(inst, case: Path, assets: Path, work: Path, repeats: int) -> dict:
     if POISON_LIB:
         o = work / name / "poison"
         os.makedirs(o, exist_ok=True)
-        inst.driver.run(str(case), str(o), str(assets), candidate=POISON_LIB[0], timeout_s=300, cpus="4")
+        inst.driver.run(str(case), str(o), str(assets), candidate=POISON_LIB[0], timeout_s=300, cpus="4",
+                        extra_mounts=POISON_MOUNTS)
         runs["poison"] = outputs(o)
     base = runs["base0"]
     msgs = runs["valid"].get("validation", [])
@@ -187,6 +191,12 @@ def main():
     if not a.no_poison:
         lib = Path(a.out or HERE.parent / "runs" / "determinism") / "poison_lib"
         POISON_LIB[:] = [str(inst.controls.build_from({"defines": {"CONTROL_POISON": 1}}, lib, "poison"))]
+        ref = json.loads((HERE.parent / "controls" / "reference" / "control.json").read_text())
+        POISON_MOUNTS[:] = [(str((HERE.parent / m["source"]).resolve()), m["target"], m.get("mode", "ro"))
+                            for m in ref["mounts"]]
+        missing = [m[0] for m in POISON_MOUNTS if not os.path.exists(m[0])]
+        if missing:
+            sys.exit(f"poison run needs the oracle mounts ({missing}): run tools/extract_oracle_mounts.sh")
     cases = sorted(Path(a.case_dir).glob("*.json"))
     if a.only:
         cases = [c for c in cases if c.stem in a.only]

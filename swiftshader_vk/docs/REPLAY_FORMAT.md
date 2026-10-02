@@ -116,3 +116,20 @@ colour-attachment count and depth/stencil presence from that subpass
 (`driver/src/child_pipelines.cpp`). vkreplay records no automatic barrier
 inside a render pass, including before `end_render_pass`; the case's subpass
 dependencies are the only synchronisation within it. Field lists: `task/CASE_FORMAT.md`.
+
+## The three images (Stage 9)
+
+| Image | Built from (`images/ref.Dockerfile` target) | Holds | Used for |
+|---|---|---|---|
+| `ssvk-ref:1` | `ref` | SwiftShader (LLVM, Subzero), lavapipe, the loader and layers, glslang and SPIRV-Tools, vkreplay | the oracle: reference caches, the `oracle` tool, generation gates |
+| `ssvk-cand:1` | `cand` | the loader and vkreplay only | every **candidate** replay: grading, `grade_dev`, controls, the poisoned-memory gate |
+| `ssvk-solver:1` | `solver` | gcc/g++ 13, cmake, ninja, make, gdb, valgrind, strace, python3, git; Vulkan headers, loader, validation layer; vkreplay, spirv-dis, spirv-as | the model's sandbox (`shell`, `driver` tool) and the clean rebuild before grading |
+
+A candidate is never replayed in `ssvk-ref:1`: a library running there could find a working
+Vulkan driver on disk (`/opt/swiftshader`) and forward to it. `ssvk-cand:1` holds none, and
+neither does `ssvk-solver:1` (no ICD, no LLVM -- hence no clang -- no SPIRV-Tools or glslang
+libraries). `tools/isolation_check.sh` enforces this in both images; `tools/isolation_selftest.sh`
+proves it fails on contaminated copies. Controls that wrap a real driver get it as a read-only
+mount, for control runs only (`controls/<name>/control.json`, sources from
+`tools/extract_oracle_mounts.sh`, byte-identical to the image's copies). All three images share
+the pinned base, apt snapshot, loader build and vkreplay build.

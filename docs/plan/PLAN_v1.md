@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.12** (first iteration, "v1") |
-| Status | **Stage 8 done (2026-10-01).** Stage 9 next. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.13** (first iteration, "v1") |
+| Status | **Stage 9 done (2026-10-01).** Stage 10 (pre-flight review, gate G-PAID) next. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -539,6 +539,21 @@ python -m evalbase.harness.run smoke --harness openrouter --budget-seconds 60
 7. **Checkpoint cadence:** `--checkpoint-minutes 15` during runs; curve graded later at `--every 30 --dedupe`.
 
 **Exit:** smokes pass, wire check recorded, isolation check passes on the solver image and fails on a deliberately contaminated image.
+
+**As built (v1.13, 2026-10-01).** Exit met: both no-key smokes pass (claude-code,
+openrouter); the isolation check passes on `ssvk-solver:1` and fails on
+contaminated copies; the tool boundary is recorded from Claude Code 2.1.274's
+own init event (exactly the five `mcp__ssvk__*` tools, no built-ins); credential
+hygiene checked. Differences from §13: **candidates are no longer replayed in
+the oracle image** -- a new image `ssvk-cand:1` (loader + vkreplay only) runs
+every candidate replay, and driver-wrapping controls get the real driver as a
+read-only mount (restoring §12 step 2, which Stage 8 had dropped; that left a
+candidate able to dlopen SwiftShader); the five controls that depend on it were
+re-graded with identical scores. **No clang** in the solver image (it links
+libLLVM). Request-body recording of the tool boundary and a check that the CLI
+accepts `claude-opus-5-5` move to G-PAID (expired OAuth token; the CLI logged
+the id as unrecognised for a side request). Two evalBase fixes (`populate`,
+smoke isolation). Details: `swiftshader_vk/docs/internal/stage9_findings.md`.
 
 ---
 

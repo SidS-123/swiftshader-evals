@@ -1,0 +1,15 @@
+{
+ "mounts": [
+  {
+   "source": "runs/oracle-mount/swiftshader",
+   "target": "/opt/swiftshader",
+   "mode": "ro"
+  },
+  {
+   "source": "runs/oracle-mount/ini",
+   "target": "/opt/ssvk/ini",
+   "mode": "ro"
+  }
+ ],
+ "_comment": "Control runs only: the real driver the shim wraps, mounted read-only into ssvk-cand:1 (which holds none). Extract with tools/extract_oracle_mounts.sh."
+}

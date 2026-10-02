@@ -85,7 +85,7 @@ metric. The `driver` tool also uses your current build.
 | `dev/cases/*.json` | public cases; the reference's outputs, including its ledger, are in `dev/reference/<case>/` |
 | `dev/assets/` | the public cases' SPIR-V modules and data |
 | `dev/CASE_FORMAT.md` | the case format and everything `vkreplay` does for you |
-| toolchain | gcc, clang, cmake, ninja, make, gdb, valgrind, python3; Vulkan headers, loader and validation layer in `/opt/vk`; `vkreplay`, `spirv-dis` and `spirv-as` on `PATH` |
+| toolchain | gcc / g++ 13, cmake, ninja, make, gdb, valgrind, strace, python3 (standard library), git; Vulkan headers, loader and validation layer in `/opt/vk`; `vkreplay`, `spirv-dis` and `spirv-as` on `PATH`. No clang, no LLVM, no SPIRV-Tools or glslang libraries, no network |
 | `oracle` tool | runs a case you wrote on the reference and copies its outputs into `/task` |
 | `driver` tool | runs a case on your current build |
 | `grade_dev` tool | scores your current build on the public cases |

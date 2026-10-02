@@ -21,6 +21,10 @@ ROOT = Path(__file__).resolve().parent
 REPO_ROOT = ROOT.parent
 REFERENCE_IMAGE = "ssvk-ref:1"        # the pinned oracle + driver, built from source in Docker
 SOLVER_IMAGE = "ssvk-solver:1"        # the toolchain the model gets, and nothing else
+#: Where a candidate is replayed (grading, grade_dev, controls): vkreplay and the loader, no
+#: reference driver, no LLVM -- a candidate that went looking for a driver to forward to finds
+#: none. Controls that wrap a real driver get it as a read-only mount (Stage 9 finding).
+CANDIDATE_IMAGE = "ssvk-cand:1"
 
 
 # ------------------------------------------------------------------ driver
@@ -35,7 +39,8 @@ ORACLE_MAX_OPS = 20000
 
 
 class VkReplayDriver(Driver):
-    """Run one case with vkreplay in the trusted image, against the oracle or a candidate.
+    """Run one case with vkreplay, against the oracle (REFERENCE_IMAGE) or a candidate
+    (CANDIDATE_IMAGE, which holds no reference driver).
 
     The container carries the managed and owner labels, a unique name and no
     network, and runs as root so vkreplay can run the ICD under test as an
@@ -63,7 +68,10 @@ class VkReplayDriver(Driver):
             cmd += ["-v", f"{os.path.abspath(src)}:{dst}:{mode}"]
         for k, v in sorted((extra_env or {}).items()):
             cmd += ["-e", f"{k}={v}"]
-        image = os.environ.get("EVALBASE_IMAGE") or REFERENCE_IMAGE
+        if candidate:
+            image = os.environ.get("SSVK_CANDIDATE_IMAGE") or CANDIDATE_IMAGE
+        else:
+            image = os.environ.get("EVALBASE_IMAGE") or REFERENCE_IMAGE
         if candidate:
             cmd += ["-v", f"{os.path.abspath(candidate)}:/candidate:ro", image,
                     "drive-candidate", "/candidate", "/case.json", "/out", "/assets"]
@@ -193,7 +201,7 @@ def public_reference_ledgers() -> dict:
     return out
 
 TOOL_DESCRIPTIONS = {
-    "shell": "Run a bash command in /task inside your sandbox (gcc, clang, cmake, ninja, make, gdb, python3; "
+    "shell": "Run a bash command in /task inside your sandbox (gcc/g++, cmake, ninja, make, gdb, valgrind, python3; "
              "Vulkan headers and loader in /opt/vk; vkreplay, spirv-dis, spirv-as on PATH). No network. "
              "Output is truncated to 32 KiB; the timeout cap is 600 s.",
     "oracle": "Run a case you wrote (a JSON file under /task, format in dev/CASE_FORMAT.md) on the REFERENCE "
@@ -236,10 +244,20 @@ TASK = TaskSpec(
     solver_image=SOLVER_IMAGE,
     reference_image=REFERENCE_IMAGE,
     mcp_server="ssvk",
+    # run inside the sandbox by the no-key smoke; also run on ssvk-cand:1 and on contaminated
+    # copies of both images by tools/isolation_selftest.sh
+    isolation_check=(ROOT / "tools" / "isolation_check.sh").read_text(),
+    # The smoke's candidate is the starter plus a stub file: it builds and loads (vkreplay exits
+    # 0) and reports no device, so a replay case scores ~0. (A procedural case would not do: the
+    # loader's instance version matches whatever the driver is.)
     smoke=SmokeSpec(
         sources={"src/smoke.c": "/* Written by the no-key smoke agent: a deliberately incomplete candidate. */\n"},
-        case={"version": 1, "name": "smoke_tiny", "ops": [{"op": "snapshot", "name": "snap_000"}]},
-        public_case="inst_dev_pub_a", max_overall=0.05, driver_fails=True),
+        case={"version": 1, "name": "smoke_tiny", "ops": [
+            {"op": "instance"}, {"op": "device"},
+            {"op": "buffer", "name": "b", "size": 64, "usage": ["storage_buffer"]},
+            {"op": "upload", "buffer": "b", "data": {"u32": list(range(16))}},
+            {"op": "snapshot", "name": "snap_000", "items": [{"name": "b", "buffer": "b", "elem": "u32"}]}]},
+        public_case="compute_arith_pub_int_a", max_overall=0.05, driver_fails=False),
 )
 
 METRIC = MetricSpec(

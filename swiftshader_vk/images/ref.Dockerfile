@@ -189,3 +189,58 @@ ENV PATH=/opt/vkreplay/bin:/opt/vk/bin:$PATH \
     VK_LOADER_LAYERS_DISABLE=~implicit~
 ENTRYPOINT ["/usr/local/bin/ssvk"]
 CMD ["info"]
+
+# ------------------------------------------------------------------ the candidate grading image (Stage 9)
+# Where a model's build is replayed for grading and grade_dev: vkreplay and the loader only.
+# No SwiftShader, no lavapipe, no LLVM: a candidate that searched its process's filesystem
+# for a working Vulkan driver to forward to would find none (PLAN_v1.md §13, D3). Controls
+# that wrap a real driver get it as a read-only mount (controls/<name>/control.json).
+FROM base AS cand
+RUN apt-get -o Acquire::Retries=10 update -qq && apt-get -o Acquire::Retries=20 -o Acquire::http::Pipeline-Depth=0 -o Acquire::Queue-Mode=access install -y -qq --no-install-recommends \
+      libstdc++6 \
+ && rm -rf /var/lib/apt/lists/*
+COPY --from=khronos /opt/vk/lib/libvulkan.so.1.4.357 /opt/vk/lib/
+COPY --from=vkreplay-build /opt/vkreplay /opt/vkreplay
+COPY ssvk-entry.sh /usr/local/bin/ssvk
+RUN ln -s libvulkan.so.1.4.357 /opt/vk/lib/libvulkan.so.1 \
+ && mkdir -p /opt/ssvk && dpkg-query -W > /opt/ssvk/PACKAGES \
+ && userdel -r ubuntu && useradd -m -u 1000 runner \
+ && groupadd -g 2000 cand && useradd -M -u 2000 -g 2000 -s /usr/sbin/nologin cand
+ENV PATH=/opt/vkreplay/bin:$PATH \
+    LD_LIBRARY_PATH=/opt/vk/lib \
+    VK_LOADER_LAYERS_DISABLE=~implicit~
+ENTRYPOINT ["/usr/local/bin/ssvk"]
+CMD ["drive-candidate"]
+
+# ------------------------------------------------------------------ the solver image (Stage 9)
+# The model's sandbox: a C/C++ toolchain, the Vulkan headers and loader, the validation
+# layer, vkreplay and spirv-dis / spirv-as (binaries; SPIRV-Tools is linked into them).
+# Excluded (D3): SwiftShader, lavapipe, any ICD, LLVM libraries (so no clang: Ubuntu's
+# clang links libLLVM-18.so, which a candidate could embed as a JIT backend), the
+# SPIRV-Tools and glslang libraries and headers, network (at run time).
+FROM base AS solver
+RUN apt-get -o Acquire::Retries=10 update -qq && apt-get -o Acquire::Retries=20 -o Acquire::http::Pipeline-Depth=0 -o Acquire::Queue-Mode=access install -y -qq --no-install-recommends \
+      build-essential gcc-13 g++-13 cmake ninja-build make gdb valgrind strace \
+      python3 git jq pkg-config file less xxd \
+ && rm -rf /var/lib/apt/lists/*
+COPY --from=khronos /opt/vk/include/vulkan   /opt/vk/include/vulkan
+COPY --from=khronos /opt/vk/include/vk_video /opt/vk/include/vk_video
+COPY --from=khronos /opt/vk/lib/libvulkan.so.1.4.357 /opt/vk/lib/libVkLayer_khronos_validation.so /opt/vk/lib/
+COPY --from=khronos /opt/vk/lib/pkgconfig/vulkan.pc /opt/vk/lib/pkgconfig/
+COPY --from=khronos /opt/vk/share/vulkan/explicit_layer.d /opt/vk/share/vulkan/explicit_layer.d
+COPY --from=khronos /opt/vk/share/vulkan/registry /opt/vk/share/vulkan/registry
+COPY --from=khronos /opt/vk/bin/spirv-dis /opt/vk/bin/spirv-as /opt/vk/bin/
+COPY --from=khronos /opt/vk/SDK_TAG /opt/vk/SDK_TAG
+COPY --from=vkreplay-build /opt/vkreplay /opt/vkreplay
+RUN ln -s libvulkan.so.1.4.357 /opt/vk/lib/libvulkan.so.1 && ln -s libvulkan.so.1 /opt/vk/lib/libvulkan.so \
+ && mkdir -p /opt/ssvk && dpkg-query -W > /opt/ssvk/PACKAGES \
+ && userdel -r ubuntu && useradd -m -u 1000 solver \
+ && groupadd -g 2000 cand && useradd -M -u 2000 -g 2000 -s /usr/sbin/nologin cand
+ENV PATH=/opt/vkreplay/bin:/opt/vk/bin:$PATH \
+    LD_LIBRARY_PATH=/opt/vk/lib \
+    PKG_CONFIG_PATH=/opt/vk/lib/pkgconfig \
+    VK_LAYER_PATH=/opt/vk/share/vulkan/explicit_layer.d \
+    VK_LOADER_LAYERS_DISABLE=~implicit~
+USER solver
+WORKDIR /task
+CMD ["bash"]
