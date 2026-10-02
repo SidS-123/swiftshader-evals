@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.11** (first iteration, "v1") |
-| Status | **Stage 8 in progress (2026-10-01): predictions committed, controls being measured.** Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.12** (first iteration, "v1") |
+| Status | **Stage 8 done (2026-10-01).** Stage 9 next. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -503,6 +503,20 @@ python -m evalbase.reports.controls_summary --write   # regenerates docs/CONTROL
 **Exit:** reference 1.0 both splits; stub in null band; hardcode_public null on hidden; every control inside its (possibly restated) band; D5 decided; CONTROLS.md generated.
 
 **Predictions (v1.11, 2026-10-01, before any control run).** The table above is v1.0's; the committed predictions with bands are in `swiftshader_vk/docs/DESIGN.md` ("Controls"). Four are restated against this table, with reasons there: `round_trunc` = 1.0, `one_thread` and `wrong_limits` reach full success, `gain_x2` / `half_pixel` replay ≈ 0.5. Added controls: `reference_subzero`, `lavapipe`, `one_thread` run through the same shim; `success_everywhere` (carried from Stage 5). No `control.json` mounts: the reference image holds the real drivers.
+
+**As built (v1.12, 2026-10-01).** Exit met: reference 1.000 with full success
+on both splits; stub 0.013 / 0.007 (null band); hardcode_public 1.000 public,
+0.124 hidden; 32 of 38 control rows inside their committed bands and the 6
+misses restated, dated, as predictor errors (none a metric defect); D5 decided
+(keep 16 / 8 / 0.10); CONTROLS.md generated. Differences from §12: the controls
+found three corpus defects first (degenerate advanced-blend cases, a case
+reading unwritten memory, sequences blind to stale output), all fixed, with two
+new permanent gates (skipped ops; poisoned allocations); no constant was tuned
+(step 5) because no control showed a metric defect, so `ssvk-1.0` stands;
+the tolerance set is unchanged (step 6: the perturbed-reference control keeps
+both tolerated perturbations above 0.9). Measurements were stopped and redone
+whenever the host slept or ran on battery (step 9). Details:
+`swiftshader_vk/docs/internal/stage8_findings.md`.
 
 ---
 

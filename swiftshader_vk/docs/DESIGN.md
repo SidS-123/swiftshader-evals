@@ -145,46 +145,46 @@ performance ≥ 0.98; ±0.10 for `lavapipe`, and for the procedural score of
 details the predictor approximates). `lavapipe` performance is not predicted.
 Full success is predicted yes/no.
 
-| Control | Alteration | Split | Replay | Procedural | Perf | Overall | Full success | Observed |
+| Control | Alteration | Split | Replay | Procedural | Perf | Overall | Full success | Observed 2026-10-01 (replay / procedural / perf / **overall**) |
 |---|---|---|---|---|---|---|---|---|
-| `reference` | the oracle (SwiftShader LLVM, ThreadCount=4) through the shim, unaltered | public | 1.000 | 1.000 | 1.000 | 1.000 | yes | |
-| `reference` |  | hidden | 1.000 | 1.000 | 1.000 | 1.000 | yes | |
-| `one_thread` | the oracle with ThreadCount=1 | public | 1.000 | 1.000 | 0.999 | 1.000 | yes | |
-| `one_thread` |  | hidden | 1.000 | 1.000 | 0.999 | 1.000 | yes | |
-| `reference_subzero` | SwiftShader's Subzero backend | public | 0.985 | 0.979 | 0.998 | 0.984 | no | |
-| `reference_subzero` |  | hidden | 0.992 | 0.977 | 0.998 | 0.988 | no | |
-| `lavapipe` | Mesa lavapipe, an independent CPU driver | public | 0.826 | 0.228 | — | 0.564 | measured | |
-| `lavapipe` |  | hidden | 0.828 | 0.225 | — | 0.564 | measured | |
-| `stub` | the task's starter ICD (loads, reports no physical device) | public | 0.000 | 0.051 | 0.000 | 0.015 | no | |
-| `stub` |  | hidden | 0.000 | 0.030 | 0.000 | 0.009 | no | |
-| `init_only` | instance and physical-device queries work; vkCreateDevice fails | public | 0.000 | 0.341 | 0.000 | 0.102 | no | |
-| `init_only` |  | hidden | 0.000 | 0.344 | 0.000 | 0.103 | no | |
-| `success_everywhere` | reports the profile, returns VK_SUCCESS, executes nothing | public | 0.000 | 0.698 | 0.000 | 0.209 | no | |
-| `success_everywhere` |  | hidden | 0.000 | 0.692 | 0.000 | 0.208 | no | |
-| `hardcode_public` | the oracle on a byte-identical public case file, init_only otherwise | public | 1.000 | 1.000 | 1.000 | 1.000 | yes | |
-| `hardcode_public` |  | hidden | 0.000 | 0.344 | 0.000 | 0.103 | no | |
-| `gain_x2` | colour readbacks (8-bit UNORM/sRGB, 16/32-bit float) x2, alpha untouched | public | 0.497 | 0.972 | 0.250 | 0.615 | no | |
-| `gain_x2` |  | hidden | 0.486 | 0.970 | 0.250 | 0.607 | no | |
-| `srgb_mishandled` | sRGB-format readbacks hold the linear value (encode skipped) | public | 0.974 | 1.000 | 1.000 | 0.985 | no | |
-| `srgb_mishandled` |  | hidden | 0.978 | 1.000 | 1.000 | 0.987 | no | |
-| `half_pixel` | every viewport moved +0.5 px in x and y | public | 0.524 | 0.972 | 0.250 | 0.631 | no | |
-| `half_pixel` |  | hidden | 0.521 | 0.970 | 0.250 | 0.628 | no | |
-| `nearest_filter` | every sampler's mag/min filter forced to nearest | public | 0.950 | 1.000 | 0.750 | 0.945 | no | |
-| `nearest_filter` |  | hidden | 0.951 | 1.000 | 0.750 | 0.946 | no | |
-| `round_trunc` | 8-bit UNORM/sRGB readbacks: about half the codes one LSB low (truncation) | public | 1.000 | 1.000 | 1.000 | 1.000 | yes | |
-| `round_trunc` |  | hidden | 1.000 | 1.000 | 1.000 | 1.000 | yes | |
-| `stale_frame` | each image readback returns the previous readback of that image | public | 0.690 | 0.972 | 1.000 | 0.806 | no | |
-| `stale_frame` |  | hidden | 0.699 | 0.970 | 1.000 | 0.810 | no | |
-| `aux_garbage` | every depth/stencil readback is garbage | public | 0.844 | 0.972 | 0.750 | 0.873 | no | |
-| `aux_garbage` |  | hidden | 0.837 | 0.970 | 0.750 | 0.868 | no | |
-| `wrong_limits` | maxImageDimension2D halved, maxBoundDescriptorSets - 1, R8G8B8A8_UNORM loses storage-image | public | 1.000 | 0.972 | 1.000 | 0.991 | yes | |
-| `wrong_limits` |  | hidden | 1.000 | 0.965 | 1.000 | 0.990 | yes | |
-| `wrong_errors` | VK_SUCCESS instead of FORMAT_NOT_SUPPORTED, INCOMPLETE (device extensions), TIMEOUT, NOT_READY | public | 1.000 | 0.884 | 1.000 | 0.965 | no | |
-| `wrong_errors` |  | hidden | 1.000 | 0.859 | 1.000 | 0.958 | no | |
-| `crash` | SIGSEGV on the second vkQueueSubmit | public | 0.191 | 0.501 | 0.000 | 0.265 | no | |
-| `crash` |  | hidden | 0.192 | 0.509 | 0.000 | 0.268 | no | |
-| `malformed` | absurd memory requirements (2^60 bytes) for every buffer and image | public | 0.000 | 0.429 | 0.000 | 0.129 | no | |
-| `malformed` |  | hidden | 0.000 | 0.444 | 0.000 | 0.133 | no | |
+| `reference` | the oracle (SwiftShader LLVM, ThreadCount=4) through the shim, unaltered | public | 1.000 | 1.000 | 1.000 | 1.000 | yes || 1.000 / 1.000 / 1.000 / **1.000**, full success yes: hit |
+| `reference` |  | hidden | 1.000 | 1.000 | 1.000 | 1.000 | yes || 1.000 / 1.000 / 1.000 / **1.000**, full success yes: hit |
+| `one_thread` | the oracle with ThreadCount=1 | public | 1.000 | 1.000 | 0.999 | 1.000 | yes || 1.000 / 1.000 / 0.998 / **1.000**, full success yes: hit |
+| `one_thread` |  | hidden | 1.000 | 1.000 | 0.999 | 1.000 | yes || 1.000 / 1.000 / 0.998 / **1.000**, full success yes: hit |
+| `reference_subzero` | SwiftShader's Subzero backend | public | 0.985 | 0.979 | 0.998 | 0.984 | no || 0.996 / 0.979 / 0.998 / **0.991**, full success no: hit |
+| `reference_subzero` |  | hidden | 0.992 | 0.977 | 0.998 | 0.988 | no || 0.999 / 0.977 / 0.998 / **0.992**, full success no: hit |
+| `lavapipe` | Mesa lavapipe, an independent CPU driver | public | 0.826 | 0.228 | — | 0.564 | measured || 0.836 / 0.632 / 0.500 / **0.741**, full success no: miss: procedural |
+| `lavapipe` |  | hidden | 0.828 | 0.225 | — | 0.564 | measured || 0.837 / 0.620 / 0.500 / **0.738**, full success no: miss: procedural |
+| `stub` | the task's starter ICD (loads, reports no physical device) | public | 0.000 | 0.051 | 0.000 | 0.015 | no || 0.000 / 0.042 / 0.000 / **0.013**, full success no: hit |
+| `stub` |  | hidden | 0.000 | 0.030 | 0.000 | 0.009 | no || 0.000 / 0.023 / 0.000 / **0.007**, full success no: hit |
+| `init_only` | instance and physical-device queries work; vkCreateDevice fails | public | 0.000 | 0.341 | 0.000 | 0.102 | no || 0.000 / 0.411 / 0.000 / **0.123**, full success no: hit |
+| `init_only` |  | hidden | 0.000 | 0.344 | 0.000 | 0.103 | no || 0.000 / 0.413 / 0.000 / **0.124**, full success no: hit |
+| `success_everywhere` | reports the profile, returns VK_SUCCESS, executes nothing | public | 0.000 | 0.698 | 0.000 | 0.209 | no || 0.000 / 0.765 / 0.000 / **0.229**, full success no: hit |
+| `success_everywhere` |  | hidden | 0.000 | 0.692 | 0.000 | 0.208 | no || 0.000 / 0.766 / 0.000 / **0.230**, full success no: hit |
+| `hardcode_public` | the oracle on a byte-identical public case file, init_only otherwise | public | 1.000 | 1.000 | 1.000 | 1.000 | yes || 1.000 / 1.000 / 1.000 / **1.000**, full success yes: hit |
+| `hardcode_public` |  | hidden | 0.000 | 0.344 | 0.000 | 0.103 | no || 0.000 / 0.413 / 0.000 / **0.124**, full success no: hit |
+| `gain_x2` | colour readbacks (8-bit UNORM/sRGB, 16/32-bit float) x2, alpha untouched | public | 0.497 | 0.972 | 0.250 | 0.615 | no || 0.507 / 0.972 / 0.250 / **0.621**, full success no: hit |
+| `gain_x2` |  | hidden | 0.486 | 0.970 | 0.250 | 0.607 | no || 0.492 / 0.970 / 0.250 / **0.611**, full success no: hit |
+| `srgb_mishandled` | sRGB-format readbacks hold the linear value (encode skipped) | public | 0.974 | 1.000 | 1.000 | 0.985 | no || 0.974 / 1.000 / 1.000 / **0.985**, full success no: hit |
+| `srgb_mishandled` |  | hidden | 0.978 | 1.000 | 1.000 | 0.987 | no || 0.978 / 1.000 / 1.000 / **0.987**, full success no: hit |
+| `half_pixel` | every viewport moved +0.5 px in x and y | public | 0.524 | 0.972 | 0.250 | 0.631 | no || 0.563 / 0.944 / 0.250 / **0.646**, full success no: hit |
+| `half_pixel` |  | hidden | 0.521 | 0.970 | 0.250 | 0.628 | no || 0.559 / 0.939 / 0.250 / **0.642**, full success no: hit |
+| `nearest_filter` | every sampler's mag/min filter forced to nearest | public | 0.950 | 1.000 | 0.750 | 0.945 | no || 0.956 / 1.000 / 1.000 / **0.973**, full success no: miss: performance |
+| `nearest_filter` |  | hidden | 0.951 | 1.000 | 0.750 | 0.946 | no || 0.959 / 1.000 / 1.000 / **0.976**, full success no: miss: performance |
+| `round_trunc` | 8-bit UNORM/sRGB readbacks: about half the codes one LSB low (truncation) | public | 1.000 | 1.000 | 1.000 | 1.000 | yes || 1.000 / 1.000 / 1.000 / **1.000**, full success yes: hit |
+| `round_trunc` |  | hidden | 1.000 | 1.000 | 1.000 | 1.000 | yes || 1.000 / 1.000 / 1.000 / **1.000**, full success yes: hit |
+| `stale_frame` | each image readback returns the previous readback of that image | public | 0.690 | 0.972 | 1.000 | 0.806 | no || 0.715 / 0.972 / 1.000 / **0.821**, full success no: hit |
+| `stale_frame` |  | hidden | 0.699 | 0.970 | 1.000 | 0.810 | no || 0.725 / 0.970 / 1.000 / **0.826**, full success no: hit |
+| `aux_garbage` | every depth/stencil readback is garbage | public | 0.844 | 0.972 | 0.750 | 0.873 | no || 0.844 / 0.972 / 0.750 / **0.873**, full success no: hit |
+| `aux_garbage` |  | hidden | 0.837 | 0.970 | 0.750 | 0.868 | no || 0.838 / 0.970 / 0.750 / **0.869**, full success no: hit |
+| `wrong_limits` | maxImageDimension2D halved, maxBoundDescriptorSets - 1, R8G8B8A8_UNORM loses storage-image | public | 1.000 | 0.972 | 1.000 | 0.991 | yes || 1.000 / 0.972 / 1.000 / **0.991**, full success yes: hit |
+| `wrong_limits` |  | hidden | 1.000 | 0.965 | 1.000 | 0.990 | yes || 1.000 / 0.965 / 1.000 / **0.990**, full success yes: hit |
+| `wrong_errors` | VK_SUCCESS instead of FORMAT_NOT_SUPPORTED, INCOMPLETE (device extensions), TIMEOUT, NOT_READY | public | 1.000 | 0.884 | 1.000 | 0.965 | no || 1.000 / 0.884 / 1.000 / **0.965**, full success no: hit |
+| `wrong_errors` |  | hidden | 1.000 | 0.859 | 1.000 | 0.958 | no || 1.000 / 0.859 / 1.000 / **0.958**, full success no: hit |
+| `crash` | SIGSEGV on the second vkQueueSubmit | public | 0.191 | 0.501 | 0.000 | 0.265 | no || 0.191 / 0.667 / 0.000 / **0.315**, full success no: miss: procedural, overall |
+| `crash` |  | hidden | 0.192 | 0.509 | 0.000 | 0.268 | no || 0.192 / 0.682 / 0.000 / **0.320**, full success no: miss: procedural, overall |
+| `malformed` | absurd memory requirements (2^60 bytes) for every buffer and image | public | 0.000 | 0.429 | 0.000 | 0.129 | no || 0.000 / 0.471 / 0.000 / **0.141**, full success no: hit |
+| `malformed` |  | hidden | 0.000 | 0.444 | 0.000 | 0.133 | no || 0.000 / 0.466 / 0.000 / **0.140**, full success no: hit |
 
 **What the predictions say about the metric (to be confirmed by measurement).**
 1. `round_trunc` scores exactly 1.0: the free 1 LSB (and a bias term computed
@@ -213,6 +213,29 @@ Full success is predicted yes/no.
    profile and many call results without doing any work).
 8. Hostile candidates: `crash` and `malformed` must produce scores, not grader
    exceptions; their snapshots before the crash still count.
+
+**Observed (2026-10-01, after the predictions).** 32 of 38 rows hit their
+band (table above; `docs/CONTROLS.md` has the analysis). The misses are three
+controls, each a predictor error, restated here *after measurement*:
+
+- `crash` procedural, predicted 0.501 / 0.509, observed 0.667 / 0.682. The
+  predictor failed the VkResult-stream check of every procedural case; on cases
+  with fewer than two submissions the crash never fires and the stream matches.
+  Restated: 0.67 / 0.68 (overall 0.315 / 0.320).
+- `lavapipe` procedural, predicted 0.228 / 0.225, observed 0.632 / 0.620. The
+  predictor failed every check after device creation; lavapipe fails only the
+  device-identity keys and matches the sync, query and most call results.
+- `nearest_filter` performance, predicted 0.75, observed 1.0. `perf_texture`
+  samples with anisotropy, and the reference's anisotropic path does not follow
+  the min/mag filter, so forcing nearest changes nothing there (likewise
+  `textureGather`, already expected).
+
+No miss is a metric defect: no constant changes, `ssvk-1.0` stands, nothing is
+re-measured for a new version. Before these numbers the controls found three
+corpus defects (four degenerate advanced-blend cases, one case reading
+unwritten memory, sequences that could not show stale output); all were fixed,
+a poisoned-memory gate was added, and the controls re-run on the fixed corpus
+(`docs/internal/stage8_findings.md`).
 
 ## Known limitations
 
@@ -437,3 +460,39 @@ load makes the same runs 15-45 % slower, so calibration uses the cache's
 and regenerating; the refcache stores the reference time the ratio uses, and
 a reference wall time far above a case's norm is re-measured before it is
 trusted (one 600 s container stall seen, `stage7_findings.md` 7.5).
+
+**2026-10-01 — D5 performance scaling: keep `perf_half` 16, `perf_gate` 8, weight 0.10 (Stage 8).**
+Measured on AC: SwiftShader with one thread runs the timed workloads 2.05-3.60x
+slower than the reference, Subzero 1.02-4.69x, lavapipe 0.47-0.73x where its
+output matches; the reference against itself 0.82-1.05x (this host's spread).
+Every JIT-class driver is far inside the 8x gate and scores ~1.0, so full
+success means "a correct driver within an order of magnitude of SwiftShader".
+A from-scratch interpreter is expected to be one to two orders slower: it
+scores near 0 on performance (at most 0.10 of the overall) and cannot reach
+full success, while replay and procedural (0.90 of the overall) carry its
+fidelity. Rescaling (e.g. half 64) was rejected: it would hand partial
+performance credit to interpreter-class speed without changing what the
+fidelity categories already show. Revisit only with a measured
+interpreter-class candidate.
+
+**2026-10-01 — Procedural bar stays a mean of 0.95 (Stage 8).** `wrong_limits`
+(two wrong limits and one wrong format bit) keeps full success with 0.97
+procedural. A per-check bar would make full success fail on any single value
+among the ~1,900 the profile reports, which the metric is not designed to
+demand; the errors stay visible in the procedural score and the per-check
+report. `wrong_errors` (wrong error codes) does lose full success.
+
+**2026-10-01 — No metric change after the controls (Stage 8).** Every
+alteration lands where the metric's definition says it should; harmless
+alterations (`round_trunc`, the tolerated perturbations) are free; the
+tolerance holds (perturbed-reference control: vtxjitter 0.99, texcoord_ulp
+1.0; every case below 0.7 is at `t_hi`). `ssvk-1.0` is the metric of record
+from Stage 9 on. Depth-interpolation and filtered-sampling allowances stay off
+(`depth_allow` None): no control shows a correct driver lost to them alone.
+
+**2026-10-01 — Corpus gate: no case may read memory it never wrote (Stage 8).**
+`tools/determinism.py` replays every case with every new allocation filled
+with 0xA5 (the shim's `CONTROL_POISON`), and `tools/gate.sh` fails any case
+whose outputs change. Uninitialised contents are stable within one process, so
+only a different memory layout reveals them; without this gate a candidate
+would be graded against allocator garbage.

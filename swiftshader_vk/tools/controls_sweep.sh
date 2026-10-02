@@ -37,15 +37,17 @@ H=(--corpus swiftshader_vk/corpus/hidden --cache swiftshader_vk/runs/refcache-hi
 for n in "${names[@]}"; do
     for split in public hidden; do
         out=$here/runs/control-$n-$split
+        glog=$here/runs/controls-logs/$n-$split.log    # not beside the run dir: controls_summary globs control-*
+        mkdir -p "$here/runs/controls-logs"
         rm -rf "$out"
         t0=$(date +%s)
         if [ "$split" = public ]; then
-            python -m evalbase.grader.cli control "$n" --out "$out" --label "control-$n-$split" > "$out.log" 2>&1
+            python -m evalbase.grader.cli control "$n" --out "$out" --label "control-$n-$split" > "$glog" 2>&1
         else
-            python -m evalbase.grader.cli "${H[@]}" control "$n" --out "$out" --label "control-$n-$split" > "$out.log" 2>&1
+            python -m evalbase.grader.cli "${H[@]}" control "$n" --out "$out" --label "control-$n-$split" > "$glog" 2>&1
         fi
         rc=$?
-        line=$(grep -E "^== .* overall=" "$out.log" | tail -1)
+        line=$(grep -E "^== .* overall=" "$glog" | tail -1)
         echo "$n $split rc=$rc $(( $(date +%s) - t0 ))s power=$(power) start=$(date -d @"$t0" -Is) $line" >> "$log"
     done
 done

@@ -168,3 +168,34 @@ Appended at the end of every stage (PLAN_v1.md §16.5). Internal; stripped on ex
 - `snapshot.py` prints a NumPy `RuntimeWarning` when a float snapshot holds NaN (harmless; silence it in Stage 8).
 
 **Next stage (8) starts from:** both caches and grade-ref = 1.0. It commits the controls' predictions to DESIGN.md first, then builds the wrapper-ICD controls and measures them on both splits.
+
+**Correction to Stage 7 (2026-10-01, found in Stage 8).** Four advanced-blend
+cases (1 public, 3 hidden) never created their device on the reference and one
+case snapshotted unwritten memory; both are fixed, with new gates (skipped ops;
+poisoned allocations), and both splits re-gated. The Stage 7 perf reference
+timings (2.57-3.11 s) were taken on battery; re-timed on AC: 2.57-3.50 s
+(compute 2.60, fill 2.97, geometry 3.50, texture 2.57 public). grade-ref = 1.0
+on both splits is re-confirmed on the fixed corpus by the `reference` control.
+
+## Stage 8 — Controls (2026-10-01)
+
+| Item | State | Evidence |
+|---|---|---|
+| Control mechanism | 19 controls as builds of one wrapper ICD (`controls/common/shim.cpp`, one `CONTROL_*` macro each; the starter for `stub`); shim checked on a scratch scene before any graded run | `swiftshader_vk/controls/`, `instance.py: SsvkControls` |
+| Predictions | committed and pushed before any control ran (`33b80a9`), with bands, derived by `tools/predict_controls.py` | `docs/DESIGN.md` "Controls" |
+| Sweep | 38 runs (19 x 2 splits) on AC, no standby in any graded run, corpus at `a1a8ee9` | `runs/controls.log`, Windows Kernel-Power log |
+| Result | **32 / 38 hit**; 6 misses (crash procedural, lavapipe procedural, nearest_filter performance; both splits) are predictor errors, restated after measurement | `tools/controls_vs_predictions.py`; DESIGN.md |
+| Key properties | reference 1.000 + full success both splits; stub 0.013 / 0.007; hardcode_public 1.000 public / 0.124 hidden; alterations hit only their families; round_trunc free; crash / malformed no grader error | `docs/CONTROLS.md` |
+| Tolerance | perturbed-reference: vtxjitter 0.995 / 0.989, texcoord_ulp 1.000, n2 1.000; all cases < 0.7 at t_hi | `python -m evalbase.grader.perturbed` |
+| Corpus defects found by controls | 4 degenerate advanced-blend cases; 1 case reading unwritten memory; compute_image sequences blind to stale output: all fixed | `docs/internal/stage8_findings.md` 8.2 |
+| New gates | skipped op fails a case (unless `expect_skips`); poisoned-memory replay of every case | `tools/gate.sh`, `tools/determinism.py` |
+| D5 | keep perf_half 16, perf_gate 8, weight 0.10 (one_thread <= 3.6x, Subzero <= 4.7x, all far inside 8x) | DESIGN.md log |
+| Metric | no change: `ssvk-1.0` is the metric of record | DESIGN.md log |
+| Docs | CONTROLS.md (generated table + analysis), DESIGN.md (observed column, restatements, 4 decisions), stage8_findings.md, controls README, PLAN v1.12, CHANGELOG | files |
+
+**Open items carried forward:**
+- Stage 9 (harness): unchanged from the Stage 5 list; the solver image must not expose `/opt/swiftshader` or `/opt/lavapipe` to the model (the controls dlopen them from the reference image, which a candidate never sees at build time).
+- Host: timed runs need AC and no sleep. Before the paid run (G-PAID): Windows "Best performance", sleep disabled while plugged in (the runbook), lid open.
+- A five-run performance-variance study (PERF_VARIANCE.md) is still empty; the controls give the reference's own spread (0.82-1.05).
+
+**Next stage (9) starts from:** the corpus at `a1a8ee9`, both caches, metric `ssvk-1.0`, and the controls as a regression suite (`tools/controls_sweep.sh`). It builds the solver image and the harness the model runs in.
