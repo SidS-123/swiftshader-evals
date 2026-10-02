@@ -94,3 +94,5 @@ echo $! > swiftshader_vk/runs/attempts/opus55-a1.pid
    `credential_check.sh`.
 4. Check the weekly Max allowance.
 5. Approve the pilot.
+
+**Re-check on Claude Code 2.1.287 (2026-10-01, after the update):** model id **OK** (`claude -p --model claude-opus-5-5` answered, `modelUsage` = `claude-opus-5-5`); wire check **PASSED** (five `mcp__ssvk__*` tools, `cc_version=2.1.287`); no-key smokes **PASSED** (claude-code, openrouter; 0.0069); credential check ok. `preflight_host.sh` passes everything except the three power settings (sleep on AC 300 s, lid close sleeps, power mode Balanced).

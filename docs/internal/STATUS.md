@@ -239,3 +239,5 @@ Full package: `swiftshader_vk/docs/internal/stage10_preflight.md` (status table,
 **Open items (you):** update Claude Code (`sudo npm install -g @anthropic-ai/claude-code@latest`); set sleep never on AC, lid close on AC "Do nothing", power mode Best performance; check the weekly Max allowance.
 
 **Then (me):** re-run preflight, the model-id check, wire check, both smokes and the credential check on the new CLI; hand back for G-PAID approval of the 1-hour pilot.
+
+**Re-check on Claude Code 2.1.287 (2026-10-01, after the update):** model id **OK** (`claude -p --model claude-opus-5-5` answered, `modelUsage` = `claude-opus-5-5`); wire check **PASSED** (five `mcp__ssvk__*` tools, `cc_version=2.1.287`); no-key smokes **PASSED** (claude-code, openrouter; 0.0069); credential check ok. `preflight_host.sh` passes everything except the three power settings (sleep on AC 300 s, lid close sleeps, power mode Balanced).
