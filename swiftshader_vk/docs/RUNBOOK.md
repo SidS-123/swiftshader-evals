@@ -99,11 +99,19 @@ python -m evalbase.harness.run grade-checkpoints swiftshader_vk/runs/attempts/<n
 
 The curve's last point must equal the final of record.
 
-## 5. Resume after an interrupt
+## 5. Pause and resume
 
 ```sh
-python -m evalbase.harness.run resume swiftshader_vk/runs/attempts/<name>
+bash swiftshader_vk/tools/pause_attempt.sh <name>     # SIGINT: stops the CLI, records the time used, no export
+bash swiftshader_vk/tools/resume_attempt.sh <name>    # preflight, then resume detached with the remaining budget
 ```
+
+A paused attempt keeps its workspace, `NOTES.md` and checkpoints; the resumed
+CLI session starts without the previous conversation, and `resume_count`
+records it. `resume_attempt.sh` launches the harness with SIGINT at its
+default. A plain `nohup ... &` from a non-interactive shell starts it with
+SIGINT ignored, so `pause_attempt.sh` refuses such a process rather than
+forcing it.
 
 ## 6. Cleanup
 

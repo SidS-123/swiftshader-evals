@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.15** (first iteration, "v1") |
-| Status | **Stage 11 done (2026-10-02):** 1-hour Opus pilot valid, hidden 0.642 (not of record); Stage 12 (12-hour attempt of record) waits for your go-ahead. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.16** (first iteration, "v1") |
+| Status | **Stage 12 paused (2026-10-02):** `opus55-a1` paused by request at 8.307 h of 12; resume with `swiftshader_vk/tools/resume_attempt.sh opus55-a1`. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |

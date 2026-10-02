@@ -261,3 +261,18 @@ Full write-up: `swiftshader_vk/docs/internal/stage11_pilot.md`.
 **Open items:** confirm power mode Best performance before Stage 12 (or accept Balanced and record it); the scope question (0.64 in 1 h vs lavapipe 0.74) is answered by the 12-hour run and judged in Stage 14.
 
 **Next stage (12) starts from:** the same command with `--budget-hours 12 --out .../opus55-a1`, launched detached, after `preflight_host.sh` and your go-ahead.
+
+## Stage 12 — 12-hour attempt of record `opus55-a1` (in progress, paused 2026-10-02)
+
+| Item | State | Evidence |
+|---|---|---|
+| Launch | 2026-10-02 00:21:31 CDT, commit `91d6e87`, Claude Code 2.1.287, effort high, submit, `--rate-limit-wait 24`, 12 h, 4 CPUs / 8 GB; preflight PASSED (AC, Best performance, no sleep) | `runs/attempts/opus55-a1.start`, `attempt.json` |
+| Hourly checks to 08:26 | no incident, no rate-limit wait, AC throughout, no unknown CLI event; public grade_dev 0.540 (36 min) → 0.993 (91 min) → 0.9999 (403 min); source audited at 2 h: a real driver (~1.2 MB: SPIR-V compiler/interpreter, rasterizer, sampler, BC/ETC2/ASTC), no public outputs embedded, behaviour learned from oracle probes; segment 1 ended with a final answer, Opus kept working after the confirmation prompt | hourly check output; `workspace/NOTES.md` |
+| **Operator pause** | requested by you at 08:33. SIGINT was ignored: the harness had been launched with `nohup setsid ... &` from a non-interactive shell, which starts it with SIGINT ignored. Stopped at 08:40:04 with SIGTERM (harness, CLI, MCP bridge) and `cleanup --owner opus55-a1`; solver time used recorded as pause time − start (no rate-limit waits): **8.307 h used, 3.693 h left**; status `interrupted`, `operator_pauses` entry in the manifest; logs backed up to `pause-backup-20261002T084004/` | `attempt.json`, `opus55-a1.pauses` |
+| evalBase fix | an operator interrupt no longer exports and grades (which made `resume` impossible) | `docs/internal/EVALBASE_CHANGES.md` |
+| Pause / resume tools | `tools/pause_attempt.sh`, `tools/resume_attempt.sh` (SIGINT at default; preflight first) | RUNBOOK §5 |
+| Resume dry-check | status interrupted, harness/model match, corpus unchanged, not exported, 88 checkpoints | script output |
+
+**Reporting:** the attempt of record will carry one operator pause and one resume (fresh CLI session, no conversation context) at 8.3 h; this is stated with the result.
+
+**Next:** `bash swiftshader_vk/tools/resume_attempt.sh opus55-a1` when you say resume (preflight must pass: AC, lid open, Best performance), then hourly checks to the end (~3.7 h + grading).

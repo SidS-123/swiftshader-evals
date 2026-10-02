@@ -577,6 +577,12 @@ class CLIAttempt:
             with original.open(errors="replace") as src, destination.open("w") as dst:
                 for line in src:
                     dst.write(self.redactor.text(line))
+        if interrupted:
+            # An operator pause: the budget used is recorded above. No final checkpoint, export or
+            # grade, so `resume` can continue the attempt (it refuses an exported one).
+            manifest["status"] = "interrupted"
+            self._save(manifest)
+            return manifest
         manifest["status"] = "solver_finished"
         self._save(manifest)
 

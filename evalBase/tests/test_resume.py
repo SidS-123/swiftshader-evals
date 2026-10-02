@@ -56,6 +56,31 @@ def test_resume_continues_the_same_budget_and_never_relaunches_past_it(tmp_path,
     assert json.loads((run / "audit.json").read_text())["errors"]
 
 
+def test_an_operator_interrupt_pauses_without_exporting_so_resume_can_continue(tmp_path, toy, monkeypatch):
+    run, options = prepare(tmp_path, toy, monkeypatch)
+    calls = []
+    monkeypatch.setattr(cli_runner.att, "export_and_grade", lambda *a, **k: calls.append("graded") or a[4])
+    monkeypatch.setattr(cli_runner.tools, "cleanup_containers", lambda owner=None: {})
+
+    def interrupted(*a, **k):
+        raise KeyboardInterrupt
+    monkeypatch.setattr(cli_runner.CLIAttempt, "_segment", interrupted)
+    options = att.Options(harness="codex", model="exact-model", budget_hours=2.0)
+    manifest = cli_runner.CLIAttempt(toy, options, run, command_override=["/bin/false"], resume=True).run()
+    assert manifest["status"] == "interrupted" and manifest["stop_reason"] == "operator_interrupt"
+    assert manifest["solver_seconds"] >= 3599.0
+    assert calls == [] and not (run / "submission").exists() and not (run / "grade").exists()
+    saved = json.loads((run / "attempt.json").read_text())
+    assert saved["status"] == "interrupted" and saved["solver_seconds"] == manifest["solver_seconds"]
+    monkeypatch.undo()
+    monkeypatch.setenv("EVALBASE_NO_DOCKER", "1")
+    monkeypatch.setattr(att, "sweep_containers", lambda stage, owner: [])
+    monkeypatch.setattr(cli_runner.att, "export_and_grade", lambda *a, **k: calls.append("graded") or a[4])
+    monkeypatch.setattr(cli_runner.tools, "cleanup_containers", lambda owner=None: {})
+    resumed = cli_runner.CLIAttempt(toy, options, run, command_override=["/bin/false"], resume=True).run()
+    assert resumed["resume_count"] == 2 and calls == ["graded"]
+
+
 def test_resume_detects_a_changed_corpus(tmp_path, toy, monkeypatch):
     run, options = prepare(tmp_path, toy, monkeypatch)
     manifest = json.loads((run / "attempt.json").read_text())
