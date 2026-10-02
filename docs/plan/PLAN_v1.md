@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| Plan version | **v1.13** (first iteration, "v1") |
-| Status | **Stage 9 done (2026-10-01).** Stage 10 (pre-flight review, gate G-PAID) next. Status tables: `docs/internal/STATUS.md` |
+| Plan version | **v1.14** (first iteration, "v1") |
+| Status | **Stage 10 in progress (2026-10-01):** pre-flight package written; G-PAID waits on a Claude Code update (≥ 2.1.280) and host power settings. Status tables: `docs/internal/STATUS.md` |
 | Working copy | `~/swiftshader-evals` inside WSL Ubuntu (D10). The Windows folder `C:\Users\sids4\Coding\swiftshader-evals` is a stale copy as of 2026-09-28 |
 | Date | 2026-09-26 |
 | Eval name | `swiftshader-vk` (short name `ssvk`) |
@@ -573,6 +573,10 @@ Nothing paid runs until you say go.
 ## 15. Stages 11–14 — Opus runs, grading, analysis
 
 ### Stage 11 — 1-hour pilot
+Requires Claude Code ≥ 2.1.280 (the API refuses `claude-opus-5-5` from older
+CLIs; found at G-PAID, v1.14) and `tools/preflight_host.sh` → PASSED. The
+pilot is also the first real stream from the newer CLI: check the manifest for
+`unsupported_cli_event` audit errors before Stage 12.
 ```sh
 python -m evalbase.harness.run --harness claude-code --model claude-opus-5-5 --reasoning high \
   --stop-policy submit --rate-limit-wait 24 --budget-hours 1 --checkpoint-minutes 15 \

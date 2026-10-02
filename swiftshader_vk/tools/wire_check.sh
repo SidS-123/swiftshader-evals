@@ -27,8 +27,11 @@ docker ps --filter label=io.evalbase.managed --format '{{.Names}}' | xargs -r do
 cat "$out/recorder.log"
 # The CLI's own stream-json init event: the tool set it offers the model, with its version.
 python3 - "$out/attempt/transcript.jsonl" <<'EOF'
-import json, sys
+import json, os, sys
 want = sorted(f"mcp__ssvk__{t}" for t in ("shell", "oracle", "driver", "grade_dev", "checkpoint"))
+if not os.path.exists(sys.argv[1]):   # the attempt is stopped once the main request is recorded
+    print("CLI INIT CHECK: no transcript (attempt stopped before writing it); the request body below decides")
+    sys.exit(0)
 for line in open(sys.argv[1]):
     e = json.loads(line)
     if e.get("type") == "system" and e.get("subtype") == "init":

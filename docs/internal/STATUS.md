@@ -222,3 +222,20 @@ on both splits is re-confirmed on the fixed corpus by the `reference` control.
 - Host for the paid runs: AC power, "Best performance", sleep off while plugged in, lid open; usage estimate and remaining weekly Max allowance.
 
 **Next stage (10) starts from:** the three images, the harness checks above, metric `ssvk-1.0`, and the controls as a regression suite. It produces the pre-flight review and asks for your approval of the paid runs.
+
+## Stage 10 — Pre-flight review, gate G-PAID (2026-10-01, in progress)
+
+Full package: `swiftshader_vk/docs/internal/stage10_preflight.md` (status table, findings, usage estimate, launch commands).
+
+| Item | State | Evidence |
+|---|---|---|
+| Wire check (request body) | **PASSED**: exactly the five `mcp__ssvk__*` tools, `claude-opus-5-5`, effort high, adaptive thinking. Recorder fixed: it had stopped at the CLI's tool-less session-title request | `runs/wire/request.json`; `tools/wire_recorder.py` |
+| Model id | **BLOCKED**: API refuses `claude-opus-5-5` from Claude Code 2.1.274 ("2.1.280 or newer is required") | `claude -p --model claude-opus-5-5` |
+| Host preflight | new `tools/preflight_host.sh`; FAILED on CLI version, sleep on AC (300 s), lid close on AC (sleep), power mode (Balanced); login, no API key, AC, hibernate, images, idle Docker pass | script output |
+| Tests | instance 26 passed; evalBase 383 passed / 4 skipped (`EVALBASE_INSTANCE` unset; with it set, one toy test imports the wrong `scorer`) | pytest |
+| Images | ref `82a05e1f`, cand `a1bf8d9d`, solver `eff44590` | `docker image inspect` |
+| Docs | `reports/VALIDATION.md` draft (1–7); RUNBOOK.md real commands (was the template); DESIGN.md log (2 entries); PLAN v1.14; CHANGELOG | files |
+
+**Open items (you):** update Claude Code (`sudo npm install -g @anthropic-ai/claude-code@latest`); set sleep never on AC, lid close on AC "Do nothing", power mode Best performance; check the weekly Max allowance.
+
+**Then (me):** re-run preflight, the model-id check, wire check, both smokes and the credential check on the new CLI; hand back for G-PAID approval of the 1-hour pilot.

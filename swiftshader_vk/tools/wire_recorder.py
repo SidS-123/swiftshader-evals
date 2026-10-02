@@ -2,7 +2,8 @@
 
     python swiftshader_vk/tools/wire_recorder.py --port 8765 --out runs/wire/request.json
 
-Point a CLI at it with ANTHROPIC_BASE_URL=http://127.0.0.1:8765. The first POST body is saved
+Point a CLI at it with ANTHROPIC_BASE_URL=http://127.0.0.1:8765. The first main /messages body is
+saved (a side request such as the session title goes to <out>.side.json and recording continues)
 (request headers, which carry credentials, are never stored), the tool names are printed, and
 every request is answered with HTTP 400 so the CLI stops without reaching the real API: no
 usage is spent. Exits after the first recorded request (or --timeout seconds).
@@ -38,11 +39,18 @@ def main() -> int:
                     doc = json.loads(body)
                 except ValueError:
                     doc = {"unparsed": body[:2000].decode(errors="replace")}
-                out.write_text(json.dumps({"path": self.path.split("?")[0], "body": doc}, indent=1))
                 tools = [t.get("name") for t in doc.get("tools", [])] if isinstance(doc, dict) else []
-                print(json.dumps({"recorded": str(out), "model": doc.get("model") if isinstance(doc, dict) else None,
+                fmt = (doc.get("output_config") or {}).get("format") if isinstance(doc, dict) else None
+                # A side request (the CLI's session title: no tools, a JSON-schema answer format) is
+                # kept next to the main one and answered with 400; recording goes on until the main turn.
+                side = not tools and fmt is not None
+                dest = out.with_name(out.stem + ".side" + out.suffix) if side else out
+                dest.write_text(json.dumps({"path": self.path.split("?")[0], "body": doc}, indent=1))
+                print(json.dumps({"recorded": str(dest), "side_request": side,
+                                  "model": doc.get("model") if isinstance(doc, dict) else None,
                                   "tool_count": len(tools), "tools": tools}), flush=True)
-                done.set()
+                if not side:
+                    done.set()
             payload = json.dumps({"type": "error", "error": {"type": "invalid_request_error",
                                                               "message": "wire recorder: request recorded, not served"}}).encode()
             self.send_response(400)

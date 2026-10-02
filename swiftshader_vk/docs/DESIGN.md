@@ -533,3 +533,21 @@ OAuth token (the expired one refreshes through the overridden base URL, which
 the recorder must not serve); that step is repeated at G-PAID. The same run
 showed this CLI calls `claude-opus-5-5` an unrecognised model for its
 session-title side request: confirm the model id works at G-PAID.
+
+**2026-10-01 — Tool boundary recorded from the request body (Stage 10).**
+The CLI sends a tool-less session-title request before the main turn; the
+recorder had stopped at it. It now files side requests (no tools, a
+JSON-schema answer format) separately and records the first main request.
+That request carries exactly the five `mcp__ssvk__*` tools, `model:
+claude-opus-5-5`, `effort: high`, adaptive thinking (`runs/wire/request.json`,
+Claude Code 2.1.274).
+
+**2026-10-01 — Claude Code 2.1.280 or newer for `claude-opus-5-5` (Stage 10).**
+A one-line request from Claude Code 2.1.274 with `--model claude-opus-5-5`
+was refused by the API: "version 2.1.280 or newer is required". The attempt
+would have failed at its first turn. The minimum is enforced by
+`tools/preflight_host.sh`; the version used is recorded in each attempt
+manifest (`cli_version`). evalBase's stream audit documents its event set
+against 2.1.274 and fails closed on an unknown event type, so the newer CLI's
+first real stream is the pilot's, which is checked for audit incidents before
+the attempt of record.
